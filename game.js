@@ -155,24 +155,30 @@ function initHotspots() {
   const phoneBtn = document.getElementById('hotspot-phone');
 
   if (routerBtn) {
-    routerBtn.addEventListener('click', (e) => {
+    routerBtn.onclick = (e) => {
+      e.preventDefault();
       e.stopPropagation();
+      console.log('📡 Hotspot Router clicked!');
       openRouterModal();
-    });
+    };
   }
 
   if (computerBtn) {
-    computerBtn.addEventListener('click', (e) => {
+    computerBtn.onclick = (e) => {
+      e.preventDefault();
       e.stopPropagation();
+      console.log('🖥️ Hotspot Computer clicked!');
       openPhishingModal();
-    });
+    };
   }
 
   if (phoneBtn) {
-    phoneBtn.addEventListener('click', (e) => {
+    phoneBtn.onclick = (e) => {
+      e.preventDefault();
       e.stopPropagation();
+      console.log('📱 Hotspot Phone clicked!');
       openSMSModal();
-    });
+    };
   }
 }
 
@@ -820,14 +826,14 @@ function openRouterModal() {
     }
     if (meterLabel) meterLabel.textContent = 'ระดับความปลอดภัย: 100% (ปลอดภัยสูง)';
     if (passwordPreview) {
-      passwordPreview.textContent = 'H0m3@Net_Sec!99';
+      passwordPreview.textContent = 'P@ssw0rd_Sec2026!';
       passwordPreview.className = 'input-display strong';
     }
   } else {
     // กรณียังไม่ได้ตั้งรหัสผ่านใหม่
     if (statusCard) statusCard.classList.remove('secure');
     if (statusIcon) statusIcon.textContent = '⚠️';
-    if (statusTitle) statusTitle.textContent = 'สถานะความปลอดภัย: ต่ำ (ใช้รหัสผ่านดั้งเดิม admin/admin)';
+    if (statusTitle) statusTitle.textContent = 'สถานะ: ใช้รหัสผ่านเริ่มต้น (admin/admin) เสี่ยงต่อการถูกแฮก';
     if (meterFill) {
       meterFill.className = 'router-meter-fill low';
       meterFill.style.width = '20%';
@@ -892,10 +898,10 @@ function handleRouterChoice(choice) {
   const feedbackMsg = document.getElementById('router-feedback-message');
   const successOverlay = document.getElementById('router-success-overlay');
 
-  if (choice === 'C') {
-    // เลือกข้อ C (รหัสผ่านปลอดภัยสูง): แถบความปลอดภัยเปลี่ยนเป็นสีเขียว 100%, ปิดหน้าต่าง, เพิ่ม Security Score +50
+  if (choice === 'B') {
+    // เลือกข้อ B (รหัสผ่านปลอดภัยสูง P@ssw0rd_Sec2026!): ถูกต้อง!
     if (passwordPreview) {
-      passwordPreview.textContent = 'H0m3@Net_Sec!99';
+      passwordPreview.textContent = 'P@ssw0rd_Sec2026!';
       passwordPreview.className = 'input-display strong';
     }
 
@@ -923,20 +929,26 @@ function handleRouterChoice(choice) {
       updateQuestLogUI();
     }
 
+    // ซ่อน Hotspot เราเตอร์ Wi-Fi เมื่อทำสำเร็จ
+    const routerBtn = document.getElementById('hotspot-router');
+    if (routerBtn) {
+      routerBtn.classList.add('hidden');
+    }
+
     console.log('📡 Router Password Updated Successfully! Score:', gameState.score);
 
-    // ปิดหน้าต่างหลังแสดงติ๊กถูก 750ms และให้ตัวละครพูดว่า 'เปลี่ยนรหัสผ่านที่ซับซ้อนแล้ว ค่อยโล่งใจหน่อย'
+    // ปิดหน้าต่างหลังแสดงติ๊กถูก 750ms และให้ตัวละครพูดสรุป
     setTimeout(() => {
       closeRouterModal();
       triggerRouterSuccessDialogue();
     }, 750);
   } else {
-    // เลือกข้อ A หรือ B: เตือนว่า 'รหัสผ่านง่ายเกินไป เสี่ยงต่อการโดน Brute Force' ให้เลือกใหม่
+    // เลือกข้อ A: เตือนว่า 'รหัสผ่านง่ายเกินไป เสี่ยงต่อการโดน Brute Force' ให้เลือกใหม่
     gameState.mistakesCount++;
     console.log(`⚠️ Weak router password selected (${choice})! Total mistakes:`, gameState.mistakesCount);
 
     if (passwordPreview) {
-      passwordPreview.textContent = choice === 'A' ? '12345678' : 'password2026';
+      passwordPreview.textContent = '12345678';
       passwordPreview.className = 'input-display';
     }
 
@@ -950,9 +962,7 @@ function handleRouterChoice(choice) {
     // กล่องข้อความแจ้งเตือนสีแดง
     if (feedbackBox && feedbackTitle && feedbackMsg) {
       feedbackTitle.textContent = 'รหัสผ่านง่ายเกินไป เสี่ยงต่อการโดน Brute Force';
-      feedbackMsg.textContent = choice === 'A' 
-        ? 'รหัสผ่านตัวเลขเรียง 8 หลักถูกคาดเดาและเจาะระบบได้ในเสี้ยววินาที กรุณาเลือกรหัสผ่านที่มีความซับซ้อนสูง' 
-        : 'รหัสผ่านที่เป็นคำศัพท์ทั่วไปผสมปี ถูกโปรแกรม Dictionary Attack ถอดรหัสได้อย่างง่ายดาย กรุณาเลือกรหัสผ่านที่มีความซับซ้อนสูง';
+      feedbackMsg.textContent = 'รหัสผ่านตัวเลขเรียง 8 หลักถูกคาดเดาและเจาะระบบได้ในเสี้ยววินาที กรุณาเลือกรหัสผ่านที่มีความซับซ้อนสูง';
       feedbackBox.className = 'feedback-box danger';
       feedbackBox.classList.remove('hidden');
     }
@@ -1146,6 +1156,16 @@ function handlePhishingChoice(choice) {
     if (actionsArea) actionsArea.style.display = 'none';
     if (feedbackBox) feedbackBox.classList.add('hidden');
 
+    // เปลี่ยนไอคอน Hotspot จอคอมเป็นเครื่องหมายติ๊กถูกสีเขียว
+    const compBtn = document.getElementById('hotspot-computer');
+    if (compBtn) {
+      compBtn.classList.add('completed');
+      const core = compBtn.querySelector('.hotspot-core');
+      if (core) core.textContent = '✅';
+      const tooltip = compBtn.querySelector('.hotspot-tooltip');
+      if (tooltip) tooltip.textContent = 'ตรวจสอบหน้าจอคอมพิวเตอร์ (ตรวจสอบแล้ว ✅)';
+    }
+
     console.log('🏆 Phishing Quest Completed Successfully! Score:', gameState.score);
 
     // 2. ปิดหน้าต่างอีเมลหลังแสดงติ๊กถูก 750ms และเปิดกล่องข้อความพูดสรุป
@@ -1166,12 +1186,12 @@ function handlePhishingChoice(choice) {
       emailCard.classList.add('shake-animation');
     }
 
-    // 2. แจ้งเตือนสีแดง: 'อันตราย! คุณเผลอกดลิงก์ที่ไม่ปลอดภัย'
+    // 2. แจ้งเตือนสีแดง: 'อันตราย! คุณเผลอกดลิงก์ปลอม สังเกต URL ที่ไม่ใช่โดเมนทางการของธนาคาร'
     if (feedbackBox && iconElem && titleElem && msgElem) {
       feedbackBox.className = 'feedback-box danger';
       iconElem.textContent = '🚨';
-      titleElem.textContent = 'อันตราย! คุณเผลอกดลิงก์ที่ไม่ปลอดภัย';
-      msgElem.textContent = 'ลิงก์ verify-bank-account.fake-update.com เป็นเว็บไซต์ฟิชชิงที่มิจฉาชีพสร้างขึ้นเพื่อขโมยข้อมูล ธนาคารจริงจะไม่มีการส่งลิงก์เพื่อให้กรอกข้อมูลฉุกเฉินในลักษณะนี้';
+      titleElem.textContent = 'อันตราย! คุณเผลอกดลิงก์ปลอม สังเกต URL ที่ไม่ใช่โดเมนทางการของธนาคาร';
+      msgElem.textContent = 'ลิงก์ update-login-bank.fake เป็นเว็บไซต์ฟิชชิง ธนาคารจริงจะไม่มีการส่งลิงก์เพื่อให้กรอกข้อมูลฉุกเฉินในลักษณะนี้';
 
       if (feedbackCloseBtn) {
         feedbackCloseBtn.textContent = '🔄 ลองใหม่อีกครั้ง';
@@ -1192,7 +1212,7 @@ function triggerPhishingSuccessDialogue() {
     {
       speaker: 'วิน (ตัวเอก)',
       avatar: '😊',
-      text: 'ตรวจเจออีเมลหลอกลวงเรียบร้อย สังเกตจากชื่อโดเมนที่ไม่เป็นทางการ'
+      text: 'ยอดเยี่ยม! คุณระบุอีเมลหลอกลวงได้ถูกต้อง'
     }
   ];
 
@@ -1509,7 +1529,7 @@ function restartGame() {
 
   if (routerStatusCard) routerStatusCard.classList.remove('secure');
   if (routerStatusIcon) routerStatusIcon.textContent = '⚠️';
-  if (routerStatusTitle) routerStatusTitle.textContent = 'สถานะความปลอดภัย: ต่ำ (ใช้รหัสผ่านดั้งเดิม admin/admin)';
+  if (routerStatusTitle) routerStatusTitle.textContent = 'สถานะ: ใช้รหัสผ่านเริ่มต้น (admin/admin) เสี่ยงต่อการถูกแฮก';
   if (routerMeterFill) {
     routerMeterFill.className = 'router-meter-fill low';
     routerMeterFill.style.width = '20%';
@@ -1542,12 +1562,18 @@ function restartGame() {
 
   if (compBtn) {
     compBtn.classList.remove('hidden');
+    compBtn.classList.remove('completed');
+    const core = compBtn.querySelector('.hotspot-core');
+    if (core) core.textContent = '🖥️';
     const tooltip = compBtn.querySelector('.hotspot-tooltip');
     if (tooltip) tooltip.textContent = 'ตรวจสอบหน้าจอคอมพิวเตอร์';
   }
 
   if (routerBtn) {
     routerBtn.classList.remove('hidden');
+    routerBtn.classList.remove('completed');
+    const core = routerBtn.querySelector('.hotspot-core');
+    if (core) core.textContent = '📡';
     const tooltip = routerBtn.querySelector('.hotspot-tooltip');
     if (tooltip) tooltip.textContent = 'ตรวจสอบเราเตอร์ Wi-Fi';
   }

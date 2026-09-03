@@ -598,23 +598,24 @@ html, body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 5;
+  z-index: 24; /* อยู่ด้านหน้า UI Layer (z-index: 20) เพื่อให้คลิกติดแน่นอน 100% */
 }
 
 .hotspot-btn {
   position: absolute;
-  pointer-events: auto;
+  pointer-events: auto !important;
   cursor: pointer;
   background: none;
   border: none;
   outline: none;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   transform: translate(-50%, -50%);
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 24;
 }
 
 .hotspot-btn:hover {
@@ -623,8 +624,8 @@ html, body {
 
 /* แกนกลางของจุดสำรวจ */
 .hotspot-core {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ffffff 0%, #f7ecd9 100%);
   border: 2px solid var(--accent-color);
@@ -632,15 +633,27 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   position: relative;
   z-index: 2;
-  transition: box-shadow 0.2s ease, background 0.2s ease;
+  pointer-events: none; /* ให้คลิกทะลุไปยัง hotspot-btn เสมอ */
+  transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
 .hotspot-btn:hover .hotspot-core {
   background: #fff;
   box-shadow: 0 6px 20px rgba(201, 139, 88, 0.45);
+}
+
+/* สถานะทำสำเร็จแล้ว (Completed Hotspot) */
+.hotspot-btn.completed .hotspot-core {
+  background: linear-gradient(135deg, #e8fbee 0%, #c3f2d2 100%);
+  border-color: #16a34a;
+  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.4);
+}
+
+.hotspot-btn.completed .hotspot-ring {
+  border-color: #22c55e;
 }
 
 /* วงแหวนกะพริบ Pulsing Animation */
@@ -1367,12 +1380,16 @@ html, body {
   margin-top: 4px;
 }
 
-/* กริดปุ่มตัวเลือก 3 ชอยส์ (A, B, C) */
+/* กริดปุ่มตัวเลือกเราเตอร์ */
 .router-choices-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-top: 2px;
+}
+
+.router-choices-grid.router-choices-2cols {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .router-choice-btn {

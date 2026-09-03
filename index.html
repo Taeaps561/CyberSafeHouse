@@ -243,22 +243,22 @@
                 <span class="dot dot-minimize"></span>
                 <span class="dot dot-maximize"></span>
               </div>
-              <div class="window-title" id="email-window-title">📧 กล่องจดหมายเข้า (1 ข้อความใหม่)</div>
+              <div class="window-title" id="email-window-title">📧 กล่องข้อความเข้า - 1 จดหมายเร่งด่วน</div>
               <!-- ปุ่มกากบาทสีแดงปิดมุมขวาบน -->
               <button id="email-modal-close-btn" class="modal-close-icon-red" aria-label="ปิดหน้าต่าง" title="ปิดหน้าต่าง">✕</button>
             </div>
 
             <!-- Email Interface Content -->
             <div class="email-body">
-              <!-- แถบหัวจดหมาย: จาก admin-support@secure-bank-th.xyz (เน้นไฮไลต์สีเทาอ่อน) -->
+              <!-- แถบหัวจดหมาย: จาก alert@secure-bank-th.com (เน้นไฮไลต์สีเทาอ่อน) -->
               <div class="email-meta-grid">
                 <div class="meta-row">
                   <span class="meta-label">ผู้ส่ง:</span>
-                  <span class="meta-value sender-highlight-gray">admin-support@secure-bank-th.xyz</span>
+                  <span class="meta-value sender-highlight-gray">alert@secure-bank-th.com</span>
                 </div>
                 <div class="meta-row">
                   <span class="meta-label">หัวข้อ:</span>
-                  <span class="meta-value subject-highlight">[แจ้งเตือนด่วน] บัญชีของคุณถูกระงับชั่วคราว</span>
+                  <span class="meta-value subject-highlight">[ด่วน] บัญชีของคุณถูกระงับ กรุณายืนยันตัวตนทันที</span>
                 </div>
                 <div class="meta-row">
                   <span class="meta-label">ถึง:</span>
@@ -270,24 +270,24 @@
 
               <!-- เนื้อหาอีเมล -->
               <div class="email-text-content">
-                <p>ตรวจพบการเข้าสู่ระบบจากอุปกรณ์ที่ไม่รู้จัก กรุณายืนยันตัวตนเพื่อปลดล็อกบัญชีภายใน 1 ชั่วโมง</p>
+                <p>พบการพยายามเข้าระบบที่ไม่ถูกต้อง หากไม่ใช่คุณ กรุณากดลิงก์ด้านล่างเพื่อยืนยันความเป็นเจ้าของ</p>
                 <div class="email-link-box">
                   <span class="link-label">🔗 ลิงก์ปุ่มกดในเนื้อหา:</span>
-                  <a href="#" class="fake-link" id="email-preview-link" onclick="return false;">http://verify-bank-account.fake-update.com</a>
+                  <a href="#" class="fake-link" id="email-preview-link" onclick="return false;">http://update-login-bank.fake/verify</a>
                 </div>
               </div>
 
               <!-- Action Decision Buttons: 2 ปุ่มด้านล่าง -->
               <div class="email-actions-area" id="email-actions-area">
-                <!-- ปุ่มสีส้ม/แดง: 'รายงานว่าเป็น Phishing และลบอีเมล' -->
+                <!-- ปุ่มที่ 1 (สีน้ำเงิน): 'คลิกลิงก์เพื่อกู้คืนบัญชี' -->
+                <button id="btn-choice-a" class="action-btn btn-blue-action">
+                  <span class="btn-icon">🔗</span>
+                  <span class="btn-text">คลิกลิงก์เพื่อกู้คืนบัญชี</span>
+                </button>
+                <!-- ปุ่มที่ 2 (สีแดง/ส้ม): 'รายงานว่าเป็น Phishing และลบอีเมล' -->
                 <button id="btn-choice-b" class="action-btn btn-orange-action">
                   <span class="btn-icon">🛡️</span>
                   <span class="btn-text">รายงานว่าเป็น Phishing และลบอีเมล</span>
-                </button>
-                <!-- ปุ่มสีน้ำเงิน: 'คลิกลิงก์เพื่อยืนยันตัวตน' -->
-                <button id="btn-choice-a" class="action-btn btn-blue-action">
-                  <span class="btn-icon">🔗</span>
-                  <span class="btn-text">คลิกลิงก์เพื่อยืนยันตัวตน</span>
                 </button>
               </div>
 
@@ -295,9 +295,9 @@
               <div id="phishing-feedback-box" class="feedback-box hidden" role="alert">
                 <div class="feedback-header">
                   <span class="feedback-icon" id="feedback-icon">🚨</span>
-                  <h3 class="feedback-title" id="feedback-title">อันตราย! คุณเผลอกดลิงก์ที่ไม่ปลอดภัย</h3>
+                  <h3 class="feedback-title" id="feedback-title">อันตราย! คุณเผลอกดลิงก์ปลอม สังเกต URL ที่ไม่ใช่โดเมนทางการของธนาคาร</h3>
                 </div>
-                <p class="feedback-message" id="feedback-message">ลิงก์ verify-bank-account.fake-update.com เป็นเว็บไซต์ฟิชชิงที่มิจฉาชีพสร้างขึ้นเพื่อขโมยข้อมูล ธนาคารจริงจะไม่มีการส่งลิงก์เพื่อให้กรอกข้อมูลฉุกเฉินในลักษณะนี้</p>
+                <p class="feedback-message" id="feedback-message">ลิงก์ update-login-bank.fake เป็นเว็บไซต์ฟิชชิงที่มิจฉาชีพสร้างขึ้นเพื่อขโมยข้อมูล ธนาคารจริงจะไม่มีการส่งลิงก์เพื่อให้กรอกข้อมูลฉุกเฉินในลักษณะนี้</p>
                 <div class="feedback-action-row">
                   <button id="feedback-close-btn" class="feedback-btn feedback-retry-btn">🔄 ลองใหม่อีกครั้ง</button>
                 </div>
@@ -311,7 +311,7 @@
                     <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                   </svg>
                 </div>
-                <h3 class="success-title">ตรวจจับ Phishing ถูกต้อง!</h3>
+                <h3 class="success-title">ยอดเยี่ยม! คุณระบุอีเมลหลอกลวงได้ถูกต้อง</h3>
               </div>
             </div>
           </div>
@@ -348,7 +348,7 @@
                   <span class="status-card-icon" id="router-status-icon">⚠️</span>
                   <div class="status-card-text">
                     <span class="status-card-label">การประเมินความปลอดภัยระบบ:</span>
-                    <h3 class="status-card-title" id="router-status-title">สถานะความปลอดภัย: ต่ำ (ใช้รหัสผ่านดั้งเดิม admin/admin)</h3>
+                    <h3 class="status-card-title" id="router-status-title">สถานะ: ใช้รหัสผ่านเริ่มต้น (admin/admin) เสี่ยงต่อการถูกแฮก</h3>
                   </div>
                 </div>
                 <!-- Security Bar -->
@@ -371,8 +371,8 @@
 
                 <span class="choice-instructions">เลือกรูปแบบรหัสผ่านที่ต้องการเปลี่ยน:</span>
 
-                <!-- 3 Choice Buttons (ชอยส์ A, B, C) -->
-                <div class="router-choices-grid" id="router-choices-area">
+                <!-- 2 Choice Buttons (ชอยส์ A, B) -->
+                <div class="router-choices-grid router-choices-2cols" id="router-choices-area">
                   <button class="router-choice-btn" id="btn-router-choice-a" data-choice="A">
                     <div class="choice-top-row">
                       <span class="choice-tag">ชอยส์ A</span>
@@ -382,21 +382,12 @@
                     <div class="choice-note">ตัวเลขเรียง 8 หลัก</div>
                   </button>
 
-                  <button class="router-choice-btn" id="btn-router-choice-b" data-choice="B">
+                  <button class="router-choice-btn btn-choice-strong" id="btn-router-choice-b" data-choice="B">
                     <div class="choice-top-row">
-                      <span class="choice-tag">ชอยส์ B</span>
-                      <span class="choice-risk-tag warning">เสี่ยงปานกลาง</span>
-                    </div>
-                    <div class="choice-code">password2026</div>
-                    <div class="choice-note">คำศัพท์ทั่วไป + ตัวเลขปี</div>
-                  </button>
-
-                  <button class="router-choice-btn btn-choice-strong" id="btn-router-choice-c" data-choice="C">
-                    <div class="choice-top-row">
-                      <span class="choice-tag tag-strong">ชอยส์ C</span>
+                      <span class="choice-tag tag-strong">ชอยส์ B</span>
                       <span class="choice-risk-tag safe">ปลอดภัยสูง ★</span>
                     </div>
-                    <div class="choice-code code-strong">H0m3@Net_Sec!99</div>
+                    <div class="choice-code code-strong">P@ssw0rd_Sec2026!</div>
                     <div class="choice-note">ผสมพิมพ์ใหญ่-เล็ก + ตัวเลข + สัญลักษณ์พิเศษ</div>
                   </button>
                 </div>
