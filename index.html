@@ -174,6 +174,20 @@
           <span class="hotspot-core">📱</span>
           <span class="hotspot-tooltip">ตรวจสอบสมาร์ตโฟน</span>
         </button>
+
+        <!-- จุดที่ 4 (Day 2): Flash Drive ปริศนาบนพื้นห้อง -->
+        <button class="hotspot-btn hidden" id="hotspot-usb" style="top: 79%; left: 43%;" aria-label="สำรวจแฟลชไดรฟ์บนพื้น">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">💾</span>
+          <span class="hotspot-tooltip">ตรวจสอบแฟลชไดรฟ์ปริศนา</span>
+        </button>
+
+        <!-- จุดที่ 5 (Day 2): กล้องวงจรปิด IoT ในบ้าน -->
+        <button class="hotspot-btn hidden" id="hotspot-camera" style="top: 24%; left: 91%;" aria-label="สำรวจกล้องวงจรปิด IoT">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">📹</span>
+          <span class="hotspot-tooltip">ตรวจสอบกล้องวงจรปิด IoT</span>
+        </button>
       </div>
 
       <!-- UI Overlay Layer (สำหรับวางบทสนทนา, กล่องตัวเลือก, หรือเมนู) -->
@@ -513,11 +527,29 @@
                 </div>
 
                 <!-- ภารกิจที่ 3 (Day 2): ตรวจสอบข้อความ SMS หลอกลวงในโทรศัพท์มือถือ -->
-                <div class="quest-item hidden" id="quest-item-sms">
+                <div class="quest-item" id="quest-item-sms">
                   <span class="quest-checkbox-icon" id="quest-check-sms">[ ]</span>
                   <div class="quest-info">
-                    <span class="quest-item-text">ตรวจสอบข้อความ SMS หลอกลวงในโทรศัพท์มือถือ</span>
+                    <span class="quest-item-text">ตรวจสอบข้อความ SMS หลอกลวงบนสมาร์ตโฟน (40 แต้ม)</span>
                     <span class="quest-item-status" id="quest-status-sms">ยังไม่สำเร็จ</span>
+                  </div>
+                </div>
+
+                <!-- ภารกิจที่ 4 (Day 2): ตรวจสอบแฟลชไดรฟ์ปริศนาบนพื้นห้อง -->
+                <div class="quest-item" id="quest-item-usb">
+                  <span class="quest-checkbox-icon" id="quest-check-usb">[ ]</span>
+                  <div class="quest-info">
+                    <span class="quest-item-text">ตรวจสอบแฟลชไดรฟ์ปริศนาบนพื้นห้อง (30 แต้ม)</span>
+                    <span class="quest-item-status" id="quest-status-usb">ยังไม่สำเร็จ</span>
+                  </div>
+                </div>
+
+                <!-- ภารกิจที่ 5 (Day 2): ปรับปรุงความปลอดภัยกล้องวงจรปิด IoT -->
+                <div class="quest-item" id="quest-item-camera">
+                  <span class="quest-checkbox-icon" id="quest-check-camera">[ ]</span>
+                  <div class="quest-info">
+                    <span class="quest-item-text">ปรับปรุงความปลอดภัยกล้องวงจรปิด IoT (30 แต้ม)</span>
+                    <span class="quest-item-status" id="quest-status-camera">ยังไม่สำเร็จ</span>
                   </div>
                 </div>
               </div>
@@ -525,7 +557,7 @@
               <div class="quest-notebook-footer">
                 <div class="quest-progress-info">
                   <span class="quest-progress-label">ความคืบหน้า:</span>
-                  <span class="quest-progress-count" id="quest-progress-count">สำเร็จ 0/2 ภารกิจ</span>
+                  <span class="quest-progress-count" id="quest-progress-count">สำเร็จ 0/5 ภารกิจ</span>
                 </div>
                 <div class="notebook-hint">💡 คลิกที่วัตถุในห้องเพื่อเริ่มตรวจสอบความปลอดภัย</div>
               </div>
@@ -555,10 +587,13 @@
             <div class="phone-app-header">
               <div class="phone-header-left">
                 <span class="phone-back-arrow">‹</span>
-                <div class="contact-avatar-circle">📦</div>
+                <div class="contact-avatar-circle" id="sms-contact-avatar">📦</div>
                 <div class="contact-text-meta">
-                  <h3 class="contact-name" id="sms-window-title">Express-Delivery</h3>
-                  <span class="contact-phone">+66 81-992-XXXX</span>
+                  <div class="contact-top-row">
+                    <h3 class="contact-name" id="sms-window-title">Express-Delivery</h3>
+                    <span class="sms-case-pill" id="sms-case-pill">เคสที่ 1/2</span>
+                  </div>
+                  <span class="contact-phone" id="sms-sender-phone">+66 81-992-XXXX</span>
                 </div>
               </div>
               <button id="sms-modal-close-btn" class="phone-close-icon" aria-label="ปิดหน้าต่างมือถือ">✕</button>
@@ -566,27 +601,27 @@
 
             <!-- Phone Screen Chat Body -->
             <div class="phone-chat-body">
-              <div class="chat-date-pill">วันนี้ 09:30 น.</div>
+              <div class="chat-date-pill" id="sms-date-pill">วันนี้ 09:30 น.</div>
 
               <!-- SMS Chat Bubble -->
               <div class="sms-bubble-wrapper">
                 <div class="sms-message-bubble">
-                  <p class="sms-text-content">พัสดุของคุณจัดส่งไม่สำเร็จ กรุณากรอกข้อมูลที่: <a href="#" class="sms-fake-link" onclick="return false;">http://bit.ly/fake-track</a></p>
-                  <span class="sms-time-meta">09:30</span>
+                  <p class="sms-text-content" id="sms-message-text">พัสดุของคุณไม่สามารถจัดส่งได้เนื่องจากค้างชำระค่าธรรมเนียม 18 บาท คลิก <a href="#" class="sms-fake-link" id="sms-fake-link" onclick="return false;">bit.ly/express-track18</a></p>
+                  <span class="sms-time-meta" id="sms-time-meta">09:30</span>
                 </div>
               </div>
 
               <!-- Action Decision Area -->
               <div class="sms-actions-container" id="sms-actions-area">
-                <div class="sms-action-label">เลือกการกระทำที่ถูกต้อง:</div>
+                <div class="sms-action-label" id="sms-action-label">เลือกการกระทำที่ถูกต้อง:</div>
                 <div class="sms-buttons-grid">
                   <button id="btn-sms-danger" class="sms-btn btn-sms-danger">
                     <span class="sms-btn-icon">🔗</span>
-                    <span class="sms-btn-title">กดลิงก์ตรวจสอบ</span>
+                    <span class="sms-btn-title" id="btn-sms-danger-text">กดลิงก์ในข้อความ</span>
                   </button>
                   <button id="btn-sms-safe" class="sms-btn btn-sms-safe">
                     <span class="sms-btn-icon">🛡️</span>
-                    <span class="sms-btn-title">บล็อกเบอร์และลบข้อความ</span>
+                    <span class="sms-btn-title" id="btn-sms-safe-text">บล็อกเบอร์และรายงาน Spam</span>
                   </button>
                 </div>
               </div>
@@ -594,13 +629,193 @@
               <!-- Feedback Result Box -->
               <div id="sms-feedback-box" class="feedback-box hidden" role="alert">
                 <div class="feedback-header">
-                  <span class="feedback-icon" id="sms-feedback-icon"></span>
+                  <span class="feedback-icon" id="sms-feedback-icon">🚨</span>
                   <h4 class="feedback-title" id="sms-feedback-title"></h4>
                 </div>
                 <p class="feedback-message" id="sms-feedback-message"></p>
                 <div class="feedback-action-row">
-                  <button id="sms-feedback-close-btn" class="feedback-btn">กลับสู่หน้าจอสำรวจ</button>
+                  <button id="sms-feedback-close-btn" class="feedback-btn feedback-retry-btn">ดำเนินการต่อ ➔</button>
                 </div>
+              </div>
+
+              <!-- Success Overlay for SMS -->
+              <div id="sms-success-overlay" class="phishing-success-overlay hidden" aria-hidden="true">
+                <div class="success-checkmark-circle">
+                  <svg class="checkmark-svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  </svg>
+                </div>
+                <h3 class="success-title">ตรวจจับ SMS Scam สำเร็จ!</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- USB Drop Attack Modal (มินิเกมแฟลชไดรฟ์ปริศนาบนพื้น) -->
+        <div id="usb-modal-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card usb-modal" id="usb-modal-card" role="dialog" aria-modal="true" aria-labelledby="usb-window-title">
+            <div class="modal-header">
+              <div class="window-controls">
+                <span class="dot dot-close"></span>
+                <span class="dot dot-minimize"></span>
+                <span class="dot dot-maximize"></span>
+              </div>
+              <div class="window-title" id="usb-window-title">💾 สำรวจวัตถุปริศนา (USB Drop Attack)</div>
+              <button id="usb-modal-close-btn" class="modal-close-icon-red" aria-label="ปิดหน้าต่าง" title="ปิดหน้าต่าง">✕</button>
+            </div>
+
+            <div class="usb-modal-body">
+              <!-- Visual Card: Flash drive on carpet -->
+              <div class="usb-visual-card">
+                <div class="usb-icon-wrapper">
+                  <span class="usb-icon-big">💾</span>
+                  <div class="usb-sparkle-dot"></div>
+                </div>
+                <div class="usb-visual-info">
+                  <span class="usb-tag danger">⚠️ อุปกรณ์ไม่ทราบที่มา</span>
+                  <h3 class="usb-item-name">Flash Drive สีดำ-เงิน (ตกอยู่บนพื้นห้อง)</h3>
+                  <p class="usb-item-desc">ป้ายสติกเกอร์บนตัวไดรฟ์เขียนว่า: <strong class="usb-label-highlight">"Private & Passwords 2026"</strong> ดูเหมือนมีคนจงใจทำตกไว้เพื่อล่อให้เสียบใช้งาน</p>
+                </div>
+              </div>
+
+              <!-- Question / Dilemma -->
+              <div class="usb-question-box">
+                <span class="question-badge">❓ คำถามความปลอดภัย</span>
+                <h4 class="usb-question-title">คุณควรตัดสินใจอย่างไรกับแฟลชไดรฟ์ชิ้นนี้?</h4>
+              </div>
+
+              <!-- Decision Buttons Grid -->
+              <div class="usb-choices-grid" id="usb-choices-area">
+                <button class="usb-choice-btn danger" id="btn-usb-choice-a" data-choice="A">
+                  <div class="choice-top-row">
+                    <span class="choice-tag">ชอยส์ A</span>
+                    <span class="choice-risk-tag danger">อันตรายสูง</span>
+                  </div>
+                  <div class="choice-title">นำไปเสียบคอมพิวเตอร์ทันที</div>
+                  <div class="choice-subtitle">เปิดดูไฟล์ข้างในเพื่อหาเบาะแสว่าใครเป็นเจ้าของ</div>
+                </button>
+
+                <button class="usb-choice-btn safe btn-choice-strong" id="btn-usb-choice-b" data-choice="B">
+                  <div class="choice-top-row">
+                    <span class="choice-tag tag-strong">ชอยส์ B</span>
+                    <span class="choice-risk-tag safe">ปลอดภัยสูง ★</span>
+                  </div>
+                  <div class="choice-title">อย่าเสียบเข้าคอมเด็ดขาด!</div>
+                  <div class="choice-subtitle">แจ้งผู้ดูแลระบบหรือตรวจสอบใน Isolated Sandbox</div>
+                </button>
+              </div>
+
+              <!-- Feedback Result Box -->
+              <div id="usb-feedback-box" class="feedback-box hidden" role="alert">
+                <div class="feedback-header">
+                  <span class="feedback-icon" id="usb-feedback-icon">🚨</span>
+                  <h4 class="feedback-title" id="usb-feedback-title"></h4>
+                </div>
+                <p class="feedback-message" id="usb-feedback-message"></p>
+                <div class="feedback-action-row">
+                  <button id="usb-retry-btn" class="feedback-btn feedback-retry-btn">🔄 เลือกลองใหม่อีกครั้ง</button>
+                </div>
+              </div>
+
+              <!-- Success Overlay -->
+              <div id="usb-success-overlay" class="phishing-success-overlay hidden" aria-hidden="true">
+                <div class="success-checkmark-circle">
+                  <svg class="checkmark-svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  </svg>
+                </div>
+                <h3 class="success-title">ยอดเยี่ยม! ป้องกัน USB Drop Attack ได้สำเร็จ</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- IoT Camera Modal (มินิเกมกล้องวงจรปิดในบ้าน) -->
+        <div id="camera-modal-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card camera-modal" id="camera-modal-card" role="dialog" aria-modal="true" aria-labelledby="camera-window-title">
+            <div class="modal-header">
+              <div class="window-controls">
+                <span class="dot dot-close"></span>
+                <span class="dot dot-minimize"></span>
+                <span class="dot dot-maximize"></span>
+              </div>
+              <div class="window-title" id="camera-window-title">📹 จัดการกล้องวงจรปิด IoT (192.168.1.50)</div>
+              <button id="camera-modal-close-btn" class="modal-close-icon-red" aria-label="ปิดหน้าต่าง" title="ปิดหน้าต่าง">✕</button>
+            </div>
+
+            <div class="camera-modal-body">
+              <!-- Live Camera Feed Mockup -->
+              <div class="cctv-screen-mock">
+                <div class="cctv-header-overlay">
+                  <span class="cctv-rec-badge"><span class="rec-dot"></span> LIVE / REC</span>
+                  <span class="cctv-cam-id">CAM-01 [HOME INTERIOR]</span>
+                  <span class="cctv-time" id="cctv-live-clock">14:28:09</span>
+                </div>
+                <div class="cctv-grid-crosshair"></div>
+                <div class="cctv-scanlines"></div>
+                <div class="cctv-footer-info">RTSP STREAM: rtsp://192.168.1.50:554/live</div>
+              </div>
+
+              <!-- Security Audit Card -->
+              <div class="camera-status-card" id="camera-status-card">
+                <div class="status-card-header">
+                  <span class="status-card-icon" id="camera-status-icon">⚠️</span>
+                  <div class="status-card-text">
+                    <span class="status-card-label">การตรวจสอบความปลอดภัยกล้อง IoT:</span>
+                    <h3 class="status-card-title" id="camera-status-title">สถานะ: พอร์ตเริ่มต้น RTSP (554) เปิดสาธารณะ และเฟิร์มแวร์ยังไม่อัปเดต</h3>
+                  </div>
+                </div>
+                <div class="camera-audit-details">
+                  <div class="audit-row"><span class="audit-key">พอร์ต RTSP / ONVIF:</span> <span class="audit-val danger" id="cctv-port-status">พอร์ต 554 (เปิดสู่สาธารณะ)</span></div>
+                  <div class="audit-row"><span class="audit-key">เวอร์ชัน Firmware:</span> <span class="audit-val warning" id="cctv-fw-status">v1.0.2 (มีช่องโหว่ Botnet Mirai)</span></div>
+                  <div class="audit-row"><span class="audit-key">Automatic Update:</span> <span class="audit-val danger" id="cctv-auto-status">ปิดการทำงาน (Disabled)</span></div>
+                </div>
+              </div>
+
+              <!-- Decision Buttons Grid -->
+              <div class="camera-choices-grid" id="camera-choices-area">
+                <button class="router-choice-btn danger" id="btn-camera-choice-a" data-choice="A">
+                  <div class="choice-top-row">
+                    <span class="choice-tag">ชอยส์ A</span>
+                    <span class="choice-risk-tag danger">เสี่ยงสูง</span>
+                  </div>
+                  <div class="choice-code">ใช้การตั้งค่าเดิมต่อไป</div>
+                  <div class="choice-note">ไม่ต้องเปิด Auto-Update เพราะกลัวระบบรีสตาร์ตค้าง</div>
+                </button>
+
+                <button class="router-choice-btn btn-choice-strong" id="btn-camera-choice-b" data-choice="B">
+                  <div class="choice-top-row">
+                    <span class="choice-tag tag-strong">ชอยส์ B</span>
+                    <span class="choice-risk-tag safe">ปลอดภัยสูง ★</span>
+                  </div>
+                  <div class="choice-code code-strong">ปิด Default Port & เปิด Auto-Update</div>
+                  <div class="choice-note">บล็อกพอร์ตภายนอก และเปิดอัปเดต Firmware อัตโนมัติทันที</div>
+                </button>
+              </div>
+
+              <!-- Feedback Result Box -->
+              <div id="camera-feedback-box" class="feedback-box hidden" role="alert">
+                <div class="feedback-header">
+                  <span class="feedback-icon" id="camera-feedback-icon">🚨</span>
+                  <h4 class="feedback-title" id="camera-feedback-title"></h4>
+                </div>
+                <p class="feedback-message" id="camera-feedback-message"></p>
+                <div class="feedback-action-row">
+                  <button id="camera-retry-btn" class="feedback-btn feedback-retry-btn">🔄 เลือกลองใหม่อีกครั้ง</button>
+                </div>
+              </div>
+
+              <!-- Success Overlay -->
+              <div id="camera-success-overlay" class="phishing-success-overlay hidden" aria-hidden="true">
+                <div class="success-checkmark-circle">
+                  <svg class="checkmark-svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  </svg>
+                </div>
+                <h3 class="success-title">ตั้งค่ากล้องวงจรปิด IoT ปลอดภัย 100%!</h3>
               </div>
             </div>
           </div>
@@ -671,11 +886,13 @@
                 </div>
               </div>
 
-              <!-- แถบรายการภารกิจที่ผ่าน -->
+              <!-- แถบรายการภารกิจที่ผ่าน (5 ภารกิจ) -->
               <div class="cert-achievements-list">
-                <span class="cert-tag">✅ รหัสผ่านเราเตอร์ปลอดภัย</span>
-                <span class="cert-tag">✅ ป้องกัน Phishing อีเมล</span>
-                <span class="cert-tag">✅ บล็อก SMS Scam หลอกลวง</span>
+                <span class="cert-tag">✅ รหัสผ่านเราเตอร์ปลอดภัย (Day 1)</span>
+                <span class="cert-tag">✅ ป้องกัน Phishing อีเมล (Day 1)</span>
+                <span class="cert-tag">✅ บล็อก SMS Scam และแอปดูดเงิน (Day 2)</span>
+                <span class="cert-tag">✅ ป้องกัน USB Drop Attack (Day 2)</span>
+                <span class="cert-tag">✅ ความปลอดภัยกล้อง IoT (Day 2)</span>
               </div>
 
               <!-- ปุ่มเริ่มเล่นใหม่อีกครั้ง -->

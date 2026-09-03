@@ -18,10 +18,20 @@ const gameState = {
     phishingQuestCompleted: false,
     phishingScoreAwarded: false,
     day1Completed: false,
-    dayCompleteModalShown: false,
+    // Day 2 Flags
     hasExploredPhone: false,
+    smsCurrentCase: 1,
+    smsCase1Completed: false,
+    smsCase2Completed: false,
     smsQuestCompleted: false,
-    smsScoreAwarded: false
+    smsScoreAwarded: false,
+    hasExploredUsb: false,
+    usbQuestCompleted: false,
+    usbScoreAwarded: false,
+    hasExploredCamera: false,
+    cameraQuestCompleted: false,
+    cameraScoreAwarded: false,
+    day2Completed: false
   },
   dialogueIndex: 0,
   isTyping: false,
@@ -81,6 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initRouterModal();
   initPhishingModal();
   initSMSModal();
+  initUsbModal();
+  initCameraModal();
   initDayCompleteModal();
   initQuestLog();
   initGameSummaryScreen();
@@ -118,6 +130,8 @@ function initGameEvents() {
         closeRouterModal();
         closePhishingModal();
         closeSMSModal();
+        closeUsbModal();
+        closeCameraModal();
       } else if (gameState.mode === 'inspect') {
         closeDialogueBox();
       }
@@ -136,6 +150,8 @@ function initGameEvents() {
         event.target.closest('#quest-log-backdrop') ||
         event.target.closest('#quest-log-btn') ||
         event.target.closest('#sms-modal-backdrop') ||
+        event.target.closest('#usb-modal-backdrop') ||
+        event.target.closest('#camera-modal-backdrop') ||
         event.target.closest('#screen-fade-transition') ||
         event.target.closest('#game-summary-backdrop')
       ) {
@@ -153,6 +169,8 @@ function initHotspots() {
   const routerBtn = document.getElementById('hotspot-router');
   const computerBtn = document.getElementById('hotspot-computer');
   const phoneBtn = document.getElementById('hotspot-phone');
+  const usbBtn = document.getElementById('hotspot-usb');
+  const cameraBtn = document.getElementById('hotspot-camera');
 
   if (routerBtn) {
     routerBtn.onclick = (e) => {
@@ -178,6 +196,24 @@ function initHotspots() {
       e.stopPropagation();
       console.log('📱 Hotspot Phone clicked!');
       openSMSModal();
+    };
+  }
+
+  if (usbBtn) {
+    usbBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('💾 Hotspot USB clicked!');
+      openUsbModal();
+    };
+  }
+
+  if (cameraBtn) {
+    cameraBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('📹 Hotspot Camera clicked!');
+      openCameraModal();
     };
   }
 }
@@ -445,8 +481,16 @@ function transitionToDay2() {
     gameState.score = 0;
     gameState.maxScore = 100;
     gameState.mode = 'intro_day2';
+    gameState.flags.smsCurrentCase = 1;
+    gameState.flags.smsCase1Completed = false;
+    gameState.flags.smsCase2Completed = false;
     gameState.flags.smsQuestCompleted = false;
     gameState.flags.smsScoreAwarded = false;
+    gameState.flags.usbQuestCompleted = false;
+    gameState.flags.usbScoreAwarded = false;
+    gameState.flags.cameraQuestCompleted = false;
+    gameState.flags.cameraScoreAwarded = false;
+    gameState.flags.day2Completed = false;
 
     // เปลี่ยนแถบมุมขวาบนเป็น 'Day 2' และ Security Score: 0/100
     const dayTextElem = document.getElementById('day-text');
@@ -465,15 +509,19 @@ function transitionToDay2() {
     if (compBtn) compBtn.classList.add('hidden');
     if (routerBtn) routerBtn.classList.add('hidden');
 
-    // เปิด Hotspot ใหม่ของ Day 2 (สมาร์ตโฟนบนโต๊ะ)
+    // เปิด Hotspot ใหม่ของ Day 2 (สมาร์ตโฟน, Flash Drive, และ กล้องวงจรปิด)
     const phoneBtn = document.getElementById('hotspot-phone');
+    const usbBtn = document.getElementById('hotspot-usb');
+    const cameraBtn = document.getElementById('hotspot-camera');
     if (phoneBtn) phoneBtn.classList.remove('hidden');
+    if (usbBtn) usbBtn.classList.remove('hidden');
+    if (cameraBtn) cameraBtn.classList.remove('hidden');
 
-    // วาดฉากใหม่อัปเดตแสงช่วงบ่ายและสมาร์ตโฟนบนโต๊ะ
+    // วาดฉากใหม่อัปเดตแสงช่วงบ่าย
     const canvas = document.getElementById('game-canvas');
     if (canvas) renderRoomScene(canvas);
 
-    // อัปเดตสมุดภารกิจเป็นเควสต์ของ Day 2: 'ตรวจสอบข้อความ SMS หลอกลวงในโทรศัพท์มือถือ'
+    // อัปเดตสมุดภารกิจเป็นเควสต์ของ Day 2
     updateQuestLogUI();
 
     // ค่อยๆ จางหน้าจอดำออก (Fade In)
@@ -499,12 +547,17 @@ function startDay2Dialogue() {
     {
       speaker: 'วิน (ตัวเอก)',
       avatar: '📱',
-      text: 'ช่วงบ่ายนี้มือถือของคนในบ้านมีข้อความแปลกๆ ส่งเข้ามาเต็มไปหมด ลองไปตรวจสอบดูดีกว่า'
+      text: 'ช่วงบ่ายวันนี้มีเรื่องผิดปกติเกิดขึ้นหลายอย่าง! ทั้งข้อความ SMS แปลกๆ ในมือถือ มีแฟลชไดรฟ์ปริศนาตกอยู่บนพื้น และกล้องวงจรปิดก็แจ้งเตือนความปลอดภัย'
+    },
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '🔍',
+      text: 'ลองไปตรวจสอบสมาร์ตโฟนบนโต๊ะ แฟลชไดรฟ์บนพื้น และกล้องวงจรปิดที่ชั้นวางกันเถอะ!'
     }
   ];
   gameState.dialogueIndex = 0;
 
-  updateStatusIndicator('💡 กำลังเริ่มต้น Day 2');
+  updateStatusIndicator('🔍 โหมดสำรวจห้อง (Day 2)');
   openDialogueBox();
   showCurrentDialogue();
 }
@@ -630,11 +683,21 @@ function updateQuestLogUI() {
   const checkSMS = document.getElementById('quest-check-sms');
   const statusSMS = document.getElementById('quest-status-sms');
 
+  const itemUsb = document.getElementById('quest-item-usb');
+  const checkUsb = document.getElementById('quest-check-usb');
+  const statusUsb = document.getElementById('quest-status-usb');
+
+  const itemCamera = document.getElementById('quest-item-camera');
+  const checkCamera = document.getElementById('quest-check-camera');
+  const statusCamera = document.getElementById('quest-status-camera');
+
   if (gameState.currentDay === 1) {
     if (subtitleElem) subtitleElem.textContent = 'รายการสิ่งที่ต้องทำใน Day 1';
     if (itemRouter) itemRouter.classList.remove('hidden');
     if (itemPhishing) itemPhishing.classList.remove('hidden');
     if (itemSMS) itemSMS.classList.add('hidden');
+    if (itemUsb) itemUsb.classList.add('hidden');
+    if (itemCamera) itemCamera.classList.add('hidden');
 
     const isRouterDone = Boolean(gameState.flags.routerScoreAwarded);
     const isPhishingDone = Boolean(gameState.flags.phishingQuestCompleted);
@@ -665,7 +728,7 @@ function updateQuestLogUI() {
       }
     }
 
-    // ความคืบหน้ารวม
+    // ความคืบหน้ารวม Day 1
     const completedCount = (isRouterDone ? 1 : 0) + (isPhishingDone ? 1 : 0);
     if (progressTextElem) {
       progressTextElem.textContent = `สำเร็จ ${completedCount}/2 ภารกิจ`;
@@ -684,8 +747,12 @@ function updateQuestLogUI() {
     if (itemRouter) itemRouter.classList.add('hidden');
     if (itemPhishing) itemPhishing.classList.add('hidden');
     if (itemSMS) itemSMS.classList.remove('hidden');
+    if (itemUsb) itemUsb.classList.remove('hidden');
+    if (itemCamera) itemCamera.classList.remove('hidden');
 
     const isSMSDone = Boolean(gameState.flags.smsQuestCompleted);
+    const isUsbDone = Boolean(gameState.flags.usbQuestCompleted);
+    const isCameraDone = Boolean(gameState.flags.cameraQuestCompleted);
 
     // 3. ภารกิจ SMS Scam
     if (itemSMS && checkSMS && statusSMS) {
@@ -700,13 +767,40 @@ function updateQuestLogUI() {
       }
     }
 
+    // 4. ภารกิจ USB Drop Attack
+    if (itemUsb && checkUsb && statusUsb) {
+      if (isUsbDone) {
+        itemUsb.classList.add('completed');
+        checkUsb.textContent = '[✓]';
+        statusUsb.textContent = 'สำเร็จแล้ว ✅';
+      } else {
+        itemUsb.classList.remove('completed');
+        checkUsb.textContent = '[ ]';
+        statusUsb.textContent = 'ยังไม่สำเร็จ';
+      }
+    }
+
+    // 5. ภารกิจ กล้องวงจรปิด IoT
+    if (itemCamera && checkCamera && statusCamera) {
+      if (isCameraDone) {
+        itemCamera.classList.add('completed');
+        checkCamera.textContent = '[✓]';
+        statusCamera.textContent = 'สำเร็จแล้ว ✅';
+      } else {
+        itemCamera.classList.remove('completed');
+        checkCamera.textContent = '[ ]';
+        statusCamera.textContent = 'ยังไม่สำเร็จ';
+      }
+    }
+
     // ความคืบหน้า Day 2
+    const completedCount = (isSMSDone ? 1 : 0) + (isUsbDone ? 1 : 0) + (isCameraDone ? 1 : 0);
     if (progressTextElem) {
-      progressTextElem.textContent = `สำเร็จ ${isSMSDone ? 1 : 0}/1 ภารกิจ`;
+      progressTextElem.textContent = `สำเร็จ ${completedCount}/3 ภารกิจ`;
     }
 
     if (badgeDot) {
-      if (isSMSDone) {
+      if (completedCount === 3) {
         badgeDot.classList.add('all-done');
       } else {
         badgeDot.classList.remove('all-done');
@@ -1225,6 +1319,42 @@ function triggerPhishingSuccessDialogue() {
  * ระบบมินิเกมตรวจจับ SMS Scam (SMS Scam Detection Mini-Game)
  * ==========================================================================
  */
+/**
+ * ==========================================================================
+ * ระบบมินิเกมตรวจจับ SMS Scam (SMS Scam Detection Mini-Game: 2 Cases)
+ * ==========================================================================
+ */
+
+// ข้อมูลสถานการณ์ SMS หลอกลวงทั้ง 2 เคส
+const smsScenarios = [
+  {
+    caseIndex: 1,
+    avatar: '📦',
+    name: 'Express-Delivery',
+    phone: '+66 81-992-XXXX',
+    pill: 'เคสที่ 1/2',
+    date: 'วันนี้ 09:30 น.',
+    text: 'พัสดุของคุณไม่สามารถจัดส่งได้เนื่องจากค้างชำระค่าธรรมเนียม 18 บาท คลิก <a href="#" class="sms-fake-link" id="sms-fake-link" onclick="return false;">bit.ly/express-track18</a>',
+    dangerTitle: 'อันตราย! คุณเผลอกดลิงก์พัสดุปลอม',
+    dangerMsg: 'มิจฉาชีพมักใช้ลิงก์ย่อ (bit.ly) หลอกให้กรอกข้อมูลบัตรเครดิตเพื่อดูดเงิน ขนส่งจริงจะไม่มีการส่ง SMS เรียกเก็บเงินค่าธรรมเนียมในลักษณะนี้เด็ดขาด',
+    safeTitle: 'ถูกต้อง! บล็อก SMS พัสดุปลอมสำเร็จ',
+    safeMsg: 'ยอดเยี่ยม! คุณสังเกตเห็นลิงก์ย่อน่าสงสัยและบล็อกเบอร์ทันที... แต่มีข้อความแปลกๆ อีกฉบับส่งเข้ามาพอดี!'
+  },
+  {
+    caseIndex: 2,
+    avatar: '💸',
+    name: 'Easy-Cash-Loan',
+    phone: '+66 94-811-XXXX',
+    pill: 'เคสที่ 2/2',
+    date: 'วันนี้ 13:15 น.',
+    text: 'ยินดีด้วย! บัญชีของคุณได้รับอนุมัติวงเงินกู้ 50,000 บาท ดอกเบี้ย 0% ดาวน์โหลดแอปและกดรับสิทธิ์: <a href="#" class="sms-fake-link" id="sms-fake-link" onclick="return false;">http://loan-quick-cash.apk/download</a>',
+    dangerTitle: 'อันตรายขั้นวิกฤต! เสี่ยงโดนแอปดูดเงิน (.apk)',
+    dangerMsg: 'ไฟล์ .apk จากภายนอก Store มักเป็นมัลแวร์ประเภท Accessibility Service ที่สามารถดักจับรหัสผ่าน OTP และควบคุมหน้าจอเพื่อโอนเงินออกจากบัญชีของคุณได้ทันที!',
+    safeTitle: 'ยอดเยี่ยมมาก! บล็อกแอปดูดเงินและ SMS หลอกลวงสำเร็จ',
+    safeMsg: 'ถูกต้องที่สุด! สถาบันการเงินที่ถูกกฎหมายจะไม่มีการส่งลิงก์ดาวน์โหลดไฟล์ .apk ผ่านทาง SMS การบล็อกเบอร์และรายงาน Spam ช่วยปกป้องบัญชีได้อย่างปลอดภัย'
+  }
+];
+
 function initSMSModal() {
   const modalBackdrop = document.getElementById('sms-modal-backdrop');
   const closeBtn = document.getElementById('sms-modal-close-btn');
@@ -1232,7 +1362,6 @@ function initSMSModal() {
   const btnSafe = document.getElementById('btn-sms-safe');
   const feedbackCloseBtn = document.getElementById('sms-feedback-close-btn');
 
-  // ปิดหน้าต่าง SMS ด้วยปุ่ม ✕ บนหัวหน้าต่าง
   if (closeBtn) {
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1240,7 +1369,6 @@ function initSMSModal() {
     });
   }
 
-  // ปิดหน้าต่างเมื่อคลิก Backdrop
   if (modalBackdrop) {
     modalBackdrop.addEventListener('click', (e) => {
       if (e.target === modalBackdrop) {
@@ -1249,7 +1377,6 @@ function initSMSModal() {
     });
   }
 
-  // ตัวเลือก 1: กดลิงก์ตรวจสอบ (คำตอบผิด / เสี่ยงอันตราย)
   if (btnDanger) {
     btnDanger.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1257,7 +1384,6 @@ function initSMSModal() {
     });
   }
 
-  // ตัวเลือก 2: บล็อกเบอร์และลบข้อความ (คำตอบถูก / ปลอดภัย)
   if (btnSafe) {
     btnSafe.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1265,77 +1391,78 @@ function initSMSModal() {
     });
   }
 
-  // ปุ่มปิดในกล่องข้อความผลลัพธ์
   if (feedbackCloseBtn) {
     feedbackCloseBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      closeSMSModal();
+      handleSMSFeedbackAction();
     });
   }
 }
 
-/**
- * เปิดหน้าต่างมินิเกม SMS Scam บนมือถือ
- */
-function openSMSModal() {
-  gameState.mode = 'minigame';
+function renderSMSCase(caseNumber) {
+  const scenario = smsScenarios[caseNumber - 1];
+  if (!scenario) return;
 
-  // ซ่อนกล่องบทสนทนาถ้ากำลังเปิดค้างอยู่
-  const dialogueBox = document.getElementById('dialogue-box');
-  if (dialogueBox) {
-    dialogueBox.classList.add('hidden');
-  }
-
-  updateStatusIndicator('📱 กำลังตรวจสอบข้อความ SMS บนมือถือ');
-
-  // รีเซ็ตการแสดงผลของหน้าต่าง SMS
+  const avatar = document.getElementById('sms-contact-avatar');
+  const title = document.getElementById('sms-window-title');
+  const pill = document.getElementById('sms-case-pill');
+  const phone = document.getElementById('sms-sender-phone');
+  const datePill = document.getElementById('sms-date-pill');
+  const msgText = document.getElementById('sms-message-text');
   const actionsArea = document.getElementById('sms-actions-area');
   const feedbackBox = document.getElementById('sms-feedback-box');
-  const modalBackdrop = document.getElementById('sms-modal-backdrop');
+  const successOverlay = document.getElementById('sms-success-overlay');
+
+  if (avatar) avatar.textContent = scenario.avatar;
+  if (title) title.textContent = scenario.name;
+  if (pill) pill.textContent = scenario.pill;
+  if (phone) phone.textContent = scenario.phone;
+  if (datePill) datePill.textContent = scenario.date;
+  if (msgText) msgText.innerHTML = scenario.text;
 
   if (actionsArea) actionsArea.style.display = 'flex';
-  if (feedbackBox) {
-    feedbackBox.className = 'feedback-box hidden';
-  }
+  if (feedbackBox) feedbackBox.className = 'feedback-box hidden';
+  if (successOverlay) successOverlay.classList.add('hidden');
 
+  const fakeLink = document.getElementById('sms-fake-link');
+  if (fakeLink) {
+    fakeLink.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleSMSChoice('danger');
+    };
+  }
+}
+
+function openSMSModal() {
+  gameState.flags.hasExploredPhone = true;
+  gameState.mode = 'minigame';
+  closeDialogueBox();
+  updateStatusIndicator('📱 กำลังตรวจสอบข้อความ SMS บนมือถือ');
+
+  const currentCase = gameState.flags.smsCurrentCase || 1;
+  renderSMSCase(currentCase);
+
+  const modalBackdrop = document.getElementById('sms-modal-backdrop');
   if (modalBackdrop) {
     modalBackdrop.classList.remove('hidden');
     modalBackdrop.setAttribute('aria-hidden', 'false');
   }
 }
 
-/**
- * ปิดหน้าต่างมินิเกม SMS Scam
- */
 function closeSMSModal() {
   const modalBackdrop = document.getElementById('sms-modal-backdrop');
   if (modalBackdrop) {
     modalBackdrop.classList.add('hidden');
     modalBackdrop.setAttribute('aria-hidden', 'true');
   }
-
-  if (gameState.flags.smsQuestCompleted) {
-    updateStatusIndicator('🎉 ตรวจจับและจัดการ SMS Scam สำเร็จแล้ว!');
-    const phoneHotspot = document.getElementById('hotspot-phone');
-    if (phoneHotspot) {
-      const tooltip = phoneHotspot.querySelector('.hotspot-tooltip');
-      if (tooltip) tooltip.textContent = 'ตรวจสอบสมาร์ตโฟน (ตรวจสอบแล้ว ✅)';
-    }
-
-    // เมื่อจบภารกิจทั้ง Day 1 และ Day 2 แสดงหน้าต่างสรุปผลเต็มจอ
-    setTimeout(() => {
-      showGameSummaryScreen();
-    }, 450);
-  } else {
-    updateStatusIndicator('🔍 โหมดสำรวจห้อง (Day 2)');
-    gameState.mode = 'explore';
-  }
+  gameState.mode = 'explore';
+  updateStatusIndicator('🔍 โหมดสำรวจห้อง (Day 2)');
 }
 
-/**
- * จัดการการเลือกคำตอบใน SMS Scam
- */
 function handleSMSChoice(choice) {
+  const currentCase = gameState.flags.smsCurrentCase || 1;
+  const scenario = smsScenarios[currentCase - 1];
   const feedbackBox = document.getElementById('sms-feedback-box');
   const iconElem = document.getElementById('sms-feedback-icon');
   const titleElem = document.getElementById('sms-feedback-title');
@@ -1346,40 +1473,431 @@ function handleSMSChoice(choice) {
   if (!feedbackBox || !iconElem || !titleElem || !msgElem) return;
 
   if (choice === 'safe') {
-    // ปลอดภัย: บล็อกเบอร์และลบข้อความ (+100 คะแนน)
-    gameState.flags.smsQuestCompleted = true;
-    if (!gameState.flags.smsScoreAwarded) {
-      gameState.flags.smsScoreAwarded = true;
-      addScore(100);
+    if (currentCase === 1) {
+      gameState.flags.smsCase1Completed = true;
+      feedbackBox.className = 'feedback-box correct';
+      iconElem.textContent = '🛡️';
+      titleElem.textContent = scenario.safeTitle;
+      msgElem.textContent = scenario.safeMsg;
+      if (feedbackCloseBtn) feedbackCloseBtn.textContent = 'ไปต่อยังเคสที่ 2/2 ➔';
+      if (actionsArea) actionsArea.style.display = 'none';
+      feedbackBox.classList.remove('hidden');
+    } else {
+      // ผ่านทั้ง 2 เคส (+40 คะแนน)
+      gameState.flags.smsCase2Completed = true;
+      gameState.flags.smsQuestCompleted = true;
+      if (!gameState.flags.smsScoreAwarded) {
+        gameState.flags.smsScoreAwarded = true;
+        addScore(40);
+      }
+      updateQuestLogUI();
+
+      const successOverlay = document.getElementById('sms-success-overlay');
+      if (successOverlay) successOverlay.classList.remove('hidden');
+      if (actionsArea) actionsArea.style.display = 'none';
+      if (feedbackBox) feedbackBox.classList.add('hidden');
+
+      const phoneHotspot = document.getElementById('hotspot-phone');
+      if (phoneHotspot) {
+        phoneHotspot.classList.add('completed');
+        const core = phoneHotspot.querySelector('.hotspot-core');
+        if (core) core.textContent = '✅';
+        const tooltip = phoneHotspot.querySelector('.hotspot-tooltip');
+        if (tooltip) tooltip.textContent = 'ตรวจสอบสมาร์ตโฟนแล้ว (ปลอดภัย ✅)';
+      }
+
+      console.log('📱 SMS Scam Quest Completed! Score:', gameState.score);
+
+      setTimeout(() => {
+        closeSMSModal();
+        triggerSMSSuccessDialogue();
+        checkDay2Completion();
+      }, 850);
+    }
+  } else {
+    // ผิด: กดลิงก์
+    gameState.mistakesCount++;
+    console.log(`⚠️ Mistake on SMS Case ${currentCase}! Total mistakes:`, gameState.mistakesCount);
+    feedbackBox.className = 'feedback-box danger';
+    iconElem.textContent = '🚨';
+    titleElem.textContent = scenario.dangerTitle;
+    msgElem.textContent = scenario.dangerMsg;
+    if (feedbackCloseBtn) feedbackCloseBtn.textContent = '🔄 ลองวิเคราะห์ใหม่อีกครั้ง';
+    feedbackBox.classList.remove('hidden');
+  }
+}
+
+function handleSMSFeedbackAction() {
+  const feedbackBox = document.getElementById('sms-feedback-box');
+  const feedbackCloseBtn = document.getElementById('sms-feedback-close-btn');
+
+  if (feedbackCloseBtn && feedbackCloseBtn.textContent.includes('ไปต่อ')) {
+    gameState.flags.smsCurrentCase = 2;
+    renderSMSCase(2);
+  } else {
+    if (feedbackBox) feedbackBox.classList.add('hidden');
+  }
+}
+
+function triggerSMSSuccessDialogue() {
+  gameState.mode = 'inspect';
+  gameState.dialogueIndex = 0;
+  gameState.activeDialogueQueue = [
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '😊',
+      text: 'ยอดเยี่ยมมาก! บล็อกเบอร์ SMS หลอกลวงและไม่หลงเชื่อแอปดูดเงิน .apk ปลอดภัยไปอีกขั้น!'
+    }
+  ];
+  openDialogueBox();
+  showCurrentDialogue();
+}
+
+/**
+ * ==========================================================================
+ * ระบบมินิเกมตรวจจับ USB Drop Attack (Flash Drive บนพื้นห้อง)
+ * ==========================================================================
+ */
+function initUsbModal() {
+  const modalBackdrop = document.getElementById('usb-modal-backdrop');
+  const closeBtn = document.getElementById('usb-modal-close-btn');
+  const btnChoiceA = document.getElementById('btn-usb-choice-a');
+  const btnChoiceB = document.getElementById('btn-usb-choice-b');
+  const retryBtn = document.getElementById('usb-retry-btn');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeUsbModal();
+    });
+  }
+
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) {
+        closeUsbModal();
+      }
+    });
+  }
+
+  if (btnChoiceA) {
+    btnChoiceA.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleUsbChoice('A');
+    });
+  }
+
+  if (btnChoiceB) {
+    btnChoiceB.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleUsbChoice('B');
+    });
+  }
+
+  if (retryBtn) {
+    retryBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const feedbackBox = document.getElementById('usb-feedback-box');
+      if (feedbackBox) feedbackBox.classList.add('hidden');
+    });
+  }
+}
+
+function openUsbModal() {
+  gameState.flags.hasExploredUsb = true;
+  gameState.mode = 'minigame';
+  closeDialogueBox();
+  updateStatusIndicator('💾 กำลังตรวจสอบแฟลชไดรฟ์ปริศนา');
+
+  const modalBackdrop = document.getElementById('usb-modal-backdrop');
+  const card = document.getElementById('usb-modal-card');
+  const feedbackBox = document.getElementById('usb-feedback-box');
+  const successOverlay = document.getElementById('usb-success-overlay');
+  const choicesArea = document.getElementById('usb-choices-area');
+
+  if (card) card.classList.remove('shake-animation');
+  if (feedbackBox) feedbackBox.className = 'feedback-box hidden';
+  if (successOverlay) successOverlay.classList.add('hidden');
+  if (choicesArea) choicesArea.style.display = 'grid';
+
+  if (modalBackdrop) {
+    modalBackdrop.classList.remove('hidden');
+    modalBackdrop.setAttribute('aria-hidden', 'false');
+  }
+}
+
+function closeUsbModal() {
+  const modalBackdrop = document.getElementById('usb-modal-backdrop');
+  if (modalBackdrop) {
+    modalBackdrop.classList.add('hidden');
+    modalBackdrop.setAttribute('aria-hidden', 'true');
+  }
+  gameState.mode = 'explore';
+  updateStatusIndicator('🔍 โหมดสำรวจห้อง (Day 2)');
+}
+
+function handleUsbChoice(choice) {
+  const card = document.getElementById('usb-modal-card');
+  const feedbackBox = document.getElementById('usb-feedback-box');
+  const iconElem = document.getElementById('usb-feedback-icon');
+  const titleElem = document.getElementById('usb-feedback-title');
+  const msgElem = document.getElementById('usb-feedback-message');
+  const successOverlay = document.getElementById('usb-success-overlay');
+  const choicesArea = document.getElementById('usb-choices-area');
+
+  if (choice === 'B') {
+    // ถูกต้อง: อย่าเสียบเข้าคอมเด็ดขาด (+30 คะแนน)
+    gameState.flags.usbQuestCompleted = true;
+    if (!gameState.flags.usbScoreAwarded) {
+      gameState.flags.usbScoreAwarded = true;
+      addScore(30);
     }
     updateQuestLogUI();
 
-    feedbackBox.className = 'feedback-box correct';
-    iconElem.textContent = '🛡️';
-    titleElem.textContent = 'ยอดเยี่ยมมาก! ปลอดภัยจาก SMS Scam';
-    msgElem.textContent = 'ถูกต้อง! สังเกตจากการใช้ลิงก์ย่อ (bit.ly) เพื่อปกปิดเว็บปลายทาง และบริษัทขนส่งจริงจะไม่มีการส่ง SMS เร่งให้กรอกข้อมูลส่วนบุคคลฉุกเฉิน การบล็อกเบอร์และลบทิ้งเป็นวิธีรับมือที่ดีที่สุด';
+    if (successOverlay) successOverlay.classList.remove('hidden');
+    if (choicesArea) choicesArea.style.display = 'none';
+    if (feedbackBox) feedbackBox.classList.add('hidden');
 
-    if (feedbackCloseBtn) {
-      feedbackCloseBtn.textContent = 'ดูผลสรุปการประเมิน ➔';
+    const usbHotspot = document.getElementById('hotspot-usb');
+    if (usbHotspot) {
+      usbHotspot.classList.add('completed');
+      const core = usbHotspot.querySelector('.hotspot-core');
+      if (core) core.textContent = '✅';
+      const tooltip = usbHotspot.querySelector('.hotspot-tooltip');
+      if (tooltip) tooltip.textContent = 'ตรวจสอบแฟลชไดรฟ์แล้ว (ปลอดภัย ✅)';
     }
 
-    if (actionsArea) actionsArea.style.display = 'none';
-    console.log('📱 SMS Scam Quest Completed! Day 2 Score:', gameState.score);
-  } else {
-    // อันตราย: กดลิงก์ตรวจสอบ
-    gameState.mistakesCount++;
-    console.log('⚠️ Made a mistake in SMS Scam! Total mistakes:', gameState.mistakesCount);
-    feedbackBox.className = 'feedback-box danger';
-    iconElem.textContent = '⚠️';
-    titleElem.textContent = 'ระวัง! คุณอาจถูกหลอกขโมยข้อมูล';
-    msgElem.textContent = 'อันตราย! ลิงก์ย่อ (bit.ly) มักถูกมิจฉาชีพใช้ซ่อนเว็บไซต์ฟิชชิง หรือหลอกให้ติดตั้งแอปดูดเงิน/มัลแวร์ควบคุมเครื่อง ไม่ควรกดลิงก์จากผู้ส่งที่ไม่รู้จักเด็ดขาด';
+    console.log('💾 USB Drop Attack Handled! Score:', gameState.score);
 
-    if (feedbackCloseBtn) {
-      feedbackCloseBtn.textContent = 'ลองวิเคราะห์ใหม่อีกครั้ง';
+    setTimeout(() => {
+      closeUsbModal();
+      triggerUsbSuccessDialogue();
+      checkDay2Completion();
+    }, 800);
+  } else {
+    // ผิด: นำไปเสียบคอม
+    gameState.mistakesCount++;
+    console.log('⚠️ Mistake on USB Drop Attack! Total mistakes:', gameState.mistakesCount);
+
+    if (card) {
+      card.classList.remove('shake-animation');
+      void card.offsetWidth;
+      card.classList.add('shake-animation');
+    }
+
+    if (feedbackBox && iconElem && titleElem && msgElem) {
+      feedbackBox.className = 'feedback-box danger';
+      iconElem.textContent = '🚨';
+      titleElem.textContent = 'อันตรายร้ายแรง! คุณตกเป็นเหยื่อ USB Drop Attack';
+      msgElem.textContent = 'แฮกเกอร์มักจงใจนำ Flash Drive ปลอม หรือ BadUSB ที่ดัดแปลงเป็น Keyboard Emulator มาวางทิ้งไว้ เมื่อเสียบเข้าคอมพิวเตอร์ เครื่องจะสั่งรันสคริปต์อัตโนมัติ ติดตั้ง Ransomware หรือขโมยรหัสผ่านทั้งหมดในทันที!';
+      feedbackBox.classList.remove('hidden');
     }
   }
+}
 
-  feedbackBox.classList.remove('hidden');
+function triggerUsbSuccessDialogue() {
+  gameState.mode = 'inspect';
+  gameState.dialogueIndex = 0;
+  gameState.activeDialogueQueue = [
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '😊',
+      text: 'ตัดสินใจรอบคอบมาก! แฟลชไดรฟ์ที่ตกอยู่ตามพื้นอาจเป็น BadUSB หรือมีมัลแวร์แฝง ไม่ควรเสียบเข้าเครื่องเด็ดขาด'
+    }
+  ];
+  openDialogueBox();
+  showCurrentDialogue();
+}
+
+/**
+ * ==========================================================================
+ * ระบบมินิเกมตรวจจับความปลอดภัยกล้อง IoT (IP Camera)
+ * ==========================================================================
+ */
+function initCameraModal() {
+  const modalBackdrop = document.getElementById('camera-modal-backdrop');
+  const closeBtn = document.getElementById('camera-modal-close-btn');
+  const btnChoiceA = document.getElementById('btn-camera-choice-a');
+  const btnChoiceB = document.getElementById('btn-camera-choice-b');
+  const retryBtn = document.getElementById('camera-retry-btn');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeCameraModal();
+    });
+  }
+
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) {
+        closeCameraModal();
+      }
+    });
+  }
+
+  if (btnChoiceA) {
+    btnChoiceA.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleCameraChoice('A');
+    });
+  }
+
+  if (btnChoiceB) {
+    btnChoiceB.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleCameraChoice('B');
+    });
+  }
+
+  if (retryBtn) {
+    retryBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const feedbackBox = document.getElementById('camera-feedback-box');
+      if (feedbackBox) feedbackBox.classList.add('hidden');
+    });
+  }
+}
+
+function openCameraModal() {
+  gameState.flags.hasExploredCamera = true;
+  gameState.mode = 'minigame';
+  closeDialogueBox();
+  updateStatusIndicator('📹 กำลังจัดการกล้องวงจรปิด IoT');
+
+  const modalBackdrop = document.getElementById('camera-modal-backdrop');
+  const card = document.getElementById('camera-modal-card');
+  const feedbackBox = document.getElementById('camera-feedback-box');
+  const successOverlay = document.getElementById('camera-success-overlay');
+  const choicesArea = document.getElementById('camera-choices-area');
+
+  if (card) card.classList.remove('shake-animation');
+  if (feedbackBox) feedbackBox.className = 'feedback-box hidden';
+  if (successOverlay) successOverlay.classList.add('hidden');
+  if (choicesArea) choicesArea.style.display = 'grid';
+
+  // อัปเดตเวลาบนหน้าจอ CCTV
+  const clock = document.getElementById('cctv-live-clock');
+  if (clock) {
+    const now = new Date();
+    clock.textContent = now.toTimeString().split(' ')[0];
+  }
+
+  if (modalBackdrop) {
+    modalBackdrop.classList.remove('hidden');
+    modalBackdrop.setAttribute('aria-hidden', 'false');
+  }
+}
+
+function closeCameraModal() {
+  const modalBackdrop = document.getElementById('camera-modal-backdrop');
+  if (modalBackdrop) {
+    modalBackdrop.classList.add('hidden');
+    modalBackdrop.setAttribute('aria-hidden', 'true');
+  }
+  gameState.mode = 'explore';
+  updateStatusIndicator('🔍 โหมดสำรวจห้อง (Day 2)');
+}
+
+function handleCameraChoice(choice) {
+  const card = document.getElementById('camera-modal-card');
+  const statusCard = document.getElementById('camera-status-card');
+  const statusIcon = document.getElementById('camera-status-icon');
+  const statusTitle = document.getElementById('camera-status-title');
+  const portStatus = document.getElementById('cctv-port-status');
+  const fwStatus = document.getElementById('cctv-fw-status');
+  const autoStatus = document.getElementById('cctv-auto-status');
+  const feedbackBox = document.getElementById('camera-feedback-box');
+  const iconElem = document.getElementById('camera-feedback-icon');
+  const titleElem = document.getElementById('camera-feedback-title');
+  const msgElem = document.getElementById('camera-feedback-message');
+  const successOverlay = document.getElementById('camera-success-overlay');
+  const choicesArea = document.getElementById('camera-choices-area');
+
+  if (choice === 'B') {
+    // ถูกต้อง: ปิด Default Port และเปิด Auto-Update (+30 คะแนน)
+    gameState.flags.cameraQuestCompleted = true;
+    if (!gameState.flags.cameraScoreAwarded) {
+      gameState.flags.cameraScoreAwarded = true;
+      addScore(30);
+    }
+    updateQuestLogUI();
+
+    if (statusCard) statusCard.classList.add('secure');
+    if (statusIcon) statusIcon.textContent = '🛡️';
+    if (statusTitle) statusTitle.textContent = 'สถานะ: พอร์ตปลอดภัย และเปิดอัปเดต Firmware อัตโนมัติแล้ว';
+    if (portStatus) { portStatus.textContent = 'ปิดการเข้าถึงภายนอกแล้ว (Secure ✅)'; portStatus.className = 'audit-val safe'; }
+    if (fwStatus) { fwStatus.textContent = 'เวอร์ชันล่าสุด v2.4.0 (Secure ✅)'; fwStatus.className = 'audit-val safe'; }
+    if (autoStatus) { autoStatus.textContent = 'เปิดใช้งานอัตโนมัติ (Enabled ✅)'; autoStatus.className = 'audit-val safe'; }
+
+    if (successOverlay) successOverlay.classList.remove('hidden');
+    if (choicesArea) choicesArea.style.display = 'none';
+    if (feedbackBox) feedbackBox.classList.add('hidden');
+
+    const cameraHotspot = document.getElementById('hotspot-camera');
+    if (cameraHotspot) {
+      cameraHotspot.classList.add('completed');
+      const core = cameraHotspot.querySelector('.hotspot-core');
+      if (core) core.textContent = '✅';
+      const tooltip = cameraHotspot.querySelector('.hotspot-tooltip');
+      if (tooltip) tooltip.textContent = 'ตรวจสอบกล้อง IoT แล้ว (ปลอดภัย ✅)';
+    }
+
+    console.log('📹 Camera Security Configured! Score:', gameState.score);
+
+    setTimeout(() => {
+      closeCameraModal();
+      triggerCameraSuccessDialogue();
+      checkDay2Completion();
+    }, 800);
+  } else {
+    // ผิด: ใช้การตั้งค่าเดิม
+    gameState.mistakesCount++;
+    console.log('⚠️ Mistake on Camera Security! Total mistakes:', gameState.mistakesCount);
+
+    if (card) {
+      card.classList.remove('shake-animation');
+      void card.offsetWidth;
+      card.classList.add('shake-animation');
+    }
+
+    if (feedbackBox && iconElem && titleElem && msgElem) {
+      feedbackBox.className = 'feedback-box danger';
+      iconElem.textContent = '🚨';
+      titleElem.textContent = 'อันตราย! พอร์ตเริ่มต้นและเฟิร์มแวร์เก่าเป็นเป้าหมายหลักของแฮกเกอร์';
+      msgElem.textContent = 'กล้องวงจรปิดที่เปิดพอร์ต RTSP (554) สู่สาธารณะและไม่ได้อัปเดตเฟิร์มแวร์ มักถูกบอตเน็ตอย่าง Mirai สแกนเจาะเข้ามาดูภาพสดตลอด 24 ชั่วโมง หรือถูกยึดไปใช้เป็นฐานโจมตี DDoS เว็บไซต์อื่น!';
+      feedbackBox.classList.remove('hidden');
+    }
+  }
+}
+
+function triggerCameraSuccessDialogue() {
+  gameState.mode = 'inspect';
+  gameState.dialogueIndex = 0;
+  gameState.activeDialogueQueue = [
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '😊',
+      text: 'ตั้งค่ากล้องวงจรปิดเรียบร้อย! ปิดพอร์ตภายนอกและเปิดอัปเดต Firmware แล้ว ป้องกัน Botnet แอบส่องภาพในบ้านได้แน่นอน'
+    }
+  ];
+  openDialogueBox();
+  showCurrentDialogue();
+}
+
+function checkDay2Completion() {
+  const isAllDone = 
+    Boolean(gameState.flags.smsQuestCompleted) && 
+    Boolean(gameState.flags.usbQuestCompleted) && 
+    Boolean(gameState.flags.cameraQuestCompleted);
+
+  if (isAllDone && !gameState.flags.day2Completed) {
+    gameState.flags.day2Completed = true;
+    console.log('🎉 Day 2 All Quests Completed! Total Day 2 Score:', gameState.score);
+    setTimeout(() => {
+      showGameSummaryScreen();
+    }, 700);
+  }
 }
 
 /**
@@ -1424,7 +1942,7 @@ function showGameSummaryScreen() {
   const mistakesCountElem = document.getElementById('cert-mistakes-count');
 
   // สถิติผลสรุป
-  if (threatsCountElem) threatsCountElem.textContent = '3 / 3';
+  if (threatsCountElem) threatsCountElem.textContent = '5 / 5';
   if (safetyPercentElem) safetyPercentElem.textContent = '100%';
   if (mistakesCountElem) {
     mistakesCountElem.textContent = `${gameState.mistakesCount} ครั้ง`;
@@ -1483,12 +2001,16 @@ function restartGame() {
   const phishingBackdrop = document.getElementById('phishing-modal-backdrop');
   const dayCompleteBackdrop = document.getElementById('day-complete-backdrop');
   const smsBackdrop = document.getElementById('sms-modal-backdrop');
+  const usbBackdrop = document.getElementById('usb-modal-backdrop');
+  const cameraBackdrop = document.getElementById('camera-modal-backdrop');
   const questBackdrop = document.getElementById('quest-log-backdrop');
 
   if (routerBackdrop) routerBackdrop.classList.add('hidden');
   if (phishingBackdrop) phishingBackdrop.classList.add('hidden');
   if (dayCompleteBackdrop) dayCompleteBackdrop.classList.add('hidden');
   if (smsBackdrop) smsBackdrop.classList.add('hidden');
+  if (usbBackdrop) usbBackdrop.classList.add('hidden');
+  if (cameraBackdrop) cameraBackdrop.classList.add('hidden');
   if (questBackdrop) questBackdrop.classList.add('hidden');
 
   // 2. รีเซ็ต State ทั้งหมด
@@ -1506,8 +2028,18 @@ function restartGame() {
     day1Completed: false,
     dayCompleteModalShown: false,
     hasExploredPhone: false,
+    smsCurrentCase: 1,
+    smsCase1Completed: false,
+    smsCase2Completed: false,
     smsQuestCompleted: false,
-    smsScoreAwarded: false
+    smsScoreAwarded: false,
+    hasExploredUsb: false,
+    usbQuestCompleted: false,
+    usbScoreAwarded: false,
+    hasExploredCamera: false,
+    cameraQuestCompleted: false,
+    cameraScoreAwarded: false,
+    day2Completed: false
   };
   gameState.dialogueIndex = 0;
   gameState.isTyping = false;
@@ -1552,6 +2084,35 @@ function restartGame() {
   if (smsActions) smsActions.style.display = 'flex';
   if (smsFeedback) smsFeedback.className = 'feedback-box hidden';
 
+  // รีเซ็ต Camera modal elements
+  const cameraStatusCard = document.getElementById('camera-status-card');
+  const cameraStatusIcon = document.getElementById('camera-status-icon');
+  const cameraStatusTitle = document.getElementById('camera-status-title');
+  const portStatus = document.getElementById('cctv-port-status');
+  const fwStatus = document.getElementById('cctv-fw-status');
+  const autoStatus = document.getElementById('cctv-auto-status');
+  const cameraChoices = document.getElementById('camera-choices-area');
+  const cameraFeedback = document.getElementById('camera-feedback-box');
+  const cameraSuccess = document.getElementById('camera-success-overlay');
+
+  if (cameraStatusCard) cameraStatusCard.classList.remove('secure');
+  if (cameraStatusIcon) cameraStatusIcon.textContent = '⚠️';
+  if (cameraStatusTitle) cameraStatusTitle.textContent = 'สถานะ: พอร์ตเริ่มต้น RTSP (554) เปิดสาธารณะ และเฟิร์มแวร์ยังไม่อัปเดต';
+  if (portStatus) { portStatus.textContent = 'พอร์ต 554 (เปิดสู่สาธารณะ)'; portStatus.className = 'audit-val danger'; }
+  if (fwStatus) { fwStatus.textContent = 'v1.0.2 (มีช่องโหว่ Botnet Mirai)'; fwStatus.className = 'audit-val warning'; }
+  if (autoStatus) { autoStatus.textContent = 'ปิดการทำงาน (Disabled)'; autoStatus.className = 'audit-val danger'; }
+  if (cameraChoices) cameraChoices.style.display = 'grid';
+  if (cameraFeedback) cameraFeedback.className = 'feedback-box hidden';
+  if (cameraSuccess) cameraSuccess.classList.add('hidden');
+
+  // รีเซ็ต USB modal elements
+  const usbChoices = document.getElementById('usb-choices-area');
+  const usbFeedback = document.getElementById('usb-feedback-box');
+  const usbSuccess = document.getElementById('usb-success-overlay');
+  if (usbChoices) usbChoices.style.display = 'grid';
+  if (usbFeedback) usbFeedback.className = 'feedback-box hidden';
+  if (usbSuccess) usbSuccess.classList.add('hidden');
+
   // รีเซ็ตสถานะแอนิเมชันตัวละคร
   setPlayerTalkingAnimation(false);
 
@@ -1559,6 +2120,8 @@ function restartGame() {
   const compBtn = document.getElementById('hotspot-computer');
   const routerBtn = document.getElementById('hotspot-router');
   const phoneBtn = document.getElementById('hotspot-phone');
+  const usbBtn = document.getElementById('hotspot-usb');
+  const cameraBtn = document.getElementById('hotspot-camera');
 
   if (compBtn) {
     compBtn.classList.remove('hidden');
@@ -1580,8 +2143,29 @@ function restartGame() {
 
   if (phoneBtn) {
     phoneBtn.classList.add('hidden');
+    phoneBtn.classList.remove('completed');
+    const core = phoneBtn.querySelector('.hotspot-core');
+    if (core) core.textContent = '📱';
     const tooltip = phoneBtn.querySelector('.hotspot-tooltip');
     if (tooltip) tooltip.textContent = 'ตรวจสอบสมาร์ตโฟน';
+  }
+
+  if (usbBtn) {
+    usbBtn.classList.add('hidden');
+    usbBtn.classList.remove('completed');
+    const core = usbBtn.querySelector('.hotspot-core');
+    if (core) core.textContent = '💾';
+    const tooltip = usbBtn.querySelector('.hotspot-tooltip');
+    if (tooltip) tooltip.textContent = 'ตรวจสอบแฟลชไดรฟ์ปริศนา';
+  }
+
+  if (cameraBtn) {
+    cameraBtn.classList.add('hidden');
+    cameraBtn.classList.remove('completed');
+    const core = cameraBtn.querySelector('.hotspot-core');
+    if (core) core.textContent = '📹';
+    const tooltip = cameraBtn.querySelector('.hotspot-tooltip');
+    if (tooltip) tooltip.textContent = 'ตรวจสอบกล้องวงจรปิด IoT';
   }
 
   // 5. รีเซ็ตแสงห้องและ Canvas เป็นฉาก Day 1
