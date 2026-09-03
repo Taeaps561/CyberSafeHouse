@@ -1,0 +1,2501 @@
+/* ==========================================================================
+   Design System & Reset
+   สไตล์โทนอบอุ่น สบายตา (Warm & Cozy Minimalist)
+   ========================================================================== */
+
+:root {
+  /* โทนสีพื้นหลังและบรรยากาศห้องที่อบอุ่น */
+  --bg-page: #f5efe6;
+  --bg-page-gradient: radial-gradient(circle at 50% 30%, #faf6f0 0%, #ebe2d3 100%);
+  --bg-game: #fffdf9;
+  --bg-card: #f9f5ed;
+  
+  /* โทนสีเส้นขอบและเงา */
+  --border-color: #e5dbc9;
+  --border-subtle: #ede6da;
+  --shadow-cozy: 0 24px 50px -12px rgba(100, 78, 55, 0.12), 
+                 0 6px 18px rgba(100, 78, 55, 0.05);
+
+  /* โทนสีตัวอักษร */
+  --text-main: #4a3e35;
+  --text-muted: #8c7d70;
+  --accent-color: #c98b58;
+  --accent-soft: #f2e1cf;
+  --success-dot: #85b09a;
+
+  /* Typography */
+  --font-family: 'Prompt', 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-page-gradient);
+  background-color: var(--bg-page);
+  font-family: var(--font-family);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   App Layout (จัดกึ่งกลางหน้าจอเสมอ)
+   ========================================================================== */
+
+.app-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  padding: 20px;
+}
+
+/* ==========================================================================
+   Game Container (อัตราส่วน 16:9 แบบ Responsive)
+   ========================================================================== */
+
+.game-container {
+  position: relative;
+  /* คำนวณความกว้าง/ความสูงให้คงอัตราส่วน 16:9 และพอดีหน้าจอเสมอ */
+  width: min(92vw, calc(92vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  background-color: var(--bg-game);
+  /* ตั้งค่าภาพพื้นหลัง room-bg.png แสดงผลแบบ cover พอดีกรอบ */
+  background-image: url('room-bg.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-radius: 24px;
+  box-shadow: var(--shadow-cozy);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Canvas สำหรับเรนเดอร์กราฟิกเกม (โปร่งใสเพื่อให้เห็น background-image ของ game-container) */
+#game-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background-color: transparent;
+  pointer-events: none;
+}
+
+/* Room Lighting Overlay (แสงของห้องช่วงบ่าย/เย็น Day 2) */
+.room-lighting-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 140, 50, 0.28) 0%,
+    rgba(245, 115, 30, 0.20) 45%,
+    rgba(175, 75, 20, 0.34) 100%
+  );
+  mix-blend-mode: multiply;
+  transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-container.afternoon-lighting .room-lighting-overlay {
+  opacity: 1;
+}
+
+.game-container.afternoon-lighting {
+  filter: saturate(1.18) contrast(1.04);
+  transition: filter 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   UI Overlay Layer & Placeholder
+   ========================================================================== */
+
+.ui-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px 32px;
+  pointer-events: none; /* ส่งผ่าน event คลิกไปยัง canvas ด้านล่าง เว้นแต่ส่วนที่เป็นปุ่ม */
+  z-index: 20; /* อยู่ด้านหน้าสุดของฉาก เพื่อไม่ให้ตัวละครหรือ Hotspots บัง UI */
+}
+
+/* Header แถบด้านบน */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+  z-index: 15;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent-color);
+  background: var(--accent-soft);
+  padding: 6px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+}
+
+/* ปุ่มไอคอนสมุดบันทึกภารกิจ (Quest Log Button) */
+.quest-log-btn {
+  pointer-events: auto;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 253, 249, 0.95);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--border-color);
+  padding: 5px 12px;
+  border-radius: 18px;
+  font-family: var(--font-family);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  box-shadow: 0 3px 10px rgba(100, 78, 55, 0.07);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.quest-log-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  box-shadow: 0 6px 16px rgba(201, 139, 88, 0.2);
+  background: #ffffff;
+}
+
+.quest-log-btn:active {
+  transform: translateY(0);
+}
+
+.quest-log-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.quest-log-label {
+  letter-spacing: 0.01em;
+}
+
+.quest-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e09f3e;
+  box-shadow: 0 0 0 2px #fff;
+  transition: background-color 0.2s ease;
+}
+
+.quest-badge-dot.all-done {
+  background: #27c93f;
+}
+
+/* แถบ UI ด้านขวาบน: Day Tracker & Security Score */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.day-tracker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 253, 249, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--border-color);
+  padding: 6px 13px;
+  border-radius: 16px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-main);
+  box-shadow: 0 4px 12px rgba(100, 78, 55, 0.06);
+  user-select: none;
+}
+
+.day-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.score-tracker {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  background: rgba(255, 253, 249, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--border-color);
+  padding: 6px 14px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(100, 78, 55, 0.06);
+  user-select: none;
+}
+
+.score-header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.score-icon {
+  font-size: 0.88rem;
+  line-height: 1;
+}
+
+.score-text {
+  font-weight: 700;
+  color: var(--accent-color);
+  font-family: var(--font-family);
+  letter-spacing: 0.01em;
+}
+
+.score-progress-bar {
+  width: 110px;
+  height: 6px;
+  background: #ebe3d5;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.score-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #c98b58 0%, #30b65f 100%);
+  border-radius: 6px;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ซ่อนตัวหนังสือหัวข้อ Placeholder ออกไปเพื่อให้พื้นที่ทั้งหมดกลายเป็นฉากห้องอย่างเต็มตา */
+.placeholder-content {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Dialogue Box System (กล่องบทสนทนาด้านล่าง)
+   ========================================================================== */
+
+.dialogue-box {
+  pointer-events: auto; /* ให้คลิกที่กล่องข้อความได้ */
+  cursor: pointer;
+  display: flex;
+  align-items: stretch;
+  gap: 18px;
+  width: 100%;
+  min-height: 120px;
+  max-height: 160px;
+  padding: 16px 22px;
+  background: rgba(255, 253, 249, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: 0 10px 25px -5px rgba(95, 73, 50, 0.12),
+              0 2px 6px rgba(95, 73, 50, 0.04);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  z-index: 25; /* อยู่ด้านหน้าสุดเสมอ เพื่อไม่ให้ตัวละครยืนทะลุผ่านกล่องข้อความ */
+}
+
+.dialogue-box:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  box-shadow: 0 14px 30px -6px rgba(95, 73, 50, 0.16),
+              0 4px 10px rgba(95, 73, 50, 0.06);
+}
+
+.dialogue-box:active {
+  transform: translateY(0);
+}
+
+/* ส่วนซ้าย: Avatar และชื่อผู้พูด */
+.dialogue-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 80px;
+}
+
+.dialogue-avatar-wrapper {
+  position: relative;
+}
+
+.dialogue-avatar {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f7e6d0 0%, #ecd4be 100%);
+  border: 2.5px solid #fff;
+  box-shadow: 0 4px 10px rgba(110, 89, 75, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.dialogue-box:hover .dialogue-avatar {
+  transform: scale(1.04);
+}
+
+.avatar-placeholder-icon {
+  font-size: 1.85rem;
+  line-height: 1;
+}
+
+.dialogue-speaker-tag {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  background-color: var(--accent-soft);
+  padding: 3px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+/* ส่วนขวา: ข้อความและสัญลักษณ์กะพริบ */
+.dialogue-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  padding: 4px 8px 4px 0;
+}
+
+.dialogue-text {
+  font-size: clamp(0.95rem, 1.35vw, 1.15rem);
+  line-height: 1.65;
+  color: var(--text-main);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  word-break: break-word;
+}
+
+/* ตัวกะพริบ Cursor ขณะกำลังพิมพ์ */
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background-color: var(--accent-color);
+  vertical-align: -0.15em;
+  margin-left: 3px;
+  animation: blinkCursor 0.7s infinite;
+}
+
+@keyframes blinkCursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* สัญลักษณ์บอกว่ากดไปต่อได้ */
+.dialogue-arrow {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(3px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  user-select: none;
+}
+
+.dialogue-arrow.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.arrow-hint {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #ede4d6;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.arrow-icon {
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  animation: cozyBounce 1.2s infinite ease-in-out;
+}
+
+@keyframes cozyBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+/* ปุ่มปิดกล่องบทสนทนา (Close Button) */
+.dialogue-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: #fff;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.dialogue-close-btn:hover {
+  opacity: 1;
+  background-color: var(--accent-soft);
+  color: var(--accent-color);
+  transform: scale(1.1);
+  border-color: var(--accent-color);
+}
+
+/* สถานะซ่อนกล่องข้อความเมื่อเข้าสู่โหมดสำรวจ */
+.dialogue-box.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(24px);
+  pointer-events: none;
+}
+
+/* Status Indicator ด้านบน */
+.status-indicator {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   Characters Layer & Player Sprite (ตัวละครหลัก วิน ฝั่งซ้ายของห้อง)
+   ========================================================================== */
+
+.characters-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.player-sprite {
+  position: absolute;
+  bottom: 0%; /* วางเท้าบนพื้นห้องอย่างเป็นธรรมชาติ */
+  left: 1%;   /* ขยับไปข้างโต๊ะฝั่งซ้าย */
+  height: 60%; /* ขนาดสัดส่วนสมจริงกับห้อง */
+  width: auto;
+  pointer-events: none;
+  user-select: none;
+  transform-origin: bottom center;
+  animation: playerIdleBreathing 3.4s ease-in-out infinite;
+  filter: drop-shadow(0 8px 16px rgba(35, 25, 15, 0.28));
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.player-sprite svg {
+  height: 100%;
+  width: auto;
+  display: block;
+  overflow: visible;
+}
+
+/* แอนิเมชันเด้งเบาๆ เมื่อตัวละครกำลังพูด (Bounce Animation) */
+.player-sprite.talking {
+  animation: playerTalkBounce 0.36s ease-in-out infinite;
+}
+
+/* แอนิเมชันหายใจเบาๆ ตอนอยู่นิ่ง (Idle Breathing) */
+@keyframes playerIdleBreathing {
+  0%, 100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.008, 1.015);
+  }
+}
+
+/* แอนิเมชันเด้งเบาๆ ตามจังหวะพิมพ์ข้อความพูดคุย (Talk Bounce) */
+@keyframes playerTalkBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  30% {
+    transform: translateY(-9px) scale(1.02, 0.98);
+  }
+  65% {
+    transform: translateY(-2px) scale(0.99, 1.01);
+  }
+}
+
+/* ==========================================================================
+   Hotspots Layer & Interactive Beacons (ระบบจุดสำรวจ)
+   ========================================================================== */
+
+.hotspots-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hotspot-btn {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  background: none;
+  border: none;
+  outline: none;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hotspot-btn:hover {
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+/* แกนกลางของจุดสำรวจ */
+.hotspot-core {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff 0%, #f7ecd9 100%);
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 4px 14px rgba(201, 139, 88, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  position: relative;
+  z-index: 2;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.hotspot-btn:hover .hotspot-core {
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(201, 139, 88, 0.45);
+}
+
+/* วงแหวนกะพริบ Pulsing Animation */
+.hotspot-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--accent-color);
+  opacity: 0.8;
+  animation: hotspotPulse 2.2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes hotspotPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  60% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+/* Tooltip ป้ายชื่อจุดสำรวจเมื่อชี้เมาส์ (Floating Tooltip) */
+.hotspot-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: rgba(52, 42, 34, 0.95);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #ffffff;
+  padding: 7px 15px;
+  border-radius: 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.25s;
+  box-shadow: 0 8px 24px rgba(52, 42, 34, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  font-family: var(--font-family);
+  z-index: 25;
+}
+
+.hotspot-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: rgba(52, 42, 34, 0.95) transparent transparent transparent;
+}
+
+.hotspot-btn:hover .hotspot-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   Phishing Detection Modal (หน้าต่างโปรแกรมอีเมลจำลอง)
+   ========================================================================== */
+
+.modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(45, 36, 30, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  padding: 16px;
+}
+
+.modal-backdrop.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.email-modal {
+  width: min(90%, 640px);
+  max-height: 90%;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(45, 35, 25, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+@keyframes modalPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Header แถบหัวหน้าต่าง OS สไตล์โมเดิร์น */
+.modal-header {
+  background: #f7f4ee;
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.window-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-close { background-color: #ff5f56; }
+.dot-minimize { background-color: #ffbd2e; }
+.dot-maximize { background-color: #27c93f; }
+
+.window-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: 0.02em;
+}
+
+/* ปุ่มกากบาทสีแดงปิดมุมขวาบน */
+.modal-close-icon-red {
+  background: #ff5f56;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(255, 95, 86, 0.35);
+}
+
+.modal-close-icon-red:hover {
+  background: #e0443e;
+  transform: scale(1.12);
+  box-shadow: 0 4px 12px rgba(255, 95, 86, 0.45);
+}
+
+.modal-close-icon-red:active {
+  transform: scale(0.95);
+}
+
+/* เนื้อหาในโปรแกรมอีเมล */
+.email-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+
+.email-meta-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.86rem;
+  background: #fbf9f6;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+}
+
+.meta-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.meta-label {
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 48px;
+}
+
+.meta-value {
+  color: var(--text-main);
+  word-break: break-all;
+}
+
+/* แถบหัวจดหมาย: ไฮไลต์สีเทาอ่อน */
+.sender-highlight-gray {
+  color: #1e293b;
+  font-family: monospace;
+  background: #eef2f6;
+  border: 1px solid #d8e2ec;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.subject-highlight {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.email-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 2px 0;
+}
+
+.email-text-content {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.email-link-box {
+  background: #f8fafc;
+  border: 1.5px dashed #94a3b8;
+  padding: 12px 16px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.link-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.fake-link {
+  color: #2563eb;
+  text-decoration: underline;
+  font-family: monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.fake-link:hover {
+  color: #1d4ed8;
+}
+
+/* ปุ่มเลือกการตัดสินใจ (Action Decisions: 2 ปุ่ม) */
+.email-actions-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.action-btn .btn-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* ปุ่มสีน้ำเงิน: 'คลิกลิงก์เพื่อกู้คืนบัญชี' */
+.btn-blue-action {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+}
+
+.btn-blue-action:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.38);
+}
+
+.btn-blue-action:active {
+  transform: translateY(0);
+}
+
+/* ปุ่มสีแดง/ส้ม: 'ทำเครื่องหมายว่าเป็น Phishing และลบอีเมล' */
+.btn-orange-action {
+  background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.28);
+}
+
+.btn-orange-action:hover {
+  background: linear-gradient(135deg, #fb923c 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.38);
+}
+
+.btn-orange-action:active {
+  transform: translateY(0);
+}
+
+/* แอนิเมชันหน้าจอสั่นเบาๆ เมื่อคลิกลิงก์ผิด */
+@keyframes modalShake {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-8px); }
+  30%, 60%, 90% { transform: translateX(8px); }
+}
+
+.email-modal.shake-animation {
+  animation: modalShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Green Checkmark Animation Overlay (แสดงแอนิเมชันติ๊กถูกสีเขียวเมื่อตอบถูก) */
+.phishing-success-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 20;
+  border-radius: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.phishing-success-overlay.hidden {
+  display: none;
+}
+
+.success-checkmark-circle {
+  width: 76px;
+  height: 76px;
+}
+
+.checkmark-svg {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 3.5;
+  stroke: #16a34a;
+  stroke-miterlimit: 10;
+  animation: scaleCheck 0.35s ease-in-out forwards;
+}
+
+.checkmark-circle-bg {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3.5;
+  stroke-miterlimit: 10;
+  stroke: #16a34a;
+  fill: #f0fdf4;
+  animation: strokeCircle 0.45s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke: #16a34a;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: strokeCheck 0.32s cubic-bezier(0.65, 0, 0.45, 1) 0.3s forwards;
+}
+
+@keyframes strokeCircle {
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes strokeCheck {
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes scaleCheck {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.success-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #15803d;
+  margin: 0;
+}
+
+/* กล่องแสดงผลการตรวจคำตอบ (Feedback Alert Box) */
+.feedback-box {
+  margin-top: 8px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: feedbackSlide 0.3s ease-out;
+}
+
+.feedback-box.hidden {
+  display: none;
+}
+
+@keyframes feedbackSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feedback-box.correct {
+  background: #edf8f2;
+  border: 1.5px solid #74cf9e;
+  color: #125e36;
+}
+
+.feedback-box.danger {
+  background: #fdf1ef;
+  border: 1.5px solid #f29680;
+  color: #9c280d;
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feedback-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.feedback-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.feedback-message {
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.feedback-action-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.feedback-btn {
+  background: #ffffff;
+  border: 1px solid currentColor;
+  color: inherit;
+  font-family: var(--font-family);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.feedback-btn:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Router Admin Dashboard Modal (192.168.1.1)
+   ========================================================================== */
+
+.router-modal {
+  width: min(92%, 600px);
+  max-height: 92%;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(45, 35, 25, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.router-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+
+/* แถบข้อมูลอุปกรณ์ด้านบน */
+.router-info-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.router-model-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.84rem;
+}
+
+.router-brand {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.router-ip {
+  color: #64748b;
+  font-family: monospace;
+}
+
+.router-status-badge.online {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #16a34a;
+  background: #ecfdf5;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid #bbf7d0;
+}
+
+/* กล่องประเมินสถานะความปลอดภัย */
+.router-status-card {
+  background: #fffdfa;
+  border: 1.5px solid #fed7aa;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.router-status-card.secure {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.status-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-card-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.status-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.status-card-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #c2410c;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.router-status-card.secure .status-card-title {
+  color: #15803d;
+}
+
+/* แถบระดับความปลอดภัย (Security Meter Track) */
+.router-meter-track {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.router-meter-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.4s ease;
+}
+
+.router-meter-fill.low {
+  background: linear-gradient(90deg, #ef4444 0%, #f97316 100%);
+}
+
+.router-meter-fill.high {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.meter-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ส่วนตั้งค่ารหัสผ่านใหม่ */
+.router-setup-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setup-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.input-preview-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.input-prefix {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.input-display {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.input-display.strong {
+  color: #16a34a;
+}
+
+.choice-instructions {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* กริดปุ่มตัวเลือก 3 ชอยส์ (A, B, C) */
+.router-choices-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.router-choice-btn {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 5px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.router-choice-btn:hover {
+  transform: translateY(-2px);
+  border-color: #94a3b8;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.choice-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+
+.choice-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.choice-risk-tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.choice-risk-tag.danger {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.choice-risk-tag.warning {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.choice-risk-tag.safe {
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.choice-code {
+  font-family: monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-all;
+  margin: 2px 0;
+}
+
+.choice-note {
+  font-size: 0.68rem;
+  color: #64748b;
+  line-height: 1.25;
+}
+
+/* ไฮไลต์ปุ่ม C ปลอดภัยสูง */
+.router-choice-btn.btn-choice-strong {
+  border-color: #86efac;
+  background: #fafdfb;
+}
+
+.router-choice-btn.btn-choice-strong:hover {
+  border-color: #22c55e;
+  box-shadow: 0 6px 18px rgba(34, 197, 94, 0.18);
+}
+
+.choice-tag.tag-strong {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.choice-code.code-strong {
+  color: #16a34a;
+}
+
+/* ==========================================================================
+   Day Complete Modal (ป๊อปอัปแจ้งเตือนภารกิจสำเร็จ)
+   ========================================================================== */
+
+.day-complete-card {
+  width: min(90%, 480px);
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(55, 42, 30, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  animation: celebratePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 28px;
+  text-align: center;
+  align-items: center;
+  gap: 20px;
+}
+
+@keyframes celebratePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.day-complete-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ไอคอนดาว 3 ดวงสีทอง */
+.day-complete-stars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+.day-complete-stars .star-icon {
+  font-size: 2.6rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 14px rgba(234, 179, 8, 0.45));
+  animation: starShine 1.8s ease-in-out infinite alternate;
+  display: inline-block;
+  user-select: none;
+}
+
+.day-complete-stars .star-center {
+  font-size: 3.4rem;
+  transform: translateY(-6px);
+  animation-delay: 0.25s;
+}
+
+@keyframes starShine {
+  0% {
+    transform: scale(0.94);
+    filter: drop-shadow(0 2px 8px rgba(234, 179, 8, 0.35));
+  }
+  100% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 8px 22px rgba(250, 204, 21, 0.8));
+  }
+}
+
+.trophy-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff3d6 0%, #ffe194 100%);
+  border: 3px solid #ffcf56;
+  box-shadow: 0 8px 24px rgba(255, 193, 7, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  line-height: 1;
+  animation: trophyWiggle 2s infinite ease-in-out;
+}
+
+@keyframes trophyWiggle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-4px) rotate(-4deg); }
+  75% { transform: translateY(-4px) rotate(4deg); }
+}
+
+.day-badge-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #a86c2e;
+  background: #fdf3e7;
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid #f4dec3;
+}
+
+.day-complete-title {
+  font-size: clamp(1.4rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+  margin-top: 2px;
+}
+
+.day-complete-desc {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  max-width: 360px;
+}
+
+/* สรุปคะแนนเควสต์ใน Day */
+.day-complete-summary {
+  width: 100%;
+  background: #faf7f2;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-card-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-card-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  text-align: left;
+}
+
+.summary-item-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.summary-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.summary-item-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.summary-item-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1a7f4c;
+  background: #eef9f2;
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+
+.day-score-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.total-value {
+  font-weight: 700;
+  color: #1a7f4c;
+  background: #e3f6ea;
+  padding: 4px 12px;
+  border-radius: 10px;
+}
+
+/* ปุ่มไปต่อยัง Day 2 */
+.day-complete-actions {
+  width: 100%;
+}
+
+.btn-next-day {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #d49563 0%, #b8753d 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-family);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(184, 117, 61, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-next-day:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(184, 117, 61, 0.45);
+  background: linear-gradient(135deg, #dfa272 0%, #c4824b 100%);
+}
+
+.btn-next-day:active {
+  transform: translateY(0);
+}
+
+.btn-arrow-icon {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-next-day:hover .btn-arrow-icon {
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
+   Quest Log Notebook Modal (สมุดบันทึกภารกิจ)
+   ========================================================================== */
+
+.quest-notebook-card {
+  width: min(90%, 460px);
+  background: #fffefb;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(55, 42, 30, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-top: 6px solid #b8753d;
+}
+
+.notebook-spiral-binding {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 6px 20px 0;
+  background: #f7ede1;
+  border-bottom: 1px dashed #d9c5ae;
+}
+
+.spiral-ring {
+  width: 10px;
+  height: 14px;
+  background: #b5a593;
+  border-radius: 5px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.notebook-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #fdfaf4;
+}
+
+.notebook-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notebook-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.notebook-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.notebook-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.notebook-body {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: radial-gradient(#ece4d8 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-color: #fffdfa;
+}
+
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quest-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(100, 78, 55, 0.04);
+  transition: all 0.25s ease;
+}
+
+.quest-checkbox-icon {
+  font-size: 1.05rem;
+  line-height: 1;
+  font-family: monospace;
+  font-weight: bold;
+  color: #a89a8c;
+  min-width: 26px;
+  text-align: center;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.quest-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quest-item-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-main);
+  transition: all 0.25s ease;
+}
+
+.quest-item-status {
+  font-size: 0.75rem;
+  color: #b8753d;
+  font-weight: 500;
+}
+
+/* สถานะทำภารกิจสำเร็จ: ขีดฆ่าข้อความ และสีเขียว */
+.quest-item.completed {
+  background: #f7faf7;
+  border-color: #a3deb8;
+}
+
+.quest-item.completed .quest-checkbox-icon {
+  color: #1a7f4c;
+  font-weight: bold;
+}
+
+.quest-item.completed .quest-item-text {
+  text-decoration: line-through;
+  color: #8c7d70;
+  opacity: 0.75;
+}
+
+.quest-item.completed .quest-item-status {
+  color: #1a7f4c;
+  font-weight: 600;
+}
+
+.quest-notebook-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.quest-progress-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.quest-progress-count {
+  color: #1a7f4c;
+  background: #eef9f2;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.notebook-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.notebook-actions {
+  padding: 14px 22px 18px;
+  background: #fdfaf4;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.btn-notebook-close {
+  width: 100%;
+  padding: 10px 16px;
+  background: #f2e7da;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-notebook-close:hover {
+  background: #e8d9c6;
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Screen Transition Overlay (Fade to Black: 1 วินาที)
+   ========================================================================== */
+
+.screen-fade-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #14100c;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  user-select: none;
+}
+
+.screen-fade-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.fade-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: fadeTextRise 0.8s ease-out;
+}
+
+@keyframes fadeTextRise {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fade-sun-icon {
+  font-size: 2.5rem;
+  animation: sunGlow 1.5s infinite ease-in-out alternate;
+}
+
+@keyframes sunGlow {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 16px #e09f3e); }
+}
+
+.fade-day-text {
+  font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+  font-weight: 700;
+  color: #fff4e6;
+  letter-spacing: 0.04em;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   Smartphone SMS Scam Modal (มินิเกมมือถือ)
+   ========================================================================== */
+
+.phone-frame-modal {
+  width: min(90%, 390px);
+  background: #f7f7f9;
+  border-radius: 36px;
+  border: 4px solid #383029;
+  box-shadow: 0 24px 60px rgba(35, 25, 15, 0.35), 0 0 0 2px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.phone-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 22px 4px;
+  background: #f2f2f7;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  user-select: none;
+}
+
+.phone-notch {
+  width: 90px;
+  height: 18px;
+  background: #383029;
+  border-radius: 10px;
+}
+
+.phone-signal-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+}
+
+.phone-app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 12px;
+  background: #f2f2f7;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.phone-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.phone-back-arrow {
+  font-size: 1.6rem;
+  color: #007aff;
+  line-height: 1;
+  font-weight: 300;
+  cursor: pointer;
+}
+
+.contact-avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e5e5ea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+}
+
+.contact-text-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1c1c1e;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.contact-phone {
+  font-size: 0.72rem;
+  color: #8e8e93;
+}
+
+.phone-close-icon {
+  background: #e5e5ea;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  color: #636366;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.phone-close-icon:hover {
+  background: #d1d1d6;
+  color: #1c1c1e;
+}
+
+.phone-chat-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  max-height: 480px;
+  background: #fdfdfd;
+}
+
+.chat-date-pill {
+  align-self: center;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #8e8e93;
+  background: #ececee;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.sms-bubble-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 90%;
+}
+
+.sms-message-bubble {
+  background: #e9e9eb;
+  padding: 12px 16px;
+  border-radius: 18px 18px 18px 4px;
+  color: #1c1c1e;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sms-text-content {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0;
+  word-break: break-word;
+}
+
+.sms-fake-link {
+  color: #007aff;
+  font-weight: 600;
+  text-decoration: underline;
+  word-break: break-all;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.sms-time-meta {
+  align-self: flex-end;
+  font-size: 0.68rem;
+  color: #8e8e93;
+}
+
+/* ตัวเลือกการตัดสินใจใน SMS */
+.sms-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 12px;
+  background: #f7f7f9;
+  border-radius: 16px;
+  border: 1px solid #e5e5ea;
+}
+
+.sms-action-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #636366;
+  text-align: center;
+}
+
+.sms-buttons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sms-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-sms-danger {
+  background: #fff4f2;
+  border-color: #f7cbbe;
+  color: #b8381b;
+}
+
+.btn-sms-danger:hover {
+  background: #fee7e2;
+  border-color: #e86343;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 56, 27, 0.15);
+}
+
+.btn-sms-safe {
+  background: #effaf4;
+  border-color: #c4ecd5;
+  color: #1a7f4c;
+}
+
+.btn-sms-safe:hover {
+  background: #dff5e8;
+  border-color: #38b471;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26, 127, 76, 0.15);
+}
+
+/* ซ่อน element เมื่อมี class .hidden */
+.hotspot-btn.hidden,
+.quest-item.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Certificate Summary Screen (หน้าต่างสรุปผลจบเกมเต็มจอ)
+   ========================================================================== */
+
+.summary-backdrop {
+  background: rgba(26, 20, 15, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 95;
+}
+
+.certificate-card {
+  width: min(94%, 560px);
+  background: #fffdf9;
+  border-radius: 24px;
+  border: 4px solid #b8753d;
+  box-shadow: 0 28px 70px rgba(35, 22, 10, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  animation: modalPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.certificate-inner-border {
+  border: 1.5px solid #dfcfb8;
+  border-radius: 16px;
+  padding: 24px 20px 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: radial-gradient(#faf4eb 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* มุมประดับใบประกาศ */
+.cert-corner {
+  position: absolute;
+  color: #b8753d;
+  font-size: 0.9rem;
+  line-height: 1;
+  user-select: none;
+}
+.cert-top-left { top: 6px; left: 8px; }
+.cert-top-right { top: 6px; right: 8px; }
+.cert-bottom-left { bottom: 6px; left: 8px; }
+.cert-bottom-right { bottom: 6px; right: 8px; }
+
+/* ส่วนหัวใบประกาศ */
+.certificate-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.cert-shield-badge {
+  font-size: 2.2rem;
+  line-height: 1;
+  margin-bottom: 2px;
+  filter: drop-shadow(0 4px 10px rgba(184, 117, 61, 0.3));
+}
+
+.cert-subtitle {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #b8753d;
+  text-transform: uppercase;
+}
+
+.cert-title {
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 2px 0 0;
+}
+
+.cert-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* แถบแสดง Rank */
+.cert-rank-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1.5px solid #ebd9c5;
+  box-shadow: 0 4px 16px rgba(100, 78, 55, 0.05);
+}
+
+.cert-rank-badge {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 2rem;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+/* Rank S */
+.cert-rank-badge.rank-s {
+  background: linear-gradient(135deg, #ffd700 0%, #e6a817 100%);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.45);
+  border: 3px solid #fff5cc;
+}
+
+/* Rank A */
+.cert-rank-badge.rank-a {
+  background: linear-gradient(135deg, #4ea8de 0%, #207398 100%);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(78, 168, 222, 0.4);
+  border: 3px solid #d4ebf8;
+}
+
+.cert-rank-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cert-rank-prefix {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.cert-rank-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+  color: #b8753d;
+}
+
+.cert-rank-title.title-a {
+  color: #1e6f9f;
+}
+
+.cert-rank-desc {
+  font-size: 0.78rem;
+  color: #7a6e63;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* กริดสถิติ */
+.cert-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.cert-stat-item {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #ebd9c5;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.cert-stat-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.cert-stat-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cert-stat-val {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.cert-stat-lbl {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+/* แท็กความสำเร็จ */
+.cert-achievements-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.cert-tag {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #1a7f4c;
+  background: #edf8f1;
+  border: 1px solid #c0e8d0;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+/* ปุ่มเล่นใหม่อีกครั้ง */
+.certificate-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.btn-restart-game {
+  width: 100%;
+  max-width: 320px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #c98b58 0%, #b8753d 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-family);
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(184, 117, 61, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-restart-game:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(184, 117, 61, 0.45);
+  background: linear-gradient(135deg, #dfa272 0%, #c4824b 100%);
+}
+
+.btn-restart-game:active {
+  transform: translateY(0);
+}
+
+.restart-icon {
+  font-size: 1.05rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-restart-game:hover .restart-icon {
+  transform: rotate(-180deg);
+}
+
+@media (max-width: 560px) {
+  .router-choices-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+
+
+

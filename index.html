@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber Security Awareness - Narrative Point & Click</title>
+  <meta name="description" content="เกม 2D Narrative Point & Click แนว Cyber Security Awareness สไตล์ภาพอบอุ่น สบายตา">
+
+  <!-- Google Fonts: Prompt & Nunito สำหรับภาษาไทยและอังกฤษที่ดูอบอุ่น มินิมอล -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- พื้นที่หลักจัดกึ่งกลางหน้าจอ -->
+  <main class="app-layout">
+    <div id="game-container" class="game-container">
+      <!-- Canvas หรือ Game Screen สำหรับเรนเดอร์ภาพ/ฉาก -->
+      <canvas id="game-canvas" width="1280" height="720"></canvas>
+
+      <!-- Room Lighting Overlay (แสงของห้องช่วงบ่าย/เย็น Day 2) -->
+      <div id="room-lighting-overlay" class="room-lighting-overlay" aria-hidden="true"></div>
+
+      <!-- Characters Layer (ตัวละครหลัก วิน ยืนเต็มตัวฝั่งซ้ายของห้อง) -->
+      <div id="characters-layer" class="characters-layer">
+        <div id="player-sprite" class="player-sprite" aria-label="วิน - ตัวละครหลัก">
+          <svg class="player-character-svg" viewBox="0 0 180 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g class="character-shadow">
+              <!-- เงาใต้เท้าบนพื้นห้อง -->
+              <ellipse cx="90" cy="428" rx="46" ry="9" fill="rgba(42, 30, 20, 0.24)" />
+            </g>
+
+            <g class="character-body">
+              <!-- ขาท่อนล่าง (Lower Legs) -->
+              <g class="legs">
+                <path d="M 64 324 L 63 414 L 79 414 L 80 324 Z" fill="#fcdcc4" />
+                <path d="M 100 324 L 101 414 L 117 414 L 116 324 Z" fill="#fcdcc4" />
+                <rect x="76" y="336" width="3" height="74" fill="#f0be9d" opacity="0.6" rx="1.5" />
+                <rect x="101" y="336" width="3" height="74" fill="#f0be9d" opacity="0.6" rx="1.5" />
+              </g>
+
+              <!-- รองเท้าผ้าใบ (Sneakers) -->
+              <g class="shoes">
+                <!-- รองเท้าซ้าย -->
+                <path d="M 48 424 L 84 424 C 85 427, 83 430, 80 430 L 46 430 C 44 427, 46 424, 48 424 Z" fill="#ebe4d8" stroke="#3e342b" stroke-width="1.6" />
+                <path d="M 50 424 C 49 414, 56 403, 68 403 C 77 403, 83 413, 83 424 Z" fill="#ffffff" stroke="#3e342b" stroke-width="1.8" />
+                <path d="M 57 412 L 68 421" stroke="#252c37" stroke-width="2.2" stroke-linecap="round" />
+                <line x1="68" y1="409" x2="75" y2="413" stroke="#dfd7cb" stroke-width="1.8" stroke-linecap="round" />
+
+                <!-- รองเท้าขวา -->
+                <path d="M 96 424 L 132 424 C 134 427, 132 430, 130 430 L 94 430 C 92 427, 94 424, 96 424 Z" fill="#ebe4d8" stroke="#3e342b" stroke-width="1.6" />
+                <path d="M 97 424 C 97 413, 103 403, 112 403 C 124 403, 131 414, 130 424 Z" fill="#ffffff" stroke="#3e342b" stroke-width="1.8" />
+                <path d="M 112 421 L 123 412" stroke="#252c37" stroke-width="2.2" stroke-linecap="round" />
+                <line x1="105" y1="413" x2="112" y2="409" stroke="#dfd7cb" stroke-width="1.8" stroke-linecap="round" />
+              </g>
+
+              <!-- กางเกงขาสั้นสีเข้ม (Dark Navy/Charcoal Shorts) -->
+              <g class="shorts">
+                <path d="M 53 238 Q 90 242 127 238 L 131 334 L 98 334 L 95 272 Q 90 274 85 272 L 82 334 L 49 334 Z" fill="#252c37" stroke="#1c222c" stroke-width="2" stroke-linejoin="round" />
+                <!-- ตะเข็บและกระเป๋ากางเกง -->
+                <path d="M 57 250 Q 67 266 63 286" fill="none" stroke="#3d4758" stroke-width="1.6" stroke-linecap="round" />
+                <path d="M 123 250 Q 113 266 117 286" fill="none" stroke="#3d4758" stroke-width="1.6" stroke-linecap="round" />
+                <path d="M 85 240 L 85 264" fill="none" stroke="#1b2029" stroke-width="1.6" />
+                <path d="M 95 240 L 95 264" fill="none" stroke="#1b2029" stroke-width="1.6" />
+              </g>
+
+              <!-- เสื้อยืดสีขาว คลีนๆ สไตล์มินิมอล (Clean White T-Shirt) -->
+              <g class="tshirt">
+                <!-- แขนเสื้อซ้าย -->
+                <path d="M 55 128 L 25 180 L 48 195 L 67 148 Z" fill="#ffffff" stroke="#3c3228" stroke-width="2" stroke-linejoin="round" />
+                <path d="M 25 180 L 48 195" stroke="#ded4c5" stroke-width="1.8" />
+
+                <!-- แขนเสื้อขวา -->
+                <path d="M 125 128 L 155 180 L 132 195 L 113 148 Z" fill="#ffffff" stroke="#3c3228" stroke-width="2" stroke-linejoin="round" />
+                <path d="M 155 180 L 132 195" stroke="#ded4c5" stroke-width="1.8" />
+
+                <!-- ลำตัวเสื้อยืดสีขาว -->
+                <path d="M 54 128 L 47 246 Q 90 252 133 246 L 126 128 Q 90 132 54 128 Z" fill="#ffffff" stroke="#3c3228" stroke-width="2" stroke-linejoin="round" />
+                <!-- เงาชายเสื้อด้านล่าง -->
+                <path d="M 47 236 Q 90 244 133 236 L 133 246 Q 90 252 47 246 Z" fill="#f2ede4" />
+                <!-- รอยยับเสื้อยืดธรรมชาติ -->
+                <path d="M 57 204 Q 73 214 85 206" fill="none" stroke="#ded4c5" stroke-width="1.8" stroke-linecap="round" />
+                <path d="M 95 218 Q 109 225 123 216" fill="none" stroke="#ded4c5" stroke-width="1.8" stroke-linecap="round" />
+                <path d="M 63 162 Q 75 170 82 163" fill="none" stroke="#ede7dc" stroke-width="1.8" stroke-linecap="round" />
+
+                <!-- ปกคอกลม (Crewneck Collar) -->
+                <path d="M 72 116 Q 90 132 108 116 Q 90 122 72 116 Z" fill="#f7f2ea" stroke="#3c3228" stroke-width="2" stroke-linejoin="round" />
+              </g>
+
+              <!-- แขนและมือ (Arms & Hands) -->
+              <g class="arms">
+                <!-- แขนซ้ายและมือ -->
+                <path d="M 29 184 L 34 242 Q 35 258 45 256 Q 52 254 49 238 L 45 193 Z" fill="#fcdcc4" stroke="#3c3228" stroke-width="1.8" stroke-linejoin="round" />
+                <path d="M 43 244 Q 40 249 45 252" fill="none" stroke="#3c3228" stroke-width="1.5" stroke-linecap="round" />
+
+                <!-- แขนขวาและมือ -->
+                <path d="M 151 184 L 146 242 Q 145 258 135 256 Q 128 254 131 238 L 135 193 Z" fill="#fcdcc4" stroke="#3c3228" stroke-width="1.8" stroke-linejoin="round" />
+                <path d="M 137 244 Q 140 249 135 252" fill="none" stroke="#3c3228" stroke-width="1.5" stroke-linecap="round" />
+              </g>
+
+              <!-- คอ (Neck) -->
+              <g class="neck">
+                <rect x="80" y="100" width="20" height="24" rx="6" fill="#fcdcc4" stroke="#3c3228" stroke-width="1.8" />
+                <path d="M 80 108 Q 90 116 100 108 Z" fill="#f0be9d" />
+              </g>
+
+              <!-- ใบหน้าและศีรษะ (Head & Face) -->
+              <g class="head">
+                <!-- โครงหน้า -->
+                <path d="M 64 64 C 64 34, 116 34, 116 64 C 116 94, 90 108, 90 108 C 90 108, 64 94, 64 64 Z" fill="#fcdcc4" stroke="#3c3228" stroke-width="2" stroke-linejoin="round" />
+
+                <!-- ใบหู -->
+                <path d="M 65 62 C 57 62, 57 76, 65 77 Z" fill="#fcdcc4" stroke="#3c3228" stroke-width="1.8" />
+                <path d="M 115 62 C 123 62, 123 76, 115 77 Z" fill="#fcdcc4" stroke="#3c3228" stroke-width="1.8" />
+                <path d="M 63 68 Q 60 71 63 74" fill="none" stroke="#f0be9d" stroke-width="1.5" />
+                <path d="M 117 68 Q 120 71 117 74" fill="none" stroke="#f0be9d" stroke-width="1.5" />
+
+                <!-- พวงแก้มสีชมพูระเรื่อ (Blush) -->
+                <circle cx="73" cy="76" r="5.5" fill="#f89d91" opacity="0.45" />
+                <circle cx="107" cy="76" r="5.5" fill="#f89d91" opacity="0.45" />
+
+                <!-- ดวงตา (Eyes) -->
+                <ellipse cx="76" cy="69" rx="3.5" ry="4.5" fill="#2d221a" />
+                <circle cx="75" cy="67.5" r="1.3" fill="#ffffff" />
+                <ellipse cx="104" cy="69" rx="3.5" ry="4.5" fill="#2d221a" />
+                <circle cx="103" cy="67.5" r="1.3" fill="#ffffff" />
+
+                <!-- คิ้ว (Eyebrows) -->
+                <path d="M 71 60 Q 76 57 82 60" fill="none" stroke="#2d221a" stroke-width="2" stroke-linecap="round" />
+                <path d="M 98 60 Q 104 57 109 60" fill="none" stroke="#2d221a" stroke-width="2" stroke-linecap="round" />
+
+                <!-- จมูก (Nose) -->
+                <path d="M 90 69 L 88 74 L 91 74" fill="none" stroke="#d59d79" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+
+                <!-- รอยยิ้ม (Smiling Mouth) -->
+                <path d="M 84 83 Q 90 89 96 83" fill="none" stroke="#2d221a" stroke-width="2" stroke-linecap="round" />
+              </g>
+
+              <!-- ทรงผมสั้นวัยรุ่น (Short Hair - Youthful Minimalist) -->
+              <g class="hair">
+                <!-- ผมด้านหลังและโคนผม -->
+                <path d="M 58 64 C 54 36, 70 14, 90 14 C 110 14, 126 36, 122 64 C 115 52, 106 48, 97 49 C 89 50, 83 56, 78 50 C 69 51, 63 58, 58 64 Z" fill="#2f231b" stroke="#211812" stroke-width="2" stroke-linejoin="round" />
+                <!-- ช่อผมด้านหน้าและปอยผม -->
+                <path d="M 64 50 L 69 62 L 75 49 L 83 63 L 90 48 L 98 61 L 105 49 L 112 59 L 116 48" fill="#2f231b" stroke="#211812" stroke-width="1.8" stroke-linejoin="round" />
+                <!-- แสงสะท้อนบนเส้นผม (Hair Shine) -->
+                <path d="M 72 26 Q 90 20 108 26" fill="none" stroke="#5d4637" stroke-width="3.5" stroke-linecap="round" opacity="0.85" />
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Hotspots Layer (จุดสำรวจวัตถุในห้อง) -->
+      <div id="hotspots-layer" class="hotspots-layer">
+        <!-- จุดที่ 1 (Day 1): หน้าจอคอมพิวเตอร์ (โต๊ะทำงาน) -->
+        <button class="hotspot-btn" id="hotspot-computer" style="top: 47%; left: 13.5%;" aria-label="สำรวจหน้าจอคอมพิวเตอร์">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">🖥️</span>
+          <span class="hotspot-tooltip">ตรวจสอบหน้าจอคอมพิวเตอร์</span>
+        </button>
+
+        <!-- จุดที่ 2 (Day 1): เราเตอร์ Wi-Fi (ชั้นวางของ) -->
+        <button class="hotspot-btn" id="hotspot-router" style="top: 34%; left: 81%;" aria-label="สำรวจเราเตอร์ Wi-Fi">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">📡</span>
+          <span class="hotspot-tooltip">ตรวจสอบเราเตอร์ Wi-Fi</span>
+        </button>
+
+        <!-- จุดที่ 3 (Day 2): สมาร์ตโฟนบนโต๊ะ -->
+        <button class="hotspot-btn hidden" id="hotspot-phone" style="top: 66%; left: 28%;" aria-label="สำรวจสมาร์ตโฟนบนโต๊ะ">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">📱</span>
+          <span class="hotspot-tooltip">ตรวจสอบสมาร์ตโฟน</span>
+        </button>
+      </div>
+
+      <!-- UI Overlay Layer (สำหรับวางบทสนทนา, กล่องตัวเลือก, หรือเมนู) -->
+      <div id="ui-layer" class="ui-layer">
+        <header class="game-header">
+          <div class="header-left">
+            <span class="badge">Cyber Awareness Game</span>
+            <!-- ไอคอนสมุดบันทึกภารกิจ (Quest Log) -->
+            <button id="quest-log-btn" class="quest-log-btn" aria-label="เปิดสมุดบันทึกภารกิจ" title="สมุดบันทึกภารกิจ">
+              <span class="quest-log-icon">📓</span>
+              <span class="quest-log-label">สมุดภารกิจ</span>
+              <span id="quest-badge-dot" class="quest-badge-dot"></span>
+            </button>
+            <span class="status-indicator" id="game-status-hint">💡 โหมดบทนำ</span>
+          </div>
+
+          <!-- แถบ UI ด้านขวาบน: แสดง Day และ Security Score -->
+          <div class="header-right">
+            <div class="day-tracker" id="day-tracker">
+              <span class="day-icon">📅</span>
+              <span class="day-text" id="day-text">Day 1</span>
+            </div>
+            <div class="score-tracker" id="score-tracker">
+              <div class="score-header-row">
+                <span class="score-icon">🛡️</span>
+                <span class="score-text" id="score-text">Security Score: 0/100</span>
+              </div>
+              <div class="score-progress-bar">
+                <div class="score-progress-fill" id="score-progress-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Dialogue Box (กล่องข้อความสนทนาด้านล่าง) -->
+        <div id="dialogue-box" class="dialogue-box" role="region" aria-label="Dialogue Box">
+          <!-- ปุ่มปิดกล่องข้อความ -->
+          <button id="dialogue-close-btn" class="dialogue-close-btn" aria-label="ปิดกล่องข้อความ" title="ปิด">✕</button>
+
+          <!-- ด้านซ้าย: Avatar & ชื่อผู้พูด -->
+          <div class="dialogue-left">
+            <div class="dialogue-avatar-wrapper">
+              <div class="dialogue-avatar" id="dialogue-avatar">
+                <span class="avatar-placeholder-icon">🧑‍💻</span>
+              </div>
+            </div>
+            <div class="dialogue-speaker-tag" id="dialogue-speaker">วิน (ตัวเอก)</div>
+          </div>
+
+          <!-- ด้านขวา: เนื้อหาบทสนทนา & สัญลักษณ์คลิกไปต่อ -->
+          <div class="dialogue-right">
+            <p class="dialogue-text" id="dialogue-text"></p>
+            <div class="dialogue-arrow" id="dialogue-arrow" aria-hidden="true">
+              <span class="arrow-hint">Space / Click</span>
+              <span class="arrow-icon">▼</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phishing Email Modal (หน้าต่างโปรแกรมเช็กอีเมลจำลอง) -->
+        <div id="phishing-modal-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card email-modal" id="email-modal-card" role="dialog" aria-modal="true" aria-labelledby="email-window-title">
+            <!-- Window Header: สีขาวสะอาดตา พร้อมปุ่มกากบาทสีแดงปิดมุมขวาบน -->
+            <div class="modal-header">
+              <div class="window-controls">
+                <span class="dot dot-close"></span>
+                <span class="dot dot-minimize"></span>
+                <span class="dot dot-maximize"></span>
+              </div>
+              <div class="window-title" id="email-window-title">📧 กล่องจดหมายเข้า (1 ข้อความใหม่)</div>
+              <!-- ปุ่มกากบาทสีแดงปิดมุมขวาบน -->
+              <button id="email-modal-close-btn" class="modal-close-icon-red" aria-label="ปิดหน้าต่าง" title="ปิดหน้าต่าง">✕</button>
+            </div>
+
+            <!-- Email Interface Content -->
+            <div class="email-body">
+              <!-- แถบหัวจดหมาย: จาก admin-support@secure-bank-th.xyz (เน้นไฮไลต์สีเทาอ่อน) -->
+              <div class="email-meta-grid">
+                <div class="meta-row">
+                  <span class="meta-label">ผู้ส่ง:</span>
+                  <span class="meta-value sender-highlight-gray">admin-support@secure-bank-th.xyz</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">หัวข้อ:</span>
+                  <span class="meta-value subject-highlight">[แจ้งเตือนด่วน] บัญชีของคุณถูกระงับชั่วคราว</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">ถึง:</span>
+                  <span class="meta-value">win.security@home-network.local</span>
+                </div>
+              </div>
+
+              <div class="email-divider"></div>
+
+              <!-- เนื้อหาอีเมล -->
+              <div class="email-text-content">
+                <p>ตรวจพบการเข้าสู่ระบบจากอุปกรณ์ที่ไม่รู้จัก กรุณายืนยันตัวตนเพื่อปลดล็อกบัญชีภายใน 1 ชั่วโมง</p>
+                <div class="email-link-box">
+                  <span class="link-label">🔗 ลิงก์ปุ่มกดในเนื้อหา:</span>
+                  <a href="#" class="fake-link" id="email-preview-link" onclick="return false;">http://verify-bank-account.fake-update.com</a>
+                </div>
+              </div>
+
+              <!-- Action Decision Buttons: 2 ปุ่มด้านล่าง -->
+              <div class="email-actions-area" id="email-actions-area">
+                <!-- ปุ่มสีส้ม/แดง: 'รายงานว่าเป็น Phishing และลบอีเมล' -->
+                <button id="btn-choice-b" class="action-btn btn-orange-action">
+                  <span class="btn-icon">🛡️</span>
+                  <span class="btn-text">รายงานว่าเป็น Phishing และลบอีเมล</span>
+                </button>
+                <!-- ปุ่มสีน้ำเงิน: 'คลิกลิงก์เพื่อยืนยันตัวตน' -->
+                <button id="btn-choice-a" class="action-btn btn-blue-action">
+                  <span class="btn-icon">🔗</span>
+                  <span class="btn-text">คลิกลิงก์เพื่อยืนยันตัวตน</span>
+                </button>
+              </div>
+
+              <!-- Feedback Result Box (แสดงแจ้งเตือนสีแดงเมื่อคลิกลิงก์ผิด) -->
+              <div id="phishing-feedback-box" class="feedback-box hidden" role="alert">
+                <div class="feedback-header">
+                  <span class="feedback-icon" id="feedback-icon">🚨</span>
+                  <h3 class="feedback-title" id="feedback-title">อันตราย! คุณเผลอกดลิงก์ที่ไม่ปลอดภัย</h3>
+                </div>
+                <p class="feedback-message" id="feedback-message">ลิงก์ verify-bank-account.fake-update.com เป็นเว็บไซต์ฟิชชิงที่มิจฉาชีพสร้างขึ้นเพื่อขโมยข้อมูล ธนาคารจริงจะไม่มีการส่งลิงก์เพื่อให้กรอกข้อมูลฉุกเฉินในลักษณะนี้</p>
+                <div class="feedback-action-row">
+                  <button id="feedback-close-btn" class="feedback-btn feedback-retry-btn">🔄 ลองใหม่อีกครั้ง</button>
+                </div>
+              </div>
+
+              <!-- Green Checkmark Animation Overlay (แสดงแอนิเมชันติ๊กถูกสีเขียวเมื่อตอบถูก) -->
+              <div id="phishing-success-overlay" class="phishing-success-overlay hidden" aria-hidden="true">
+                <div class="success-checkmark-circle">
+                  <svg class="checkmark-svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  </svg>
+                </div>
+                <h3 class="success-title">ตรวจจับ Phishing ถูกต้อง!</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Router Admin Dashboard Modal (หน้าต่างจัดการเราเตอร์ 192.168.1.1) -->
+        <div id="router-modal-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card router-modal" id="router-modal-card" role="dialog" aria-modal="true" aria-labelledby="router-window-title">
+            <!-- Window Header -->
+            <div class="modal-header">
+              <div class="window-controls">
+                <span class="dot dot-close"></span>
+                <span class="dot dot-minimize"></span>
+                <span class="dot dot-maximize"></span>
+              </div>
+              <div class="window-title" id="router-window-title">🌐 Wi-Fi Gateway Admin Dashboard (192.168.1.1)</div>
+              <button id="router-modal-close-btn" class="modal-close-icon-red" aria-label="ปิดหน้าต่าง" title="ปิดหน้าต่าง">✕</button>
+            </div>
+
+            <!-- Router Dashboard Body -->
+            <div class="router-body">
+              <!-- Header Bar / Device Info -->
+              <div class="router-info-bar">
+                <div class="router-model-info">
+                  <span class="router-brand">HomeSecure™ AC1200 Dual-Band</span>
+                  <span class="router-ip">Gateway IP: 192.168.1.1</span>
+                </div>
+                <span class="router-status-badge online">● เชื่อมต่อแล้ว (Connected)</span>
+              </div>
+
+              <!-- Security Status Warning Box -->
+              <div class="router-status-card" id="router-status-card">
+                <div class="status-card-header">
+                  <span class="status-card-icon" id="router-status-icon">⚠️</span>
+                  <div class="status-card-text">
+                    <span class="status-card-label">การประเมินความปลอดภัยระบบ:</span>
+                    <h3 class="status-card-title" id="router-status-title">สถานะความปลอดภัย: ต่ำ (ใช้รหัสผ่านดั้งเดิม admin/admin)</h3>
+                  </div>
+                </div>
+                <!-- Security Bar -->
+                <div class="router-meter-track">
+                  <div class="router-meter-fill low" id="router-meter-fill" style="width: 20%;"></div>
+                </div>
+                <div class="meter-labels">
+                  <span id="router-meter-label">ระดับความปลอดภัย: 20% (เสี่ยงสูง)</span>
+                  <span>เป้าหมาย: 100% ปลอดภัย</span>
+                </div>
+              </div>
+
+              <!-- Password Setup Section -->
+              <div class="router-setup-section">
+                <label class="setup-label">🔑 ตั้งค่ารหัสผ่านใหม่ (New Admin & Wi-Fi Password):</label>
+                <div class="input-preview-box">
+                  <span class="input-prefix">รหัสผ่านที่เลือก:</span>
+                  <span class="input-display" id="router-password-preview">admin (รหัสผ่านเริ่มต้นโรงงาน)</span>
+                </div>
+
+                <span class="choice-instructions">เลือกรูปแบบรหัสผ่านที่ต้องการเปลี่ยน:</span>
+
+                <!-- 3 Choice Buttons (ชอยส์ A, B, C) -->
+                <div class="router-choices-grid" id="router-choices-area">
+                  <button class="router-choice-btn" id="btn-router-choice-a" data-choice="A">
+                    <div class="choice-top-row">
+                      <span class="choice-tag">ชอยส์ A</span>
+                      <span class="choice-risk-tag danger">เสี่ยงสูง</span>
+                    </div>
+                    <div class="choice-code">12345678</div>
+                    <div class="choice-note">ตัวเลขเรียง 8 หลัก</div>
+                  </button>
+
+                  <button class="router-choice-btn" id="btn-router-choice-b" data-choice="B">
+                    <div class="choice-top-row">
+                      <span class="choice-tag">ชอยส์ B</span>
+                      <span class="choice-risk-tag warning">เสี่ยงปานกลาง</span>
+                    </div>
+                    <div class="choice-code">password2026</div>
+                    <div class="choice-note">คำศัพท์ทั่วไป + ตัวเลขปี</div>
+                  </button>
+
+                  <button class="router-choice-btn btn-choice-strong" id="btn-router-choice-c" data-choice="C">
+                    <div class="choice-top-row">
+                      <span class="choice-tag tag-strong">ชอยส์ C</span>
+                      <span class="choice-risk-tag safe">ปลอดภัยสูง ★</span>
+                    </div>
+                    <div class="choice-code code-strong">H0m3@Net_Sec!99</div>
+                    <div class="choice-note">ผสมพิมพ์ใหญ่-เล็ก + ตัวเลข + สัญลักษณ์พิเศษ</div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Feedback Result Alert Box (เมื่อเลือกผิด) -->
+              <div id="router-feedback-box" class="feedback-box hidden" role="alert">
+                <div class="feedback-header">
+                  <span class="feedback-icon" id="router-feedback-icon">⚠️</span>
+                  <h3 class="feedback-title" id="router-feedback-title">รหัสผ่านง่ายเกินไป เสี่ยงต่อการโดน Brute Force</h3>
+                </div>
+                <p class="feedback-message" id="router-feedback-message">รหัสผ่านนี้ไม่มีความซับซ้อน มิจฉาชีพสามารถใช้โปรแกรมสุ่มรหัสผ่านเจาะเข้ามาในระบบเครือข่ายของบ้านได้ง่าย ให้ลองเลือกรหัสผ่านที่มีความปลอดภัยสูงกว่านี้</p>
+                <div class="feedback-action-row">
+                  <button id="router-retry-btn" class="feedback-btn feedback-retry-btn">🔄 เลือกรหัสผ่านใหม่</button>
+                </div>
+              </div>
+
+              <!-- Green Checkmark Animation Overlay (เมื่อเลือก C สำเร็จ) -->
+              <div id="router-success-overlay" class="phishing-success-overlay hidden" aria-hidden="true">
+                <div class="success-checkmark-circle">
+                  <svg class="checkmark-svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  </svg>
+                </div>
+                <h3 class="success-title">ตั้งค่ารหัสผ่านสำเร็จ ปลอดภัย 100%!</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day Complete Modal (ป๊อปอัปแจ้งเตือนภารกิจ Day 1 สำเร็จ) -->
+        <div id="day-complete-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card day-complete-card" role="dialog" aria-modal="true" aria-labelledby="day-complete-title">
+            <div class="day-complete-banner">
+              <!-- ไอคอนดาว 3 ดวงสีทอง -->
+              <div class="day-complete-stars" aria-label="3 Golden Stars">
+                <span class="star-icon">⭐</span>
+                <span class="star-icon star-center">⭐</span>
+                <span class="star-icon">⭐</span>
+              </div>
+              <span class="day-badge-pill">DAY 1 COMPLETED</span>
+              <h2 class="day-complete-title" id="day-complete-title">Day 1 ภารกิจสำเร็จ!</h2>
+              <p class="day-complete-desc">คุณป้องกันเครือข่ายและอีเมลในบ้านได้อย่างยอดเยี่ยม</p>
+            </div>
+
+            <div class="day-complete-summary">
+              <div class="summary-card-row">
+                <div class="summary-card-item">
+                  <span class="summary-item-icon">📡</span>
+                  <div class="summary-item-info">
+                    <span class="summary-item-title">เราเตอร์ Wi-Fi</span>
+                    <span class="summary-item-sub">ตั้งรหัสผ่านความปลอดภัยสูง</span>
+                  </div>
+                  <span class="summary-item-badge">+50 คะแนน</span>
+                </div>
+                <div class="summary-card-item">
+                  <span class="summary-item-icon">📧</span>
+                  <div class="summary-item-info">
+                    <span class="summary-item-title">อีเมล Phishing</span>
+                    <span class="summary-item-sub">ตรวจจับและระบุภัยคุกคาม</span>
+                  </div>
+                  <span class="summary-item-badge">+50 คะแนน</span>
+                </div>
+              </div>
+
+              <div class="day-score-total">
+                <span class="total-label">Security Score รวม</span>
+                <span class="total-value" id="day-complete-score-value">100/100 🛡️</span>
+              </div>
+            </div>
+
+            <div class="day-complete-actions">
+              <button id="btn-next-day" class="btn-next-day">
+                <span>เริ่มต้น Day 2</span>
+                <span class="btn-arrow-icon">➔</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quest Log Modal (สมุดบันทึกภารกิจ) -->
+        <div id="quest-log-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card quest-notebook-card" role="dialog" aria-modal="true" aria-labelledby="quest-log-title">
+            <div class="notebook-spiral-binding">
+              <span class="spiral-ring"></span>
+              <span class="spiral-ring"></span>
+              <span class="spiral-ring"></span>
+              <span class="spiral-ring"></span>
+              <span class="spiral-ring"></span>
+              <span class="spiral-ring"></span>
+            </div>
+
+            <div class="notebook-header">
+              <div class="notebook-title-group">
+                <span class="notebook-icon">📓</span>
+                <div>
+                  <h2 class="notebook-title" id="quest-log-title">สมุดบันทึกภารกิจ</h2>
+                  <span class="notebook-subtitle">รายการสิ่งที่ต้องทำใน Day 1</span>
+                </div>
+              </div>
+              <button id="quest-log-close-btn" class="modal-close-icon" aria-label="ปิดสมุดบันทึก">✕</button>
+            </div>
+
+            <div class="notebook-body">
+              <div class="quest-list" id="quest-list">
+                <!-- ภารกิจที่ 1: ตรวจสอบความปลอดภัยเราเตอร์ประจำบ้าน -->
+                <div class="quest-item" id="quest-item-router">
+                  <span class="quest-checkbox-icon" id="quest-check-router">[ ]</span>
+                  <div class="quest-info">
+                    <span class="quest-item-text">ตรวจสอบความปลอดภัยเราเตอร์ประจำบ้าน</span>
+                    <span class="quest-item-status" id="quest-status-router">ยังไม่สำเร็จ</span>
+                  </div>
+                </div>
+
+                <!-- ภารกิจที่ 2: สแกนหาอีเมลหลอกลวงบนคอมพิวเตอร์ -->
+                <div class="quest-item" id="quest-item-phishing">
+                  <span class="quest-checkbox-icon" id="quest-check-phishing">[ ]</span>
+                  <div class="quest-info">
+                    <span class="quest-item-text">สแกนหาอีเมลหลอกลวงบนคอมพิวเตอร์</span>
+                    <span class="quest-item-status" id="quest-status-phishing">ยังไม่สำเร็จ</span>
+                  </div>
+                </div>
+
+                <!-- ภารกิจที่ 3 (Day 2): ตรวจสอบข้อความ SMS หลอกลวงในโทรศัพท์มือถือ -->
+                <div class="quest-item hidden" id="quest-item-sms">
+                  <span class="quest-checkbox-icon" id="quest-check-sms">[ ]</span>
+                  <div class="quest-info">
+                    <span class="quest-item-text">ตรวจสอบข้อความ SMS หลอกลวงในโทรศัพท์มือถือ</span>
+                    <span class="quest-item-status" id="quest-status-sms">ยังไม่สำเร็จ</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="quest-notebook-footer">
+                <div class="quest-progress-info">
+                  <span class="quest-progress-label">ความคืบหน้า:</span>
+                  <span class="quest-progress-count" id="quest-progress-count">สำเร็จ 0/2 ภารกิจ</span>
+                </div>
+                <div class="notebook-hint">💡 คลิกที่วัตถุในห้องเพื่อเริ่มตรวจสอบความปลอดภัย</div>
+              </div>
+            </div>
+
+            <div class="notebook-actions">
+              <button id="btn-close-quest" class="btn-notebook-close">กลับสู่หน้าจอสำรวจ</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SMS Scam Modal (มินิเกมตรวจจับ SMS หลอกลวงบนมือถือ) -->
+        <div id="sms-modal-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card phone-frame-modal" role="dialog" aria-modal="true" aria-labelledby="sms-window-title">
+            <!-- Phone Top Bezel & Status Bar -->
+            <div class="phone-status-bar">
+              <span class="phone-clock">09:41</span>
+              <div class="phone-notch"></div>
+              <div class="phone-signal-group">
+                <span class="phone-net-type">5G</span>
+                <span class="phone-icon-signal">📶</span>
+                <span class="phone-icon-battery">🔋</span>
+              </div>
+            </div>
+
+            <!-- Messages App Header -->
+            <div class="phone-app-header">
+              <div class="phone-header-left">
+                <span class="phone-back-arrow">‹</span>
+                <div class="contact-avatar-circle">📦</div>
+                <div class="contact-text-meta">
+                  <h3 class="contact-name" id="sms-window-title">Express-Delivery</h3>
+                  <span class="contact-phone">+66 81-992-XXXX</span>
+                </div>
+              </div>
+              <button id="sms-modal-close-btn" class="phone-close-icon" aria-label="ปิดหน้าต่างมือถือ">✕</button>
+            </div>
+
+            <!-- Phone Screen Chat Body -->
+            <div class="phone-chat-body">
+              <div class="chat-date-pill">วันนี้ 09:30 น.</div>
+
+              <!-- SMS Chat Bubble -->
+              <div class="sms-bubble-wrapper">
+                <div class="sms-message-bubble">
+                  <p class="sms-text-content">พัสดุของคุณจัดส่งไม่สำเร็จ กรุณากรอกข้อมูลที่: <a href="#" class="sms-fake-link" onclick="return false;">http://bit.ly/fake-track</a></p>
+                  <span class="sms-time-meta">09:30</span>
+                </div>
+              </div>
+
+              <!-- Action Decision Area -->
+              <div class="sms-actions-container" id="sms-actions-area">
+                <div class="sms-action-label">เลือกการกระทำที่ถูกต้อง:</div>
+                <div class="sms-buttons-grid">
+                  <button id="btn-sms-danger" class="sms-btn btn-sms-danger">
+                    <span class="sms-btn-icon">🔗</span>
+                    <span class="sms-btn-title">กดลิงก์ตรวจสอบ</span>
+                  </button>
+                  <button id="btn-sms-safe" class="sms-btn btn-sms-safe">
+                    <span class="sms-btn-icon">🛡️</span>
+                    <span class="sms-btn-title">บล็อกเบอร์และลบข้อความ</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Feedback Result Box -->
+              <div id="sms-feedback-box" class="feedback-box hidden" role="alert">
+                <div class="feedback-header">
+                  <span class="feedback-icon" id="sms-feedback-icon"></span>
+                  <h4 class="feedback-title" id="sms-feedback-title"></h4>
+                </div>
+                <p class="feedback-message" id="sms-feedback-message"></p>
+                <div class="feedback-action-row">
+                  <button id="sms-feedback-close-btn" class="feedback-btn">กลับสู่หน้าจอสำรวจ</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen Transition Overlay (Fade to Black: 1 วินาที) -->
+        <div id="screen-fade-transition" class="screen-fade-overlay hidden" aria-hidden="true">
+          <div class="fade-content">
+            <span class="fade-sun-icon">🌅</span>
+            <h2 class="fade-day-text" id="fade-day-text">เช้าวันถัดไป... (Day 2)</h2>
+          </div>
+        </div>
+
+        <!-- Game Summary / Certificate Screen (หน้าต่างสรุปผลจบเกมเต็มจอ) -->
+        <div id="game-summary-backdrop" class="modal-backdrop summary-backdrop hidden" aria-hidden="true">
+          <div class="modal-card certificate-card" role="dialog" aria-modal="true" aria-labelledby="certificate-title">
+            <div class="certificate-inner-border">
+              <!-- มุมตกแต่งใบประกาศนียบัตร -->
+              <div class="cert-corner cert-top-left">✦</div>
+              <div class="cert-corner cert-top-right">✦</div>
+              <div class="cert-corner cert-bottom-left">✦</div>
+              <div class="cert-corner cert-bottom-right">✦</div>
+
+              <!-- ส่วนหัวของใบประกาศ -->
+              <div class="certificate-header">
+                <div class="cert-shield-badge">🛡️</div>
+                <span class="cert-subtitle">CERTIFICATE OF COMPLETION</span>
+                <h2 class="cert-title" id="certificate-title">ภารกิจความปลอดภัยสำเร็จครบถ้วน!</h2>
+                <p class="cert-desc">ขอมอบประกาศนียบัตรนี้เพื่อยืนยันว่าคุณผ่านการทดสอบ Cyber Security Awareness</p>
+              </div>
+
+              <!-- ส่วนแสดง Rank ผลการประเมิน -->
+              <div class="cert-rank-wrapper" id="cert-rank-wrapper">
+                <div class="cert-rank-badge" id="cert-rank-badge">
+                  <span class="cert-rank-letter" id="cert-rank-letter">S</span>
+                </div>
+                <div class="cert-rank-info">
+                  <span class="cert-rank-prefix">ระดับการประเมิน (Rating):</span>
+                  <h3 class="cert-rank-title" id="cert-rank-title">S Rank - Cyber Guardian ผู้พิทักษ์บ้านปลอดภัย</h3>
+                  <p class="cert-rank-desc" id="cert-rank-desc">ตัดสินใจถูกต้องแม่นยำทุกสถานการณ์ ปราศจากข้อผิดพลาด</p>
+                </div>
+              </div>
+
+              <!-- สถิติผลสรุปความปลอดภัย -->
+              <div class="cert-stats-grid">
+                <div class="cert-stat-item">
+                  <div class="cert-stat-icon">🎯</div>
+                  <div class="cert-stat-data">
+                    <span class="cert-stat-val" id="cert-threats-count">3 / 3</span>
+                    <span class="cert-stat-lbl">ภัยคุกคามที่กำจัดได้</span>
+                  </div>
+                </div>
+
+                <div class="cert-stat-item">
+                  <div class="cert-stat-icon">🏡</div>
+                  <div class="cert-stat-data">
+                    <span class="cert-stat-val" id="cert-safety-percent">100%</span>
+                    <span class="cert-stat-lbl">เปอร์เซ็นต์ความปลอดภัยของบ้าน</span>
+                  </div>
+                </div>
+
+                <div class="cert-stat-item">
+                  <div class="cert-stat-icon">⚠️</div>
+                  <div class="cert-stat-data">
+                    <span class="cert-stat-val" id="cert-mistakes-count">0 ครั้ง</span>
+                    <span class="cert-stat-lbl">ข้อผิดพลาดที่เกิดขึ้น</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- แถบรายการภารกิจที่ผ่าน -->
+              <div class="cert-achievements-list">
+                <span class="cert-tag">✅ รหัสผ่านเราเตอร์ปลอดภัย</span>
+                <span class="cert-tag">✅ ป้องกัน Phishing อีเมล</span>
+                <span class="cert-tag">✅ บล็อก SMS Scam หลอกลวง</span>
+              </div>
+
+              <!-- ปุ่มเริ่มเล่นใหม่อีกครั้ง -->
+              <div class="certificate-actions">
+                <button id="btn-restart-game" class="btn-restart-game">
+                  <span class="restart-icon">🔄</span>
+                  <span>เล่นใหม่อีกครั้ง</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
