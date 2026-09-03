@@ -863,9 +863,18 @@
               <!-- ส่วนหัวของใบประกาศ -->
               <div class="certificate-header">
                 <div class="cert-shield-badge">🛡️</div>
-                <span class="cert-subtitle">CERTIFICATE OF COMPLETION</span>
-                <h2 class="cert-title" id="certificate-title">ภารกิจความปลอดภัยสำเร็จครบถ้วน!</h2>
+                <span class="cert-subtitle">CERTIFICATE OF CYBER RESILIENCE</span>
+                <h2 class="cert-title" id="certificate-title">ใบประกาศนียบัตรความปลอดภัยไซเบอร์</h2>
                 <p class="cert-desc">ขอมอบประกาศนียบัตรนี้เพื่อยืนยันว่าคุณผ่านการทดสอบ Cyber Security Awareness</p>
+
+                <!-- ช่องพิมพ์ชื่อผู้เล่นสำหรับลงในใบประกาศ -->
+                <div class="cert-recipient-input-wrapper">
+                  <label for="cert-player-name-input" class="cert-input-label">ขอมอบเกียรติบัตรฉบับนี้แด่:</label>
+                  <div class="cert-input-container">
+                    <span class="cert-input-icon">✍️</span>
+                    <input type="text" id="cert-player-name-input" class="cert-player-name-input" value="ผู้พิทักษ์บ้านอัจฉริยะ (Cyber Guardian)" placeholder="พิมพ์ชื่อ-นามสกุลของคุณที่นี่..." maxlength="45" aria-label="ชื่อผู้รับใบประกาศนียบัตร">
+                  </div>
+                </div>
               </div>
 
               <!-- ส่วนแสดง Rank ผลการประเมิน -->
@@ -885,7 +894,7 @@
                 <div class="cert-stat-item">
                   <div class="cert-stat-icon">🎯</div>
                   <div class="cert-stat-data">
-                    <span class="cert-stat-val" id="cert-threats-count">3 / 3</span>
+                    <span class="cert-stat-val" id="cert-threats-count">5 / 5</span>
                     <span class="cert-stat-lbl">ภัยคุกคามที่กำจัดได้</span>
                   </div>
                 </div>
@@ -916,9 +925,13 @@
                 <span class="cert-tag">✅ ความปลอดภัยกล้อง IoT (Day 2)</span>
               </div>
 
-              <!-- ปุ่มเริ่มเล่นใหม่อีกครั้ง -->
+              <!-- ปุ่มแอ็กชันของใบประกาศนียบัตร -->
               <div class="certificate-actions">
-                <button id="btn-restart-game" class="btn-restart-game">
+                <button id="btn-download-cert" class="btn-download-cert" aria-label="บันทึกรูปใบประกาศนียบัตร">
+                  <span class="download-icon">📥</span>
+                  <span id="btn-download-cert-text">บันทึกรูปใบประกาศนียบัตร (Download PNG)</span>
+                </button>
+                <button id="btn-restart-game" class="btn-restart-game" aria-label="เล่นใหม่อีกครั้ง">
                   <span class="restart-icon">🔄</span>
                   <span>เล่นใหม่อีกครั้ง</span>
                 </button>

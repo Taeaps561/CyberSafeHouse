@@ -2018,12 +2018,313 @@ function updateStatusIndicator(text) {
  */
 function initGameSummaryScreen() {
   const restartBtn = document.getElementById('btn-restart-game');
+  const downloadBtn = document.getElementById('btn-download-cert');
+
   if (restartBtn) {
     restartBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       restartGame();
     });
   }
+
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportCertificateToPNG();
+    });
+  }
+}
+
+/**
+ * บันทึกและดาวน์โหลดรูปใบประกาศนียบัตรเป็นไฟล์ PNG ผ่าน HTML5 Canvas
+ */
+function exportCertificateToPNG() {
+  const nameInput = document.getElementById('cert-player-name-input');
+  const rawName = nameInput ? nameInput.value.trim() : '';
+  const playerName = rawName || 'ผู้พิทักษ์บ้านอัจฉริยะ (Cyber Guardian)';
+  const rank = gameState.mistakesCount === 0 ? 'S' : 'A';
+  const rankTitle = gameState.mistakesCount === 0 ? 'S Rank - Cyber Guardian ผู้พิทักษ์บ้านปลอดภัย' : 'A Rank - ผู้ตรวจการไซเบอร์ฝึกหัด';
+
+  const downloadBtnText = document.getElementById('btn-download-cert-text');
+
+  try {
+    // 1. สร้าง Off-screen Canvas ขนาด 1200 x 850 พิกเซล (อัตราส่วนมาตรฐานใบประกาศนียบัตร)
+    const certCanvas = document.createElement('canvas');
+    certCanvas.width = 1200;
+    certCanvas.height = 850;
+    const ctx = certCanvas.getContext('2d');
+
+    // 2. พื้นหลังใบประกาศ (ครีม-ทอง สไตล์พรีเมียม)
+    const bgGrad = ctx.createLinearGradient(0, 0, 1200, 850);
+    bgGrad.addColorStop(0, '#fdfbf7');
+    bgGrad.addColorStop(0.5, '#fffdf9');
+    bgGrad.addColorStop(1, '#f9f3e9');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 1200, 850);
+
+    // 3. กรอบขอบทองซ้อนชั้น (Multi-layer Golden Borders)
+    ctx.strokeStyle = '#c59b6d';
+    ctx.lineWidth = 14;
+    ctx.strokeRect(24, 24, 1152, 802);
+
+    ctx.strokeStyle = '#e2c59f';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(36, 36, 1128, 778);
+
+    ctx.strokeStyle = '#8b6038';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(44, 44, 1112, 762);
+
+    // มุมตกแต่งสไตล์คลาสสิก (Corner Accents)
+    const corners = [
+      [54, 54],
+      [1146, 54],
+      [54, 796],
+      [1146, 796]
+    ];
+    corners.forEach(([cx, cy]) => {
+      ctx.fillStyle = '#b8834c';
+      ctx.font = '22px "Noto Sans Thai", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('✦', cx, cy);
+    });
+
+    // 4. หัวเรื่องของใบประกาศ
+    ctx.textAlign = 'center';
+
+    // ตราสัญลักษณ์โล่ความปลอดภัย
+    ctx.font = '48px "Noto Sans Thai", sans-serif';
+    ctx.fillText('🛡️', 600, 105);
+
+    // ข้อความภาษาอังกฤษ
+    ctx.font = 'bold 15px "Inter", "Prompt", sans-serif';
+    ctx.fillStyle = '#9b6f43';
+    ctx.fillText('CERTIFICATE OF CYBER RESILIENCE', 600, 142);
+
+    // หัวข้อภาษาไทย
+    ctx.font = 'bold 36px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#2b2118';
+    ctx.fillText('ใบประกาศนียบัตรความปลอดภัยไซเบอร์', 600, 185);
+
+    // เส้นคั่นลายทองประดับ
+    ctx.strokeStyle = '#d4a373';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(380, 204);
+    ctx.lineTo(820, 204);
+    ctx.stroke();
+
+    ctx.fillStyle = '#b8834c';
+    ctx.font = '16px "Noto Sans Thai", sans-serif';
+    ctx.fillText('◆', 600, 204);
+
+    // 5. ข้อความมอบเกียรติบัตร
+    ctx.font = '18px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#6b5e52';
+    ctx.fillText('ขอมอบประกาศนียบัตรฉบับนี้เพื่อยืนยันว่า', 600, 240);
+
+    // ชื่อผู้เล่น (ตัวใหญ่ สวยงาม)
+    ctx.font = 'bold 34px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#8b5123';
+    ctx.fillText(playerName, 600, 288);
+
+    // เส้นใต้ชื่อผู้เล่น
+    const nameWidth = Math.min(ctx.measureText(playerName).width + 60, 680);
+    ctx.strokeStyle = '#caa174';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(600 - nameWidth / 2, 302);
+    ctx.lineTo(600 + nameWidth / 2, 302);
+    ctx.stroke();
+
+    // คำอธิบายเกียรติคุณ
+    ctx.font = '17px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#4a3f35';
+    ctx.fillText('ได้ผ่านการทดสอบและปฏิบัติตามมาตรฐานความปลอดภัยไซเบอร์ประจำบ้าน (Cyber Safe House)', 600, 335);
+    ctx.fillText('สามารถระบุ ป้องกัน และกำจัดภัยคุกคามทางดิจิทัลได้อย่างถูกต้องครบถ้วนสมบูรณ์', 600, 362);
+
+    // 6. แถบแสดง Rank ผลการประเมิน (Rating Badge Card)
+    const rankCardY = 395;
+    ctx.fillStyle = rank === 'S' ? '#fbf4ea' : '#f0f4f8';
+    ctx.strokeStyle = rank === 'S' ? '#e2c59f' : '#cbd5e1';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(280, rankCardY, 640, 68, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    // ตัวอักษร Rank ในวงกลม
+    ctx.beginPath();
+    ctx.arc(330, rankCardY + 34, 24, 0, Math.PI * 2);
+    ctx.fillStyle = rank === 'S' ? '#c98b58' : '#64748b';
+    ctx.fill();
+
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 26px "Prompt", sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(rank, 330, rankCardY + 43);
+
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 20px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#2b2118';
+    ctx.fillText(rankTitle, 370, rankCardY + 32);
+
+    ctx.font = '14px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#6b5e52';
+    ctx.fillText(
+      rank === 'S' 
+        ? 'ระดับยอดเยี่ยม: ตัดสินใจถูกต้องแม่นยำทุกสถานการณ์ ปราศจากข้อผิดพลาด'
+        : `ระดับดีมาก: กำจัดภัยคุกคามจนปลอดภัยสำเร็จ (มีข้อผิดพลาด ${gameState.mistakesCount} ครั้ง)`,
+      370, 
+      rankCardY + 54
+    );
+
+    // 7. สรุปสถิติ 3 ด้าน (Stats Grid)
+    const statsY = 485;
+    const statCards = [
+      { icon: '🎯', val: '5 / 5', lbl: 'ภัยคุกคามที่กำจัดได้' },
+      { icon: '🏡', val: '100%', lbl: 'ระดับความปลอดภัยของบ้าน' },
+      { icon: '⚠️', val: `${gameState.mistakesCount} ครั้ง`, lbl: 'ข้อผิดพลาดที่เกิดขึ้น' }
+    ];
+
+    statCards.forEach((stat, i) => {
+      const sx = 230 + i * 260;
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#e7ded2';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(sx, statsY, 220, 66, 10);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.textAlign = 'center';
+      ctx.font = '24px "Noto Sans Thai", sans-serif';
+      ctx.fillText(stat.icon, sx + 34, statsY + 41);
+
+      ctx.font = 'bold 18px "Prompt", sans-serif';
+      ctx.fillStyle = '#2b2118';
+      ctx.fillText(stat.val, sx + 130, statsY + 32);
+
+      ctx.font = '13px "Prompt", "Noto Sans Thai", sans-serif';
+      ctx.fillStyle = '#7a6e62';
+      ctx.fillText(stat.lbl, sx + 130, statsY + 52);
+    });
+
+    // 8. แถบแสดง 5 รายการความสำเร็จที่ผ่าน
+    const tagsY = 575;
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 15px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#635345';
+    ctx.fillText('รายการภารกิจการรักษาความปลอดภัยที่ผ่านการรับรอง:', 600, tagsY);
+
+    const achievements = [
+      '✅ รหัสผ่านเราเตอร์ Wi-Fi (Day 1)',
+      '✅ ตรวจจับ Phishing อีเมล (Day 1)',
+      '✅ บล็อก SMS Scam / แอปดูดเงิน (Day 2)',
+      '✅ ป้องกัน USB Drop Attack (Day 2)',
+      '✅ ตรวจสอบกล้องวงจรปิด IoT (Day 2)'
+    ];
+
+    // แถวที่ 1 (3 แท็ก)
+    const row1 = achievements.slice(0, 3);
+    row1.forEach((tag, idx) => {
+      const tx = 290 + idx * 310;
+      drawCertTag(ctx, tag, tx, tagsY + 28);
+    });
+
+    // แถวที่ 2 (2 แท็ก)
+    const row2 = achievements.slice(3, 5);
+    row2.forEach((tag, idx) => {
+      const tx = 445 + idx * 310;
+      drawCertTag(ctx, tag, tx, tagsY + 62);
+    });
+
+    // 9. ส่วนท้ายใบประกาศ (วันที่ออก และ ลายเซ็นรับรอง)
+    const footerY = 720;
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // ฝั่งซ้าย: วันที่ออกเอกสาร
+    ctx.textAlign = 'left';
+    ctx.font = '15px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#6b5e52';
+    ctx.fillText(`วันที่ออกเอกสาร: ${dateStr}`, 120, footerY);
+    ctx.font = '13px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#9b8f83';
+    ctx.fillText('รหัสการรับรอง: CSH-SEC-2026-PASS', 120, footerY + 22);
+
+    // ฝั่งขวา: ตราประทับและผู้รับรอง
+    ctx.textAlign = 'right';
+    ctx.font = 'bold 16px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#8b5123';
+    ctx.fillText('CyberSafeHouse Security Verification 🎖️', 1080, footerY);
+    ctx.strokeStyle = '#8b5123';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(820, footerY + 8);
+    ctx.lineTo(1080, footerY + 8);
+    ctx.stroke();
+    ctx.font = '13px "Prompt", "Noto Sans Thai", sans-serif';
+    ctx.fillStyle = '#9b8f83';
+    ctx.fillText('โครงการส่งเสริมความตระหนักรู้ด้านความปลอดภัยไซเบอร์', 1080, footerY + 26);
+
+    // 10. ทำการดาวน์โหลดรูปภาพเป็น PNG
+    const safeFilename = playerName.replace(/[^a-zA-Z0-9ก-๙_-]/g, '_');
+    const filename = `CyberSafeHouse_Certificate_${safeFilename}.png`;
+
+    const dataUrl = certCanvas.toDataURL('image/png');
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.href = dataUrl;
+    downloadAnchor.download = filename;
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    document.body.removeChild(downloadAnchor);
+
+    // แจ้งเตือนสถานะสำเร็จบนปุ่ม
+    if (downloadBtnText) {
+      const originalText = downloadBtnText.textContent;
+      downloadBtnText.textContent = '✅ ดาวน์โหลดสำเร็จแล้ว!';
+      setTimeout(() => {
+        downloadBtnText.textContent = originalText;
+      }, 2500);
+    }
+
+    console.log('📥 Certificate Exported successfully as:', filename);
+  } catch (err) {
+    console.error('Failed to export certificate:', err);
+    alert('เกิดข้อผิดพลาดในการดาวน์โหลดรูปภาพ: ' + err.message);
+  }
+}
+
+/**
+ * วาดแท็กความสำเร็จสไตล์แคปซูลบน Canvas ของใบประกาศ
+ */
+function drawCertTag(ctx, text, x, y) {
+  ctx.save();
+  ctx.font = '13.5px "Prompt", "Noto Sans Thai", sans-serif';
+  const textWidth = ctx.measureText(text).width;
+  const paddingX = 14;
+  const cardW = textWidth + paddingX * 2;
+  const cardH = 26;
+
+  ctx.fillStyle = '#edf8f1';
+  ctx.strokeStyle = '#bbf7d0';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(x - cardW / 2, y - cardH / 2, cardW, cardH, 13);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#15803d';
+  ctx.fillText(text, x, y);
+  ctx.restore();
 }
 
 /**

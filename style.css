@@ -2499,23 +2499,120 @@ html, body {
   border-radius: 12px;
 }
 
-/* ปุ่มเล่นใหม่อีกครั้ง */
+/* ช่องพิมพ์ชื่อผู้รับใบประกาศนียบัตร */
+.cert-recipient-input-wrapper {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.cert-input-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.cert-input-container {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+}
+
+.cert-input-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 1.1rem;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.cert-player-name-input {
+  width: 100%;
+  padding: 9px 16px 9px 42px;
+  background: #ffffff;
+  border: 1.8px solid #d4a373;
+  border-radius: 12px;
+  font-family: var(--font-family);
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #2b231b;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(212, 163, 115, 0.2);
+  transition: all 0.2s ease;
+}
+
+.cert-player-name-input:focus {
+  outline: none;
+  border-color: #b8753d;
+  box-shadow: 0 0 0 3.5px rgba(201, 139, 88, 0.25), 0 4px 12px rgba(212, 163, 115, 0.3);
+  background: #fffdfa;
+}
+
+.cert-player-name-input::placeholder {
+  color: #a89f91;
+  font-weight: 400;
+}
+
+/* ปุ่มแอ็กชันใบประกาศนียบัตร */
 .certificate-actions {
   display: flex;
   justify-content: center;
-  margin-top: 4px;
+  gap: 12px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-download-cert {
+  flex: 1;
+  min-width: 250px;
+  max-width: 320px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-download-cert:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
+  background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+}
+
+.btn-download-cert:active {
+  transform: translateY(0);
+}
+
+.download-icon {
+  font-size: 1.15rem;
 }
 
 .btn-restart-game {
-  width: 100%;
-  max-width: 320px;
+  flex: 1;
+  min-width: 180px;
+  max-width: 240px;
   padding: 12px 20px;
   background: linear-gradient(135deg, #c98b58 0%, #b8753d 100%);
   color: #ffffff;
   border: none;
   border-radius: 14px;
   font-family: var(--font-family);
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(184, 117, 61, 0.35);
