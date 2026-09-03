@@ -218,7 +218,64 @@ html, body {
 }
 
 .quest-badge-dot.all-done {
-  background: #27c93f;
+  background: #2ec4b6;
+}
+
+/* ปุ่มเปิด/ปิดเสียงดนตรี Lofi BGM และเอฟเฟกต์ */
+.audio-toggle-btn {
+  pointer-events: auto;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 253, 249, 0.95);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--border-color);
+  padding: 5px 12px;
+  border-radius: 18px;
+  font-family: var(--font-family);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  box-shadow: 0 3px 10px rgba(100, 78, 55, 0.07);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.audio-toggle-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  box-shadow: 0 6px 16px rgba(201, 139, 88, 0.2);
+  background: #ffffff;
+}
+
+.audio-toggle-btn:active {
+  transform: translateY(0);
+}
+
+.audio-toggle-btn.muted {
+  background: rgba(245, 245, 245, 0.85);
+  color: var(--text-muted);
+  border-color: #cbd5e1;
+}
+
+.audio-toggle-btn.playing .audio-icon {
+  animation: audioBeat 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes audioBeat {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.2) rotate(8deg); }
+}
+
+.audio-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.audio-label {
+  letter-spacing: 0.01em;
 }
 
 /* แถบ UI ด้านขวาบน: Day Tracker & Security Score */

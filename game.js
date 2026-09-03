@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDayCompleteModal();
   initQuestLog();
   initGameSummaryScreen();
+  initAudioControls();
   updateScoreUI();
 
   // เริ่มบทสนทนาเปิดเรื่อง
@@ -107,6 +108,18 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function initGameEvents() {
   const gameContainer = document.getElementById('game-container');
+
+  // เล่นเสียง Click SFX นุ่มนวลเมื่อคลิกที่ปุ่มหรือจุดสำรวจ
+  document.addEventListener('click', (e) => {
+    if (
+      e.target.closest('button') || 
+      e.target.closest('.hotspot-btn') || 
+      e.target.closest('.choice-btn') || 
+      e.target.closest('a')
+    ) {
+      playClickSFX();
+    }
+  });
 
   // ตรวจจับการกดปุ่มทางคีย์บอร์ด
   window.addEventListener('keydown', (event) => {
@@ -445,6 +458,7 @@ function closeDialogueBox() {
 function addScore(points) {
   gameState.score = Math.min(gameState.maxScore, gameState.score + points);
   updateScoreUI();
+  playSuccessSFX();
 
   console.log(`🛡️ ได้รับคะแนน +${points}! Security Score: ${gameState.score}/${gameState.maxScore}`);
 
@@ -498,40 +512,371 @@ function scheduleDayCompletionCheck() {
 }
 
 /**
- * เล่นเสียงกระดิ่ง (Bell Chime Effect) ด้วย Web Audio API
+ * ==========================================================================
+ * ระบบเสียงประกอบและดนตรีบรรเลง (Audio & Cozy Sound Effects Manager)
+ * ==========================================================================
  */
-function playBellChimeSound() {
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return;
-    const audioCtx = new AudioContextClass();
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
 
-    // เสียงกระดิ่งใสกังวาน 4 โน้ต (C6, E6, G6, C7)
-    const chimeFrequencies = [1046.50, 1318.51, 1567.98, 2093.00];
-    chimeFrequencies.forEach((freq, idx) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+const audioState = {
+  ctx: null,
+  isMuted: false,
+  isBgmPlaying: false,
+  bgmInterval: null,
+  currentChordIndex: 0,
+  bgmMasterGain: null,
+  sfxMasterGain: null
+};
+
+/**
+ * ดึงหรือสร้าง AudioContext สำหรับเล่นเสียงผ่าน Web Audio API
+ */
+function getAudioContext() {
+  if (typeof window === 'undefined') return null;
+
+  if (!audioState.ctx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    audioState.ctx = new AudioContextClass();
+
+    // ตัวปรับระดับเสียงดนตรีบรรเลง BGM (นุ่มนวล ผ่อนคลาย ~18%)
+    audioState.bgmMasterGain = audioState.ctx.createGain();
+    audioState.bgmMasterGain.gain.setValueAtTime(0.18, audioState.ctx.currentTime);
+    audioState.bgmMasterGain.connect(audioState.ctx.destination);
+
+    // ตัวปรับระดับเสียงเอฟเฟกต์ SFX (~25%)
+    audioState.sfxMasterGain = audioState.ctx.createGain();
+    audioState.sfxMasterGain.gain.setValueAtTime(0.25, audioState.ctx.currentTime);
+    audioState.sfxMasterGain.connect(audioState.ctx.destination);
+  }
+
+  if (audioState.ctx.state === 'suspended') {
+    audioState.ctx.resume();
+  }
+
+  return audioState.ctx;
+}
+
+// --------------------------------------------------------------------------
+// ดนตรีบรรเลง Cozy Lofi Ambient BGM
+// ลำดับคอร์ดเปียโนแจ๊สช่วงบ่าย: Cmaj9 -> Am9 -> Dm9 -> G13
+// --------------------------------------------------------------------------
+const lofiChordProgression = [
+  // Cmaj9: C3, G3, B3, D4, E4
+  [130.81, 196.00, 246.94, 293.66, 329.63],
+  // Am9: A2, E3, G3, C4, B3
+  [110.00, 164.81, 196.00, 261.63, 246.94],
+  // Dm9: D3, A3, C4, E4, F4
+  [146.83, 220.00, 261.63, 329.63, 349.23],
+  // G13: G2, F3, B3, E4, A4
+  [98.00, 174.61, 246.94, 329.63, 440.00]
+];
+
+function playNextLofiChord() {
+  if (!audioState.isBgmPlaying || audioState.isMuted) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const chord = lofiChordProgression[audioState.currentChordIndex];
+  audioState.currentChordIndex = (audioState.currentChordIndex + 1) % lofiChordProgression.length;
+
+  const now = ctx.currentTime;
+
+  // กรองเสียงด้วย Lowpass Filter 580Hz ให้ได้โทนเสียงแบบเทปคาสเซ็ท/โร้ดส์เปียโนวินเทจ
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(580, now);
+  filter.Q.setValueAtTime(1.0, now);
+  filter.connect(audioState.bgmMasterGain || ctx.destination);
+
+  chord.forEach((freq, idx) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const noteTime = now + idx * 0.028; // Strum delay อ่อนๆ
+
+    osc.type = idx === 0 ? 'sine' : 'triangle';
+    osc.frequency.setValueAtTime(freq, noteTime);
+
+    // แอมพลิจูดค่อยๆ เพิ่มขึ้น (Attack 90ms) และค่อยๆ แผ่วจาง (Decay 3.5s)
+    gain.gain.setValueAtTime(0, noteTime);
+    gain.gain.linearRampToValueAtTime(0.08, noteTime + 0.09);
+    gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 3.5);
+
+    osc.connect(gain);
+    gain.connect(filter);
+
+    osc.start(noteTime);
+    osc.stop(noteTime + 3.6);
+  });
+}
+
+/**
+ * เริ่มเล่นดนตรีบรรเลง Lofi BGM
+ */
+function startLofiBgm() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  if (ctx.state === 'suspended') {
+    ctx.resume();
+  }
+
+  audioState.isBgmPlaying = true;
+  audioState.isMuted = false;
+
+  playNextLofiChord();
+
+  if (audioState.bgmInterval) clearInterval(audioState.bgmInterval);
+  audioState.bgmInterval = setInterval(() => {
+    if (audioState.isBgmPlaying && !audioState.isMuted) {
+      playNextLofiChord();
+    }
+  }, 3800);
+}
+
+/**
+ * หยุดดนตรีบรรเลง Lofi BGM
+ */
+function stopLofiBgm() {
+  audioState.isBgmPlaying = false;
+  if (audioState.bgmInterval) {
+    clearInterval(audioState.bgmInterval);
+    audioState.bgmInterval = null;
+  }
+}
+
+/**
+ * สลับสถานะเปิด/ปิด BGM
+ */
+function toggleBgm() {
+  const btn = document.getElementById('audio-toggle-btn');
+  const icon = document.getElementById('audio-toggle-icon');
+  const label = document.getElementById('audio-toggle-label');
+
+  if (audioState.isBgmPlaying) {
+    stopLofiBgm();
+    if (btn) btn.classList.remove('playing');
+    if (btn) btn.classList.add('muted');
+    if (icon) icon.textContent = '🔇';
+    if (label) label.textContent = 'BGM: ปิด';
+  } else {
+    startLofiBgm();
+    if (btn) btn.classList.add('playing');
+    if (btn) btn.classList.remove('muted');
+    if (icon) icon.textContent = '🎵';
+    if (label) label.textContent = 'BGM: เปิด';
+  }
+}
+
+/**
+ * เริ่มต้นระบบปุ่มควบคุมเสียง BGM
+ */
+function initAudioControls() {
+  const audioToggleBtn = document.getElementById('audio-toggle-btn');
+  const audioToggleIcon = document.getElementById('audio-toggle-icon');
+  const audioToggleLabel = document.getElementById('audio-toggle-label');
+
+  if (audioToggleBtn) {
+    audioToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playClickSFX();
+      toggleBgm();
+    });
+  }
+
+  // เริ่มเล่น BGM อัตโนมัติเมื่อผู้เล่นมีปฏิสัมพันธ์กับหน้าเว็บครั้งแรก (แก้ปัญหา Browser Autoplay Policy)
+  const handleFirstInteraction = () => {
+    if (!audioState.isBgmPlaying && !audioState.isMuted) {
+      startLofiBgm();
+      if (audioToggleBtn) audioToggleBtn.classList.add('playing');
+      if (audioToggleIcon) audioToggleIcon.textContent = '🎵';
+      if (audioToggleLabel) audioToggleLabel.textContent = 'BGM: เปิด';
+    }
+    window.removeEventListener('click', handleFirstInteraction);
+    window.removeEventListener('keydown', handleFirstInteraction);
+  };
+
+  window.addEventListener('click', handleFirstInteraction, { once: true });
+  window.addEventListener('keydown', handleFirstInteraction, { once: true });
+}
+
+// --------------------------------------------------------------------------
+// ระบบเสียงเอฟเฟกต์ (Cozy Sound Effects - SFX)
+// --------------------------------------------------------------------------
+
+/**
+ * เสียงคลิกเมาส์/ปุ่มที่นุ่มนวล (Soft Click SFX)
+ */
+function playClickSFX() {
+  if (audioState.isMuted) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const t = ctx.currentTime;
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(540, t);
+    osc.frequency.exponentialRampToValueAtTime(160, t + 0.035);
+
+    gain.gain.setValueAtTime(0.08, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+
+    osc.connect(gain);
+    gain.connect(audioState.sfxMasterGain || ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.04);
+  } catch (err) {
+    // Silent catch
+  }
+}
+
+/**
+ * เสียงเคาะพิมพ์ดีดเบาๆ (Typewriter Tick SFX)
+ */
+function playTypewriterSFX() {
+  if (audioState.isMuted) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    const t = ctx.currentTime;
+
+    osc.type = 'triangle';
+    const freq = 850 + Math.random() * 250;
+    osc.frequency.setValueAtTime(freq, t);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1000, t);
+    filter.Q.setValueAtTime(3, t);
+
+    gain.gain.setValueAtTime(0.022, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.022);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioState.sfxMasterGain || ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.025);
+  } catch (err) {
+    // Silent catch
+  }
+}
+
+/**
+ * เสียงแจ้งเตือนมือถือสไตล์สมาร์ตโฟน (Phone Notification Chime)
+ */
+function playNotificationSFX() {
+  if (audioState.isMuted) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    // 3 โน้ตใสกังวาน: G5 -> C6 -> E6
+    const notes = [783.99, 1046.50, 1318.51];
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const t = ctx.currentTime + idx * 0.11;
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.08);
+      osc.frequency.setValueAtTime(freq, t);
 
-      const startTime = audioCtx.currentTime + idx * 0.08;
-      gain.gain.setValueAtTime(0, startTime);
-      gain.gain.linearRampToValueAtTime(0.24, startTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.4);
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.18, t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.65);
 
       osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      gain.connect(audioState.sfxMasterGain || ctx.destination);
 
-      osc.start(startTime);
-      osc.stop(startTime + 1.45);
+      osc.start(t);
+      osc.stop(t + 0.7);
     });
   } catch (err) {
-    console.warn('Audio chime playback error:', err);
+    // Silent catch
   }
+}
+
+/**
+ * เสียงสำเร็จ / ได้รับคะแนน (Success & Level Up Chime)
+ */
+function playSuccessSFX() {
+  if (audioState.isMuted) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    // เมโลดี้บันไดเสียงเมเจอร์: C5 -> E5 -> G5 -> C6
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const t = ctx.currentTime + idx * 0.09;
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.95);
+
+      osc.connect(gain);
+      gain.connect(audioState.sfxMasterGain || ctx.destination);
+
+      osc.start(t);
+      osc.stop(t + 1.0);
+    });
+  } catch (err) {
+    // Silent catch
+  }
+}
+
+/**
+ * เสียงแจ้งเตือนความผิดพลาด / อันตราย (Warning Buzz SFX)
+ */
+function playWarningSFX() {
+  if (audioState.isMuted) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    const t = ctx.currentTime;
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(140, t);
+    osc.frequency.exponentialRampToValueAtTime(80, t + 0.22);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(280, t);
+
+    gain.gain.setValueAtTime(0.16, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioState.sfxMasterGain || ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.26);
+  } catch (err) {
+    // Silent catch
+  }
+}
+
+/**
+ * เล่นเสียงกระดิ่งเปลี่ยนวัน (Day Transition Bell Chime)
+ */
+function playBellChimeSound() {
+  playNotificationSFX();
 }
 
 /**
@@ -644,6 +989,7 @@ function transitionToDay2() {
  */
 function startDay2Dialogue() {
   gameState.mode = 'intro_day2';
+  playNotificationSFX();
   gameState.activeDialogueQueue = [
     {
       speaker: 'วิน (ตัวเอก)',
@@ -1140,6 +1486,7 @@ function handleRouterChoice(choice) {
   } else {
     // เลือกข้อ A: เตือนว่า 'รหัสผ่านง่ายเกินไป เสี่ยงต่อการโดน Brute Force' ให้เลือกใหม่
     gameState.mistakesCount++;
+    playWarningSFX();
     console.log(`⚠️ Weak router password selected (${choice})! Total mistakes:`, gameState.mistakesCount);
 
     if (passwordPreview) {
@@ -1371,6 +1718,7 @@ function handlePhishingChoice(choice) {
   } else {
     // เลือกปุ่มคลิกลิงก์: ผิด / โดนขโมยรหัสผ่าน
     gameState.mistakesCount++;
+    playWarningSFX();
     console.log('⚠️ Made a mistake in Phishing Email! Total mistakes:', gameState.mistakesCount);
 
     // 1. หน้าจอสั่นเบาๆ (Screen Shake Effect)
@@ -1539,6 +1887,7 @@ function openSMSModal() {
   gameState.flags.hasExploredPhone = true;
   gameState.mode = 'minigame';
   closeDialogueBox();
+  playNotificationSFX();
   updateStatusIndicator('📱 กำลังตรวจสอบข้อความ SMS บนมือถือ');
 
   const currentCase = gameState.flags.smsCurrentCase || 1;
@@ -1618,6 +1967,7 @@ function handleSMSChoice(choice) {
   } else {
     // ผิด: กดลิงก์
     gameState.mistakesCount++;
+    playWarningSFX();
     console.log(`⚠️ Mistake on SMS Case ${currentCase}! Total mistakes:`, gameState.mistakesCount);
     feedbackBox.className = 'feedback-box danger';
     iconElem.textContent = '🚨';
@@ -1778,6 +2128,7 @@ function handleUsbChoice(choice) {
   } else {
     // ผิด: นำไปเสียบคอม
     gameState.mistakesCount++;
+    playWarningSFX();
     console.log('⚠️ Mistake on USB Drop Attack! Total mistakes:', gameState.mistakesCount);
 
     if (card) {
@@ -1954,6 +2305,7 @@ function handleCameraChoice(choice) {
   } else {
     // ผิด: ใช้การตั้งค่าเดิม
     gameState.mistakesCount++;
+    playWarningSFX();
     console.log('⚠️ Mistake on Camera Security! Total mistakes:', gameState.mistakesCount);
 
     if (card) {
@@ -2648,6 +3000,11 @@ function typeNextGrapheme() {
     currentGraphemeIndex++;
     const currentText = currentGraphemes.slice(0, currentGraphemeIndex).join('');
     textElem.innerHTML = `${escapeHTML(currentText)}<span class="typing-cursor"></span>`;
+
+    // เล่นเสียงพิมพ์ดีดเบาๆ (Typewriter Tick) สลับจังหวะ
+    if (currentGraphemeIndex % 2 === 0) {
+      playTypewriterSFX();
+    }
 
     typewriterTimer = setTimeout(typeNextGrapheme, TYPING_SPEED_MS);
   } else {
