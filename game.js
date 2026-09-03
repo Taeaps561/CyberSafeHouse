@@ -31,7 +31,19 @@ const gameState = {
     hasExploredCamera: false,
     cameraQuestCompleted: false,
     cameraScoreAwarded: false,
-    day2Completed: false
+    day2Completed: false,
+    // Day 3 Flags (Work From Home & AI Scams / Midnight Incident)
+    hasExploredDeepfake: false,
+    deepfakeQuestCompleted: false,
+    deepfakeScoreAwarded: false,
+    hasExploredAttachment: false,
+    attachmentQuestCompleted: false,
+    attachmentScoreAwarded: false,
+    hasExploredRansomware: false,
+    ransomwareQuestCompleted: false,
+    ransomwareScoreAwarded: false,
+    day3Completed: false,
+    isMidnightMode: false
   },
   dialogueIndex: 0,
   isTyping: false,
@@ -93,6 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initSMSModal();
   initUsbModal();
   initCameraModal();
+  initDeepfakeModal();
+  initAttachmentModal();
+  initRansomwareModal();
   initDayCompleteModal();
   initQuestLog();
   initGameSummaryScreen();
@@ -227,6 +242,38 @@ function initHotspots() {
       e.stopPropagation();
       console.log('📹 Hotspot Camera clicked!');
       openCameraModal();
+    };
+  }
+
+  // จุดสำรวจภารกิจ Day 3 (Work From Home & AI Scams)
+  const deepfakeBtn = document.getElementById('hotspot-deepfake');
+  const attachmentBtn = document.getElementById('hotspot-attachment');
+  const ransomwareBtn = document.getElementById('hotspot-ransomware');
+
+  if (deepfakeBtn) {
+    deepfakeBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🎭 Hotspot Deepfake clicked!');
+      openDeepfakeModal();
+    };
+  }
+
+  if (attachmentBtn) {
+    attachmentBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('📄 Hotspot Attachment clicked!');
+      openAttachmentModal();
+    };
+  }
+
+  if (ransomwareBtn) {
+    ransomwareBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🔒 Hotspot Ransomware clicked!');
+      openRansomwareModal();
     };
   }
 
@@ -873,12 +920,6 @@ function playWarningSFX() {
 }
 
 /**
- * เล่นเสียงกระดิ่งเปลี่ยนวัน (Day Transition Bell Chime)
- */
-function playBellChimeSound() {
-  playNotificationSFX();
-}
-
 /**
  * เริ่มต้นระบบปุ่มของ Day Complete Modal
  */
@@ -1138,6 +1179,18 @@ function updateQuestLogUI() {
   const checkCamera = document.getElementById('quest-check-camera');
   const statusCamera = document.getElementById('quest-status-camera');
 
+  const itemDeepfake = document.getElementById('quest-item-deepfake');
+  const checkDeepfake = document.getElementById('quest-check-deepfake');
+  const statusDeepfake = document.getElementById('quest-status-deepfake');
+
+  const itemAttachment = document.getElementById('quest-item-attachment');
+  const checkAttachment = document.getElementById('quest-check-attachment');
+  const statusAttachment = document.getElementById('quest-status-attachment');
+
+  const itemRansomware = document.getElementById('quest-item-ransomware');
+  const checkRansomware = document.getElementById('quest-check-ransomware');
+  const statusRansomware = document.getElementById('quest-status-ransomware');
+
   if (gameState.currentDay === 1) {
     if (subtitleElem) subtitleElem.textContent = 'รายการสิ่งที่ต้องทำใน Day 1';
     if (itemRouter) itemRouter.classList.remove('hidden');
@@ -1145,6 +1198,9 @@ function updateQuestLogUI() {
     if (itemSMS) itemSMS.classList.add('hidden');
     if (itemUsb) itemUsb.classList.add('hidden');
     if (itemCamera) itemCamera.classList.add('hidden');
+    if (itemDeepfake) itemDeepfake.classList.add('hidden');
+    if (itemAttachment) itemAttachment.classList.add('hidden');
+    if (itemRansomware) itemRansomware.classList.add('hidden');
 
     const isRouterDone = Boolean(gameState.flags.routerScoreAwarded);
     const isPhishingDone = Boolean(gameState.flags.phishingQuestCompleted);
@@ -1188,7 +1244,7 @@ function updateQuestLogUI() {
         badgeDot.classList.remove('all-done');
       }
     }
-  } else {
+  } else if (gameState.currentDay === 2) {
     // ภารกิจ Day 2
     if (subtitleElem) subtitleElem.textContent = 'รายการสิ่งที่ต้องทำใน Day 2';
     if (itemRouter) itemRouter.classList.add('hidden');
@@ -1196,6 +1252,9 @@ function updateQuestLogUI() {
     if (itemSMS) itemSMS.classList.remove('hidden');
     if (itemUsb) itemUsb.classList.remove('hidden');
     if (itemCamera) itemCamera.classList.remove('hidden');
+    if (itemDeepfake) itemDeepfake.classList.add('hidden');
+    if (itemAttachment) itemAttachment.classList.add('hidden');
+    if (itemRansomware) itemRansomware.classList.add('hidden');
 
     const isSMSDone = Boolean(gameState.flags.smsQuestCompleted);
     const isUsbDone = Boolean(gameState.flags.usbQuestCompleted);
@@ -1244,6 +1303,74 @@ function updateQuestLogUI() {
     const completedCount = (isSMSDone ? 1 : 0) + (isUsbDone ? 1 : 0) + (isCameraDone ? 1 : 0);
     if (progressTextElem) {
       progressTextElem.textContent = `สำเร็จ ${completedCount}/3 ภารกิจ`;
+    }
+
+    if (badgeDot) {
+      if (completedCount === 3) {
+        badgeDot.classList.add('all-done');
+      } else {
+        badgeDot.classList.remove('all-done');
+      }
+    }
+  } else if (gameState.currentDay === 3) {
+    // ภารกิจ Day 3
+    if (subtitleElem) subtitleElem.textContent = 'รายการสิ่งที่ต้องทำใน Day 3 (Work From Home & AI Scams)';
+    if (itemRouter) itemRouter.classList.add('hidden');
+    if (itemPhishing) itemPhishing.classList.add('hidden');
+    if (itemSMS) itemSMS.classList.add('hidden');
+    if (itemUsb) itemUsb.classList.add('hidden');
+    if (itemCamera) itemCamera.classList.add('hidden');
+    if (itemDeepfake) itemDeepfake.classList.remove('hidden');
+    if (itemAttachment) itemAttachment.classList.remove('hidden');
+    if (itemRansomware) itemRansomware.classList.remove('hidden');
+
+    const isDeepfakeDone = Boolean(gameState.flags.deepfakeQuestCompleted);
+    const isAttachmentDone = Boolean(gameState.flags.attachmentQuestCompleted);
+    const isRansomwareDone = Boolean(gameState.flags.ransomwareQuestCompleted);
+
+    // 6. Deepfake AI Call
+    if (itemDeepfake && checkDeepfake && statusDeepfake) {
+      if (isDeepfakeDone) {
+        itemDeepfake.classList.add('completed');
+        checkDeepfake.textContent = '[✓]';
+        statusDeepfake.textContent = 'สำเร็จแล้ว ✅';
+      } else {
+        itemDeepfake.classList.remove('completed');
+        checkDeepfake.textContent = '[ ]';
+        statusDeepfake.textContent = 'ยังไม่สำเร็จ';
+      }
+    }
+
+    // 7. Malicious Attachment
+    if (itemAttachment && checkAttachment && statusAttachment) {
+      if (isAttachmentDone) {
+        itemAttachment.classList.add('completed');
+        checkAttachment.textContent = '[✓]';
+        statusAttachment.textContent = 'สำเร็จแล้ว ✅';
+      } else {
+        itemAttachment.classList.remove('completed');
+        checkAttachment.textContent = '[ ]';
+        statusAttachment.textContent = 'ยังไม่สำเร็จ';
+      }
+    }
+
+    // 8. Ransomware Emergency Drill
+    if (itemRansomware && checkRansomware && statusRansomware) {
+      if (isRansomwareDone) {
+        itemRansomware.classList.add('completed');
+        checkRansomware.textContent = '[✓]';
+        statusRansomware.textContent = 'สำเร็จแล้ว ✅';
+      } else {
+        itemRansomware.classList.remove('completed');
+        checkRansomware.textContent = '[ ]';
+        statusRansomware.textContent = 'ยังไม่สำเร็จ';
+      }
+    }
+
+    // ความคืบหน้า Day 3
+    const completedCount = (isDeepfakeDone ? 1 : 0) + (isAttachmentDone ? 1 : 0) + (isRansomwareDone ? 1 : 0);
+    if (progressTextElem) {
+      progressTextElem.textContent = `สำเร็จ ${completedCount}/3 ภารกิจ (Day 3)`;
     }
 
     if (badgeDot) {
@@ -2348,6 +2475,525 @@ function checkDay2Completion() {
     gameState.flags.day2Completed = true;
     console.log('🎉 Day 2 All Quests Completed! Total Day 2 Score:', gameState.score);
     setTimeout(() => {
+      showDayCompleteModal();
+    }, 700);
+  }
+}
+
+/**
+ * ==========================================================================
+ * ระบบมินิเกม Day 3 (AI Deepfake Voice Call, Double Extension, Ransomware Drill)
+ * ==========================================================================
+ */
+
+/**
+ * 1. Deepfake Voice / Video Call Modal
+ */
+function initDeepfakeModal() {
+  const backdrop = document.getElementById('deepfake-modal-backdrop');
+  const btnDanger = document.getElementById('btn-deepfake-danger');
+  const btnSafe = document.getElementById('btn-deepfake-safe');
+  const btnChallenge = document.getElementById('btn-deepfake-challenge');
+  const retryBtn = document.getElementById('deepfake-retry-btn');
+
+  if (btnChallenge) {
+    btnChallenge.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playClickSFX();
+      const resp = document.getElementById('deepfake-challenge-response');
+      if (resp) resp.classList.remove('hidden');
+    });
+  }
+
+  if (btnDanger) {
+    btnDanger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleDeepfakeChoice('A');
+    });
+  }
+
+  if (btnSafe) {
+    btnSafe.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleDeepfakeChoice('B');
+    });
+  }
+
+  if (retryBtn) {
+    retryBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playClickSFX();
+      const fb = document.getElementById('deepfake-feedback-box');
+      if (fb) fb.classList.add('hidden');
+      const actions = document.getElementById('deepfake-actions-area');
+      if (actions) actions.style.display = 'grid';
+    });
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) {
+        closeDeepfakeModal();
+      }
+    });
+  }
+}
+
+function openDeepfakeModal() {
+  playNotificationSFX();
+  gameState.flags.hasExploredDeepfake = true;
+  gameState.mode = 'minigame';
+  closeDialogueBox();
+
+  const backdrop = document.getElementById('deepfake-modal-backdrop');
+  const fb = document.getElementById('deepfake-feedback-box');
+  const successOverlay = document.getElementById('deepfake-success-overlay');
+  const actions = document.getElementById('deepfake-actions-area');
+  const resp = document.getElementById('deepfake-challenge-response');
+
+  if (fb) fb.classList.add('hidden');
+  if (successOverlay) successOverlay.classList.add('hidden');
+  if (actions) actions.style.display = 'grid';
+  if (resp) resp.classList.add('hidden');
+
+  if (backdrop) {
+    backdrop.classList.remove('hidden');
+    backdrop.setAttribute('aria-hidden', 'false');
+  }
+
+  updateStatusIndicator('🎭 กำลังตรวจสอบสายโทรเข้า AI Deepfake Call');
+}
+
+function closeDeepfakeModal() {
+  const backdrop = document.getElementById('deepfake-modal-backdrop');
+  if (backdrop) {
+    backdrop.classList.add('hidden');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+  if (gameState.mode === 'minigame') {
+    gameState.mode = 'explore';
+  }
+  updateStatusIndicator('🌙 โหมดสำรวจห้องยามค่ำคืน (Day 3)');
+}
+
+function handleDeepfakeChoice(choice) {
+  playClickSFX();
+  const fb = document.getElementById('deepfake-feedback-box');
+  const fbTitle = document.getElementById('deepfake-feedback-title');
+  const fbMsg = document.getElementById('deepfake-feedback-message');
+  const actions = document.getElementById('deepfake-actions-area');
+  const modal = document.querySelector('.deepfake-card');
+
+  if (choice === 'B') {
+    // ถูกต้อง - ตัดสายแล้วโทรเช็กเบอร์จริง
+    const successOverlay = document.getElementById('deepfake-success-overlay');
+    if (actions) actions.style.display = 'none';
+    if (fb) fb.classList.add('hidden');
+    if (successOverlay) successOverlay.classList.remove('hidden');
+
+    playSuccessSFX();
+
+    if (!gameState.flags.deepfakeScoreAwarded) {
+      gameState.flags.deepfakeScoreAwarded = true;
+      gameState.flags.deepfakeQuestCompleted = true;
+      addScore(35);
+    }
+
+    const hotspot = document.getElementById('hotspot-deepfake');
+    if (hotspot) {
+      hotspot.classList.add('completed');
+      const core = hotspot.querySelector('.hotspot-core');
+      if (core) core.textContent = '✅';
+      const tip = hotspot.querySelector('.hotspot-tooltip');
+      if (tip) tip.textContent = 'ตรวจจับ AI Deepfake สำเร็จ (+35 แต้ม)';
+    }
+
+    updateQuestLogUI();
+
+    setTimeout(() => {
+      closeDeepfakeModal();
+      triggerDeepfakeSuccessDialogue();
+      checkDay3Completion();
+    }, 1400);
+
+  } else {
+    // ผิด - รีบโอนเงิน
+    gameState.mistakesCount++;
+    playWarningSFX();
+
+    if (modal) {
+      modal.classList.remove('shake-animation');
+      void modal.offsetWidth;
+      modal.classList.add('shake-animation');
+    }
+
+    if (actions) actions.style.display = 'none';
+    if (fb && fbTitle && fbMsg) {
+      fb.className = 'feedback-box warning';
+      fbTitle.textContent = 'อันตรายมาก! ตกเป็นเหยื่อ AI Voice Cloning โอนเงินสูญเปล่า';
+      fbMsg.textContent = 'มิจฉาชีพยุคปัจจุบันใช้เทคโนโลยี AI โคลนเสียงคนใกล้ชิด โดยเก็บตัวอย่างเสียงจากวิดีโอคลิปบนโซเชียลมีเดียเพียงไม่กี่วินาที แล้วโทรมาหลอกให้โอนเงินด่วน วิธีป้องกันที่ดีที่สุดคือ ตัดสาย แล้วโทรกลับไปหาเบอร์ส่วนตัวที่บันทึกไว้ใน Contact เพื่อตรวจสอบโดยตรงเสมอ!';
+      fb.classList.remove('hidden');
+    }
+  }
+}
+
+function triggerDeepfakeSuccessDialogue() {
+  gameState.mode = 'inspect';
+  gameState.dialogueIndex = 0;
+  gameState.activeDialogueQueue = [
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '😌',
+      text: 'โล่งอกไปที! โทรกลับหาเบอร์ส่วนตัวของนัท นัทบอกว่าอยู่บ้านสบายดี ไม่ได้เกิดอุบัติเหตุอะไรเลย!'
+    },
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '🛡️',
+      text: 'เทคโนโลยี AI Voice Clone น่ากลัวมาก ถ้าไม่เอะใจเรื่องเสียงที่แบนผิดปกติและไม่โทรเช็กโดยตรง คงเสียเงิน 25,000 บาทไปแล้ว'
+    }
+  ];
+  openDialogueBox();
+  showCurrentDialogue();
+}
+
+/**
+ * 2. Malicious File Attachment Inspector Modal
+ */
+function initAttachmentModal() {
+  const backdrop = document.getElementById('attachment-modal-backdrop');
+  const closeIcon = document.getElementById('attachment-close-icon');
+  const btnChoiceA = document.getElementById('btn-attachment-choice-a');
+  const btnChoiceB = document.getElementById('btn-attachment-choice-b');
+  const retryBtn = document.getElementById('attachment-retry-btn');
+
+  if (closeIcon) {
+    closeIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playClickSFX();
+      closeAttachmentModal();
+    });
+  }
+
+  if (btnChoiceA) {
+    btnChoiceA.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleAttachmentChoice('A');
+    });
+  }
+
+  if (btnChoiceB) {
+    btnChoiceB.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleAttachmentChoice('B');
+    });
+  }
+
+  if (retryBtn) {
+    retryBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playClickSFX();
+      const fb = document.getElementById('attachment-feedback-box');
+      if (fb) fb.classList.add('hidden');
+      const actions = document.getElementById('attachment-choices-area');
+      if (actions) actions.style.display = 'grid';
+    });
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) {
+        closeAttachmentModal();
+      }
+    });
+  }
+}
+
+function openAttachmentModal() {
+  playClickSFX();
+  gameState.flags.hasExploredAttachment = true;
+  gameState.mode = 'minigame';
+  closeDialogueBox();
+
+  const backdrop = document.getElementById('attachment-modal-backdrop');
+  const fb = document.getElementById('attachment-feedback-box');
+  const successOverlay = document.getElementById('attachment-success-overlay');
+  const actions = document.getElementById('attachment-choices-area');
+
+  if (fb) fb.classList.add('hidden');
+  if (successOverlay) successOverlay.classList.add('hidden');
+  if (actions) actions.style.display = 'grid';
+
+  if (backdrop) {
+    backdrop.classList.remove('hidden');
+    backdrop.setAttribute('aria-hidden', 'false');
+  }
+
+  updateStatusIndicator('📄 กำลังตรวจสอบไฟล์แนบงาน (.pdf.exe / Macro)');
+}
+
+function closeAttachmentModal() {
+  const backdrop = document.getElementById('attachment-modal-backdrop');
+  if (backdrop) {
+    backdrop.classList.add('hidden');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+  if (gameState.mode === 'minigame') {
+    gameState.mode = 'explore';
+  }
+  updateStatusIndicator('🌙 โหมดสำรวจห้องยามค่ำคืน (Day 3)');
+}
+
+function handleAttachmentChoice(choice) {
+  playClickSFX();
+  const fb = document.getElementById('attachment-feedback-box');
+  const fbTitle = document.getElementById('attachment-feedback-title');
+  const fbMsg = document.getElementById('attachment-feedback-message');
+  const actions = document.getElementById('attachment-choices-area');
+  const modal = document.querySelector('.attachment-card');
+
+  if (choice === 'B') {
+    // ถูกต้อง - ลบไฟล์ทิ้ง และสแกน
+    const successOverlay = document.getElementById('attachment-success-overlay');
+    if (actions) actions.style.display = 'none';
+    if (fb) fb.classList.add('hidden');
+    if (successOverlay) successOverlay.classList.remove('hidden');
+
+    playSuccessSFX();
+
+    if (!gameState.flags.attachmentScoreAwarded) {
+      gameState.flags.attachmentScoreAwarded = true;
+      gameState.flags.attachmentQuestCompleted = true;
+      addScore(35);
+    }
+
+    const hotspot = document.getElementById('hotspot-attachment');
+    if (hotspot) {
+      hotspot.classList.add('completed');
+      const core = hotspot.querySelector('.hotspot-core');
+      if (core) core.textContent = '✅';
+      const tip = hotspot.querySelector('.hotspot-tooltip');
+      if (tip) tip.textContent = 'บล็อก Double Extension สำเร็จ (+35 แต้ม)';
+    }
+
+    updateQuestLogUI();
+
+    setTimeout(() => {
+      closeAttachmentModal();
+      triggerAttachmentSuccessDialogue();
+      checkDay3Completion();
+    }, 1400);
+
+  } else {
+    // ผิด - เปิดไฟล์และกด Enable Macros
+    gameState.mistakesCount++;
+    playWarningSFX();
+
+    if (modal) {
+      modal.classList.remove('shake-animation');
+      void modal.offsetWidth;
+      modal.classList.add('shake-animation');
+    }
+
+    if (actions) actions.style.display = 'none';
+    if (fb && fbTitle && fbMsg) {
+      fb.className = 'feedback-box warning';
+      fbTitle.textContent = 'ความเสี่ยงขั้นวิกฤต! เครื่องติดโทรจัน RAT และ Macro ไวรัส';
+      fbMsg.textContent = 'ผู้โจมตีมักตั้งชื่อไฟล์ซ้อนนามสกุล เช่น PO_Invoice.pdf.exe เพื่อหลอกตาผู้ใช้งานระบบปฏิบัติการที่ซ่อนนามสกุลไฟล์ หากคลิกเปิดจะทำให้โทรจันติดตั้งตัวเองทันที และการกด Enable Macros จะอนุญาตให้ Visual Basic Script ในไฟล์ดาวน์โหลดมัลแวร์ขโมยรหัสผ่าน!';
+      fb.classList.remove('hidden');
+    }
+  }
+}
+
+function triggerAttachmentSuccessDialogue() {
+  gameState.mode = 'inspect';
+  gameState.dialogueIndex = 0;
+  gameState.activeDialogueQueue = [
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '💻',
+      text: 'จับไต๋ได้ทันเวลา! ไฟล์ชื่อ .pdf แต่แท้จริงคือไฟล์รันโปรแกรม .exe ที่แอบแฝงมากับอีเมลงาน'
+    },
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '✨',
+      text: 'การเปิดระบบให้แสดงนามสกุลไฟล์ที่แท้จริง (File Name Extensions) และการปิดการรัน Macro เป็นเกราะป้องกันที่สำคัญมากสำหรับการทำงาน Work From Home'
+    }
+  ];
+  openDialogueBox();
+  showCurrentDialogue();
+}
+
+/**
+ * 3. Ransomware Emergency Drill Modal
+ */
+function initRansomwareModal() {
+  const backdrop = document.getElementById('ransomware-modal-backdrop');
+  const btnChoiceA = document.getElementById('btn-ransomware-choice-a');
+  const btnChoiceB = document.getElementById('btn-ransomware-choice-b');
+  const retryBtn = document.getElementById('ransomware-retry-btn');
+
+  if (btnChoiceA) {
+    btnChoiceA.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleRansomwareChoice('A');
+    });
+  }
+
+  if (btnChoiceB) {
+    btnChoiceB.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleRansomwareChoice('B');
+    });
+  }
+
+  if (retryBtn) {
+    retryBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playClickSFX();
+      const fb = document.getElementById('ransomware-feedback-box');
+      if (fb) fb.classList.add('hidden');
+      const actions = document.getElementById('ransomware-choices-area');
+      if (actions) actions.style.display = 'grid';
+    });
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) {
+        closeRansomwareModal();
+      }
+    });
+  }
+}
+
+function openRansomwareModal() {
+  playClickSFX();
+  gameState.flags.hasExploredRansomware = true;
+  gameState.mode = 'minigame';
+  closeDialogueBox();
+
+  const backdrop = document.getElementById('ransomware-modal-backdrop');
+  const fb = document.getElementById('ransomware-feedback-box');
+  const successOverlay = document.getElementById('ransomware-success-overlay');
+  const actions = document.getElementById('ransomware-choices-area');
+
+  if (fb) fb.classList.add('hidden');
+  if (successOverlay) successOverlay.classList.add('hidden');
+  if (actions) actions.style.display = 'grid';
+
+  if (backdrop) {
+    backdrop.classList.remove('hidden');
+    backdrop.setAttribute('aria-hidden', 'false');
+  }
+
+  updateStatusIndicator('🔒 กำลังซ้อมรับมือเหตุฉุกเฉินแรนซัมแวร์ (Ransomware Incident Drill)');
+}
+
+function closeRansomwareModal() {
+  const backdrop = document.getElementById('ransomware-modal-backdrop');
+  if (backdrop) {
+    backdrop.classList.add('hidden');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+  if (gameState.mode === 'minigame') {
+    gameState.mode = 'explore';
+  }
+  updateStatusIndicator('🌙 โหมดสำรวจห้องยามค่ำคืน (Day 3)');
+}
+
+function handleRansomwareChoice(choice) {
+  playClickSFX();
+  const fb = document.getElementById('ransomware-feedback-box');
+  const fbTitle = document.getElementById('ransomware-feedback-title');
+  const fbMsg = document.getElementById('ransomware-feedback-message');
+  const actions = document.getElementById('ransomware-choices-area');
+  const modal = document.querySelector('.ransomware-card');
+
+  if (choice === 'B') {
+    // ถูกต้อง - ตัดเน็ต ➔ กู้จาก Cold Backup ➔ ไม่จ่ายเงิน
+    const successOverlay = document.getElementById('ransomware-success-overlay');
+    if (actions) actions.style.display = 'none';
+    if (fb) fb.classList.add('hidden');
+    if (successOverlay) successOverlay.classList.remove('hidden');
+
+    playSuccessSFX();
+
+    if (!gameState.flags.ransomwareScoreAwarded) {
+      gameState.flags.ransomwareScoreAwarded = true;
+      gameState.flags.ransomwareQuestCompleted = true;
+      addScore(30);
+    }
+
+    const hotspot = document.getElementById('hotspot-ransomware');
+    if (hotspot) {
+      hotspot.classList.add('completed');
+      const core = hotspot.querySelector('.hotspot-core');
+      if (core) core.textContent = '✅';
+      const tip = hotspot.querySelector('.hotspot-tooltip');
+      if (tip) tip.textContent = 'ซ้อมรับมือแรนซัมแวร์สำเร็จ (+30 แต้ม)';
+    }
+
+    updateQuestLogUI();
+
+    setTimeout(() => {
+      closeRansomwareModal();
+      triggerRansomwareSuccessDialogue();
+      checkDay3Completion();
+    }, 1400);
+
+  } else {
+    // ผิด - ยอมจ่ายค่าไถ่
+    gameState.mistakesCount++;
+    playWarningSFX();
+
+    if (modal) {
+      modal.classList.remove('shake-animation');
+      void modal.offsetWidth;
+      modal.classList.add('shake-animation');
+    }
+
+    if (actions) actions.style.display = 'none';
+    if (fb && fbTitle && fbMsg) {
+      fb.className = 'feedback-box warning';
+      fbTitle.textContent = 'ข้อผิดพลาดร้ายแรง! การจ่ายค่าไถ่ไม่การันตีว่าจะได้ไฟล์คืน';
+      fbMsg.textContent = 'หน่วยงานความมั่นคงปลอดภัยไซเบอร์ทั่วโลกแนะนำเสมอว่า "ห้ามจ่ายค่าไถ่เด็ดขาด" เพราะเป็นการสนับสนุนอาชญากรรม และสถิติระบุว่าเหยื่อเกิน 50% ไม่ได้รับกุญแจถอดรหัสคืน ขั้นตอนที่ถูกต้องคือ ตัดเครือข่ายทันทีเพื่อหยุดการแพร่กระจาย แล้วกู้คืนจาก Offline Cold Backup!';
+      fb.classList.remove('hidden');
+    }
+  }
+}
+
+function triggerRansomwareSuccessDialogue() {
+  gameState.mode = 'inspect';
+  gameState.dialogueIndex = 0;
+  gameState.activeDialogueQueue = [
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '🛡️',
+      text: 'ซ้อมรับมือแรนซัมแวร์ผ่านฉลุย! หลักการ 3 ขั้นตอน: ตัดเน็ตเพื่อกักกัน (Containment) ➔ กู้คืนจาก Cold Backup ➔ แจ้งความดำเนินคดี'
+    },
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '🎉',
+      text: 'การทำสำรองข้อมูลแบบ Offline เสมอคือกุญแจทองที่ทำให้เราไม่จำเป็นต้องยอมจำนนต่อแฮกเกอร์เลยแม้แต่น้อย!'
+    }
+  ];
+  openDialogueBox();
+  showCurrentDialogue();
+}
+
+/**
+ * ตรวจสอบความสมบูรณ์ของภารกิจ Day 3
+ */
+function checkDay3Completion() {
+  const isAllDone = 
+    Boolean(gameState.flags.deepfakeQuestCompleted) && 
+    Boolean(gameState.flags.attachmentQuestCompleted) && 
+    Boolean(gameState.flags.ransomwareQuestCompleted);
+
+  if (isAllDone && !gameState.flags.day3Completed) {
+    gameState.flags.day3Completed = true;
+    console.log('🎉 Day 3 All Quests Completed! Neutralized all 8 threats! Total Day 3 Score:', gameState.score);
+    setTimeout(() => {
       showGameSummaryScreen();
     }, 700);
   }
@@ -2392,10 +3038,10 @@ function initGameSummaryScreen() {
  */
 function exportCertificateToPNG() {
   const nameInput = document.getElementById('cert-player-name-input');
-  const rawName = nameInput ? nameInput.value.trim() : '';
+  const rawName = (nameInput && typeof nameInput.value === 'string') ? nameInput.value.trim() : '';
   const playerName = rawName || 'ผู้พิทักษ์บ้านอัจฉริยะ (Cyber Guardian)';
   const rank = gameState.mistakesCount === 0 ? 'S' : 'A';
-  const rankTitle = gameState.mistakesCount === 0 ? 'S Rank - Cyber Guardian ผู้พิทักษ์บ้านปลอดภัย' : 'A Rank - ผู้ตรวจการไซเบอร์ฝึกหัด';
+  const rankTitle = gameState.mistakesCount === 0 ? 'S Rank - Grand Cyber Guardian ผู้พิทักษ์ไซเบอร์ระดับเชี่ยวชาญ' : 'A Rank - ผู้ตรวจการไซเบอร์ระดับชำนาญการ';
 
   const downloadBtnText = document.getElementById('btn-download-cert-text');
 
@@ -2452,7 +3098,7 @@ function exportCertificateToPNG() {
     // ข้อความภาษาอังกฤษ
     ctx.font = 'bold 15px "Inter", "Prompt", sans-serif';
     ctx.fillStyle = '#9b6f43';
-    ctx.fillText('CERTIFICATE OF CYBER RESILIENCE', 600, 142);
+    ctx.fillText('GRAND CERTIFICATE OF CYBER RESILIENCE', 600, 142);
 
     // หัวข้อภาษาไทย
     ctx.font = 'bold 36px "Prompt", "Noto Sans Thai", sans-serif';
@@ -2494,7 +3140,7 @@ function exportCertificateToPNG() {
     ctx.font = '17px "Prompt", "Noto Sans Thai", sans-serif';
     ctx.fillStyle = '#4a3f35';
     ctx.fillText('ได้ผ่านการทดสอบและปฏิบัติตามมาตรฐานความปลอดภัยไซเบอร์ประจำบ้าน (Cyber Safe House)', 600, 335);
-    ctx.fillText('สามารถระบุ ป้องกัน และกำจัดภัยคุกคามทางดิจิทัลได้อย่างถูกต้องครบถ้วนสมบูรณ์', 600, 362);
+    ctx.fillText('สามารถระบุ ป้องกัน และกำจัดภัยคุกคามทางดิจิทัลครบทั้ง 3 วันได้อย่างถูกต้องสมบูรณ์แบบ', 600, 362);
 
     // 6. แถบแสดง Rank ผลการประเมิน (Rating Badge Card)
     const rankCardY = 395;
@@ -2535,7 +3181,7 @@ function exportCertificateToPNG() {
     // 7. สรุปสถิติ 3 ด้าน (Stats Grid)
     const statsY = 485;
     const statCards = [
-      { icon: '🎯', val: '5 / 5', lbl: 'ภัยคุกคามที่กำจัดได้' },
+      { icon: '🎯', val: '8 / 8', lbl: 'ภัยคุกคามที่กำจัดได้' },
       { icon: '🏡', val: '100%', lbl: 'ระดับความปลอดภัยของบ้าน' },
       { icon: '⚠️', val: `${gameState.mistakesCount} ครั้ง`, lbl: 'ข้อผิดพลาดที่เกิดขึ้น' }
     ];
@@ -2563,37 +3209,47 @@ function exportCertificateToPNG() {
       ctx.fillText(stat.lbl, sx + 130, statsY + 52);
     });
 
-    // 8. แถบแสดง 5 รายการความสำเร็จที่ผ่าน
+    // 8. แถบแสดง 8 รายการความสำเร็จที่ผ่าน
     const tagsY = 575;
     ctx.textAlign = 'center';
     ctx.font = 'bold 15px "Prompt", "Noto Sans Thai", sans-serif';
     ctx.fillStyle = '#635345';
-    ctx.fillText('รายการภารกิจการรักษาความปลอดภัยที่ผ่านการรับรอง:', 600, tagsY);
+    ctx.fillText('รายการภารกิจการรักษาความปลอดภัยที่ผ่านการรับรองครบ 3 วัน (8/8 ภัยคุกคาม):', 600, tagsY);
 
     const achievements = [
       '✅ รหัสผ่านเราเตอร์ Wi-Fi (Day 1)',
       '✅ ตรวจจับ Phishing อีเมล (Day 1)',
       '✅ บล็อก SMS Scam / แอปดูดเงิน (Day 2)',
       '✅ ป้องกัน USB Drop Attack (Day 2)',
-      '✅ ตรวจสอบกล้องวงจรปิด IoT (Day 2)'
+      '✅ ตรวจสอบกล้องวงจรปิด IoT (Day 2)',
+      '✅ ตรวจจับ AI Deepfake Call (Day 3)',
+      '✅ บล็อก Double Extension & Macro (Day 3)',
+      '✅ ผ่านซ้อมรับมือแรนซัมแวร์ (Day 3)'
     ];
 
     // แถวที่ 1 (3 แท็ก)
     const row1 = achievements.slice(0, 3);
     row1.forEach((tag, idx) => {
-      const tx = 290 + idx * 310;
-      drawCertTag(ctx, tag, tx, tagsY + 28);
+      const tx = 270 + idx * 330;
+      drawCertTag(ctx, tag, tx, tagsY + 24);
     });
 
-    // แถวที่ 2 (2 แท็ก)
-    const row2 = achievements.slice(3, 5);
+    // แถวที่ 2 (3 แท็ก)
+    const row2 = achievements.slice(3, 6);
     row2.forEach((tag, idx) => {
-      const tx = 445 + idx * 310;
-      drawCertTag(ctx, tag, tx, tagsY + 62);
+      const tx = 270 + idx * 330;
+      drawCertTag(ctx, tag, tx, tagsY + 54);
+    });
+
+    // แถวที่ 3 (2 แท็ก)
+    const row3 = achievements.slice(6, 8);
+    row3.forEach((tag, idx) => {
+      const tx = 435 + idx * 330;
+      drawCertTag(ctx, tag, tx, tagsY + 84);
     });
 
     // 9. ส่วนท้ายใบประกาศ (วันที่ออก และ ลายเซ็นรับรอง)
-    const footerY = 720;
+    const footerY = 744;
     const now = new Date();
     const dateStr = now.toLocaleDateString('th-TH', {
       year: 'numeric',
@@ -2696,7 +3352,7 @@ function showGameSummaryScreen() {
   const mistakesCountElem = document.getElementById('cert-mistakes-count');
 
   // สถิติผลสรุป
-  if (threatsCountElem) threatsCountElem.textContent = '5 / 5';
+  if (threatsCountElem) threatsCountElem.textContent = '8 / 8';
   if (safetyPercentElem) safetyPercentElem.textContent = '100%';
   if (mistakesCountElem) {
     mistakesCountElem.textContent = `${gameState.mistakesCount} ครั้ง`;
@@ -2704,27 +3360,27 @@ function showGameSummaryScreen() {
   }
 
   // ประเมินระดับ (Rating):
-  // ถ้าทำถูกต้องทั้งหมด (mistakesCount === 0): ได้ระดับ 'S Rank - Cyber Guardian ผู้พิทักษ์บ้านปลอดภัย'
-  // ถ้ามีตอบผิด: ได้ระดับ 'A Rank - ผู้ตรวจการไซเบอร์ฝึกหัด'
+  // ถ้าทำถูกต้องทั้งหมด (mistakesCount === 0): ได้ระดับ 'S Rank - Grand Cyber Guardian ผู้พิทักษ์ไซเบอร์ระดับเชี่ยวชาญ'
+  // ถ้ามีตอบผิด: ได้ระดับ 'A Rank - ผู้ตรวจการไซเบอร์ระดับชำนาญการ'
   if (gameState.mistakesCount === 0) {
     if (rankBadge) rankBadge.className = 'cert-rank-badge rank-s';
     if (rankLetter) rankLetter.textContent = 'S';
     if (rankTitle) {
       rankTitle.className = 'cert-rank-title';
-      rankTitle.textContent = 'S Rank - Cyber Guardian ผู้พิทักษ์บ้านปลอดภัย';
+      rankTitle.textContent = 'S Rank - Grand Cyber Guardian ผู้พิทักษ์ไซเบอร์ระดับเชี่ยวชาญ';
     }
     if (rankDesc) {
-      rankDesc.textContent = 'ยอดเยี่ยมไร้ที่ติ! ตัดสินใจถูกต้องแม่นยำทุกสถานการณ์ ปราศจากข้อผิดพลาด ปกป้องบ้านได้อย่างสมบูรณ์แบบ';
+      rankDesc.textContent = 'ยอดเยี่ยมไร้ที่ติ! ตัดสินใจถูกต้องแม่นยำทุกสถานการณ์ครบทั้ง 3 วัน (8/8 ภัยคุกคาม) ปกป้องความมั่นคงปลอดภัยได้อย่างสมบูรณ์แบบ';
     }
   } else {
     if (rankBadge) rankBadge.className = 'cert-rank-badge rank-a';
     if (rankLetter) rankLetter.textContent = 'A';
     if (rankTitle) {
       rankTitle.className = 'cert-rank-title title-a';
-      rankTitle.textContent = 'A Rank - ผู้ตรวจการไซเบอร์ฝึกหัด';
+      rankTitle.textContent = 'A Rank - ผู้ตรวจการไซเบอร์ระดับชำนาญการ';
     }
     if (rankDesc) {
-      rankDesc.textContent = `ทำได้ดีมาก! มีข้อผิดพลาด ${gameState.mistakesCount} ครั้ง แต่สามารถกอบกู้สถานการณ์และกำจัดภัยคุกคามจนบ้านปลอดภัยได้สำเร็จ`;
+      rankDesc.textContent = `ทำได้ดีมาก! มีข้อผิดพลาด ${gameState.mistakesCount} ครั้ง แต่สามารถกอบกู้สถานการณ์และกำจัดภัยคุกคามทั้ง 8 ด้านจนปลอดภัยได้สำเร็จ`;
     }
   }
 
@@ -2765,6 +3421,12 @@ function restartGame() {
   if (smsBackdrop) smsBackdrop.classList.add('hidden');
   if (usbBackdrop) usbBackdrop.classList.add('hidden');
   if (cameraBackdrop) cameraBackdrop.classList.add('hidden');
+  const deepfakeBackdrop = document.getElementById('deepfake-modal-backdrop');
+  const attachmentBackdrop = document.getElementById('attachment-modal-backdrop');
+  const ransomwareBackdrop = document.getElementById('ransomware-modal-backdrop');
+  if (deepfakeBackdrop) deepfakeBackdrop.classList.add('hidden');
+  if (attachmentBackdrop) attachmentBackdrop.classList.add('hidden');
+  if (ransomwareBackdrop) ransomwareBackdrop.classList.add('hidden');
   if (questBackdrop) questBackdrop.classList.add('hidden');
 
   // 2. รีเซ็ต State ทั้งหมด
@@ -2793,7 +3455,18 @@ function restartGame() {
     hasExploredCamera: false,
     cameraQuestCompleted: false,
     cameraScoreAwarded: false,
-    day2Completed: false
+    day2Completed: false,
+    hasExploredDeepfake: false,
+    deepfakeQuestCompleted: false,
+    deepfakeScoreAwarded: false,
+    hasExploredAttachment: false,
+    attachmentQuestCompleted: false,
+    attachmentScoreAwarded: false,
+    hasExploredRansomware: false,
+    ransomwareQuestCompleted: false,
+    ransomwareScoreAwarded: false,
+    day3Completed: false,
+    isMidnightMode: false
   };
   gameState.dialogueIndex = 0;
   gameState.isTyping = false;
@@ -2867,6 +3540,30 @@ function restartGame() {
   if (usbFeedback) usbFeedback.className = 'feedback-box hidden';
   if (usbSuccess) usbSuccess.classList.add('hidden');
 
+  // รีเซ็ต Day 3 modal elements
+  const deepfakeActions = document.getElementById('deepfake-actions-area');
+  const deepfakeFeedback = document.getElementById('deepfake-feedback-box');
+  const deepfakeSuccess = document.getElementById('deepfake-success-overlay');
+  const deepfakeResp = document.getElementById('deepfake-challenge-response');
+  if (deepfakeActions) deepfakeActions.style.display = 'grid';
+  if (deepfakeFeedback) deepfakeFeedback.className = 'feedback-box hidden';
+  if (deepfakeSuccess) deepfakeSuccess.classList.add('hidden');
+  if (deepfakeResp) deepfakeResp.classList.add('hidden');
+
+  const attachmentChoices = document.getElementById('attachment-choices-area');
+  const attachmentFeedback = document.getElementById('attachment-feedback-box');
+  const attachmentSuccess = document.getElementById('attachment-success-overlay');
+  if (attachmentChoices) attachmentChoices.style.display = 'grid';
+  if (attachmentFeedback) attachmentFeedback.className = 'feedback-box hidden';
+  if (attachmentSuccess) attachmentSuccess.classList.add('hidden');
+
+  const ransomwareChoices = document.getElementById('ransomware-choices-area');
+  const ransomwareFeedback = document.getElementById('ransomware-feedback-box');
+  const ransomwareSuccess = document.getElementById('ransomware-success-overlay');
+  if (ransomwareChoices) ransomwareChoices.style.display = 'grid';
+  if (ransomwareFeedback) ransomwareFeedback.className = 'feedback-box hidden';
+  if (ransomwareSuccess) ransomwareSuccess.classList.add('hidden');
+
   // รีเซ็ตสถานะแอนิเมชันตัวละคร
   setPlayerTalkingAnimation(false);
 
@@ -2876,6 +3573,9 @@ function restartGame() {
   const phoneBtn = document.getElementById('hotspot-phone');
   const usbBtn = document.getElementById('hotspot-usb');
   const cameraBtn = document.getElementById('hotspot-camera');
+  const deepfakeBtn = document.getElementById('hotspot-deepfake');
+  const attachmentBtn = document.getElementById('hotspot-attachment');
+  const ransomwareBtn = document.getElementById('hotspot-ransomware');
 
   if (compBtn) {
     compBtn.classList.remove('hidden');
@@ -2922,9 +3622,39 @@ function restartGame() {
     if (tooltip) tooltip.textContent = 'ตรวจสอบกล้องวงจรปิด IoT';
   }
 
+  if (deepfakeBtn) {
+    deepfakeBtn.classList.add('hidden');
+    deepfakeBtn.classList.remove('completed');
+    const core = deepfakeBtn.querySelector('.hotspot-core');
+    if (core) core.textContent = '🎭';
+    const tooltip = deepfakeBtn.querySelector('.hotspot-tooltip');
+    if (tooltip) tooltip.textContent = 'สายโทรเข้าด่วน (AI Deepfake)';
+  }
+
+  if (attachmentBtn) {
+    attachmentBtn.classList.add('hidden');
+    attachmentBtn.classList.remove('completed');
+    const core = attachmentBtn.querySelector('.hotspot-core');
+    if (core) core.textContent = '📄';
+    const tooltip = attachmentBtn.querySelector('.hotspot-tooltip');
+    if (tooltip) tooltip.textContent = 'ตรวจไฟล์แนบงาน (.pdf.exe)';
+  }
+
+  if (ransomwareBtn) {
+    ransomwareBtn.classList.add('hidden');
+    ransomwareBtn.classList.remove('completed');
+    const core = ransomwareBtn.querySelector('.hotspot-core');
+    if (core) core.textContent = '🔒';
+    const tooltip = ransomwareBtn.querySelector('.hotspot-tooltip');
+    if (tooltip) tooltip.textContent = 'ซ้อมรับมือแรนซัมแวร์ฉุกเฉิน';
+  }
+
   // 5. รีเซ็ตแสงห้องและ Canvas เป็นฉาก Day 1
   const gameContainer = document.getElementById('game-container');
-  if (gameContainer) gameContainer.classList.remove('afternoon-lighting');
+  if (gameContainer) {
+    gameContainer.classList.remove('afternoon-lighting');
+    gameContainer.classList.remove('midnight-lighting');
+  }
 
   const canvas = document.getElementById('game-canvas');
   if (canvas) renderRoomScene(canvas);

@@ -189,6 +189,27 @@
           <span class="hotspot-tooltip">ตรวจสอบกล้องวงจรปิด IoT</span>
         </button>
 
+        <!-- จุดที่ 6 (Day 3): สายโทรเข้าปลอมแปลงเสียง AI Deepfake (บนสมาร์ตโฟน) -->
+        <button class="hotspot-btn hidden" id="hotspot-deepfake" style="top: 66%; left: 28%;" aria-label="สายโทรเข้าด่วน (AI Deepfake Call)">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">🎭</span>
+          <span class="hotspot-tooltip">สายโทรเข้าด่วน (AI Deepfake)</span>
+        </button>
+
+        <!-- จุดที่ 7 (Day 3): ตรวจสอบไฟล์แนบงาน (.pdf.exe / Macro บนจอคอม) -->
+        <button class="hotspot-btn hidden" id="hotspot-attachment" style="top: 47%; left: 13.5%;" aria-label="ตรวจสอบไฟล์แนบงานอันตราย">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">📄</span>
+          <span class="hotspot-tooltip">ตรวจไฟล์แนบงาน (.pdf.exe)</span>
+        </button>
+
+        <!-- จุดที่ 8 (Day 3): การซ้อมรับมือแรนซัมแวร์ฉุกเฉิน (Ransomware Drill) -->
+        <button class="hotspot-btn hidden" id="hotspot-ransomware" style="top: 55%; left: 42%;" aria-label="ซ้อมรับมือเหตุแรนซัมแวร์ฉุกเฉิน">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">🔒</span>
+          <span class="hotspot-tooltip">ซ้อมรับมือแรนซัมแวร์ฉุกเฉิน</span>
+        </button>
+
         <!-- จุด Interactive Prop 1: ชั้นหนังสือ (เกร็ดความรู้ 2FA) -->
         <button class="hotspot-btn prop-hotspot" id="hotspot-bookshelf" style="top: 35%; left: 74.5%;" aria-label="สำรวจชั้นหนังสือ">
           <span class="hotspot-ring"></span>
@@ -578,6 +599,33 @@
                     <span class="quest-item-status" id="quest-status-camera">ยังไม่สำเร็จ</span>
                   </div>
                 </div>
+
+                <!-- ภารกิจที่ 6 (Day 3): ตรวจจับสายโทรเข้าปลอมแปลงเสียง AI Deepfake -->
+                <div class="quest-item" id="quest-item-deepfake">
+                  <span class="quest-checkbox-icon" id="quest-check-deepfake">[ ]</span>
+                  <div class="quest-info">
+                    <span class="quest-item-text">ตรวจจับสายโทรเข้า AI Deepfake Voice Call (35 แต้ม)</span>
+                    <span class="quest-item-status" id="quest-status-deepfake">ยังไม่สำเร็จ</span>
+                  </div>
+                </div>
+
+                <!-- ภารกิจที่ 7 (Day 3): ตรวจสอบไฟล์แนบงาน (.pdf.exe / Macro) -->
+                <div class="quest-item" id="quest-item-attachment">
+                  <span class="quest-checkbox-icon" id="quest-check-attachment">[ ]</span>
+                  <div class="quest-info">
+                    <span class="quest-item-text">บล็อกไฟล์แนบอันตราย Double Extension (.pdf.exe) (35 แต้ม)</span>
+                    <span class="quest-item-status" id="quest-status-attachment">ยังไม่สำเร็จ</span>
+                  </div>
+                </div>
+
+                <!-- ภารกิจที่ 8 (Day 3): การซ้อมรับมือแรนซัมแวร์ฉุกเฉิน (Ransomware Drill) -->
+                <div class="quest-item" id="quest-item-ransomware">
+                  <span class="quest-checkbox-icon" id="quest-check-ransomware">[ ]</span>
+                  <div class="quest-info">
+                    <span class="quest-item-text">ซ้อมรับมือเหตุแรนซัมแวร์ฉุกเฉินตามมาตรฐานสากล (30 แต้ม)</span>
+                    <span class="quest-item-status" id="quest-status-ransomware">ยังไม่สำเร็จ</span>
+                  </div>
+                </div>
               </div>
 
               <div class="quest-notebook-footer">
@@ -847,6 +895,272 @@
           </div>
         </div>
 
+        <!-- Deepfake Call Modal (จำลองสายโทรเข้า AI Voice/Video Call) -->
+        <div id="deepfake-modal-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card deepfake-card" role="dialog" aria-modal="true" aria-labelledby="deepfake-title">
+            <div class="deepfake-inner">
+              <div class="deepfake-header">
+                <div class="deepfake-pulse-ring">
+                  <div class="deepfake-avatar" id="deepfake-caller-avatar">👤</div>
+                </div>
+                <div class="deepfake-caller-meta">
+                  <span class="deepfake-call-type" id="deepfake-call-type">สายโทรเข้าฉุกเฉิน (Voice Call)...</span>
+                  <h3 class="deepfake-caller-name" id="deepfake-caller-name">นัท (เพื่อนร่วมงาน)</h3>
+                  <span class="deepfake-caller-number">+66 89-xxx-4521</span>
+                </div>
+                <div class="deepfake-live-badge">
+                  <span class="live-dot"></span> 00:24
+                </div>
+              </div>
+
+              <!-- Audio Waveform Visualizer (คลื่นเสียง AI) -->
+              <div class="deepfake-waveform-card">
+                <div class="waveform-bars">
+                  <span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span>
+                  <span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span>
+                  <span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span>
+                  <span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span>
+                </div>
+                <div class="deepfake-transcript-bubble">
+                  <span class="transcript-speaker">นัท (เสียงในสาย):</span>
+                  <p class="transcript-text" id="deepfake-transcript-text">
+                    "วิน! ช่วยด้วย ตอนนี้รถชนอยู่ต่างจังหวัด ต้องการเงินจ่ายค่ามัดจำรพ. ด่วน 25,000 บาท โอนเข้าบัญชีหมอคนนี้ให้หน่อย เดี๋ยวพรุ่งนี้คืนให้เลย!"
+                  </p>
+                </div>
+              </div>
+
+              <!-- Clues and Investigation Controls -->
+              <div class="deepfake-clues-section">
+                <div class="clue-tag-row">
+                  <span class="clue-pill" id="clue-audio-glitch">⚠️ เสียงขาดๆ แบนราบไร้อารมณ์</span>
+                  <span class="clue-pill" id="clue-no-video">📵 กล้องหน้าปิดอยู่ (อ้างสัญญาณไม่ดี)</span>
+                </div>
+                <button class="btn-ask-challenge" id="btn-deepfake-challenge">
+                  <span>❓ ลองถามคำถามลับ: "หมาที่บ้านแกชื่ออะไรนะ?"</span>
+                </button>
+                <div id="deepfake-challenge-response" class="challenge-response-box hidden">
+                  <span>ตอบกลับ: "...เอ่อ หมาที่บ้านหรอ? จำไม่ได้แล้ว รีบโอนเงินมาก่อนสิ หมอกำลังรออยู่!"</span>
+                </div>
+              </div>
+
+              <!-- Decision Buttons -->
+              <div class="camera-choices-grid" id="deepfake-actions-area">
+                <button class="router-choice-btn danger" id="btn-deepfake-danger">
+                  <div class="choice-top-row">
+                    <span class="choice-tag">ชอยส์ A</span>
+                    <span class="choice-risk-tag danger">เสี่ยงสูง</span>
+                  </div>
+                  <div class="choice-code">รีบโอนเงิน 25,000 บาท ทันที</div>
+                  <div class="choice-note">เห็นว่าเป็นเพื่อนสนิทเดือดร้อน จึงยอมโอนเข้าบัญชีบุคคลอื่น</div>
+                </button>
+
+                <button class="router-choice-btn btn-choice-strong" id="btn-deepfake-safe">
+                  <div class="choice-top-row">
+                    <span class="choice-tag tag-strong">ชอยส์ B</span>
+                    <span class="choice-risk-tag safe">ปลอดภัยสูง ★</span>
+                  </div>
+                  <div class="choice-code code-strong">ตัดสาย แล้วโทรกลับหาเบอร์ส่วนตัว</div>
+                  <div class="choice-note">สงสัยว่าใช้ AI Voice Clone เลียนเสียง โทรตรวจสอบโดยตรงผ่านช่องทางอื่น</div>
+                </button>
+              </div>
+
+              <!-- Feedback Box -->
+              <div id="deepfake-feedback-box" class="feedback-box hidden" role="alert">
+                <div class="feedback-header">
+                  <span class="feedback-icon" id="deepfake-feedback-icon">🚨</span>
+                  <h4 class="feedback-title" id="deepfake-feedback-title"></h4>
+                </div>
+                <p class="feedback-message" id="deepfake-feedback-message"></p>
+                <div class="feedback-action-row">
+                  <button id="deepfake-retry-btn" class="feedback-btn feedback-retry-btn">🔄 เลือกลองใหม่อีกครั้ง</button>
+                </div>
+              </div>
+
+              <!-- Success Overlay -->
+              <div id="deepfake-success-overlay" class="phishing-success-overlay hidden" aria-hidden="true">
+                <div class="success-checkmark-circle">
+                  <svg class="checkmark-svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  </svg>
+                </div>
+                <h3 class="success-title">ตรวจจับ Deepfake AI สำเร็จ ปลอดภัย 100%!</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Malicious Attachment Modal (ตรวจสอบไฟล์แนบ .pdf.exe และ Macro) -->
+        <div id="attachment-modal-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card attachment-card" role="dialog" aria-modal="true" aria-labelledby="attachment-title">
+            <div class="attachment-inner">
+              <div class="email-modal-header">
+                <div class="email-header-icon">📄</div>
+                <div class="email-header-meta">
+                  <h3 class="email-modal-title" id="attachment-title">จดหมายงานด่วน: แจ้งส่งมอบใบสั่งซื้อ (Purchase Order)</h3>
+                  <span class="email-sender-info">ผู้ส่ง: partner-billing@finance-express-center.com</span>
+                </div>
+                <button class="modal-close-icon" id="attachment-close-icon" aria-label="ปิดหน้าต่าง">✕</button>
+              </div>
+
+              <!-- Attachment Inspect Card -->
+              <div class="file-inspect-box">
+                <div class="file-visual-row">
+                  <div class="file-icon-badge">📁</div>
+                  <div class="file-details">
+                    <div class="file-name-display">
+                      <span class="file-fake-name">PO_Invoice_Payment_2026.pdf</span>
+                      <span class="file-real-ext" title="นามสกุลจริงที่ซ่อนอยู่">.exe 🚨</span>
+                    </div>
+                    <span class="file-type-hazard">ชนิดไฟล์จริง: Application (.exe) ซ่อนนามสกุลแบบ Double Extension</span>
+                    <span class="file-size-info">ขนาด: 1.4 MB | แหล่งที่มา: เครือข่ายภายนอก</span>
+                  </div>
+                </div>
+
+                <div class="macro-warning-card">
+                  <div class="macro-icon">⚠️</div>
+                  <div class="macro-text">
+                    <strong>SECURITY WARNING: Macros have been disabled.</strong>
+                    <p>เอกสารนี้ขอสิทธิ์รัน Visual Basic Code (VBA Macro) เพื่อเข้าถึงหน่วยความจำเครื่อง</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Decision Buttons Grid -->
+              <div class="camera-choices-grid" id="attachment-choices-area">
+                <button class="router-choice-btn danger" id="btn-attachment-choice-a" data-choice="A">
+                  <div class="choice-top-row">
+                    <span class="choice-tag">ชอยส์ A</span>
+                    <span class="choice-risk-tag danger">เสี่ยงสูง</span>
+                  </div>
+                  <div class="choice-code">ดับเบิลคลิกเปิดไฟล์ & กด Enable Macros</div>
+                  <div class="choice-note">คิดว่าเป็นไฟล์ PDF ธรรมดา จึงอนุญาตให้สคริปต์ทำงาน</div>
+                </button>
+
+                <button class="router-choice-btn btn-choice-strong" id="btn-attachment-choice-b" data-choice="B">
+                  <div class="choice-top-row">
+                    <span class="choice-tag tag-strong">ชอยส์ B</span>
+                    <span class="choice-risk-tag safe">ปลอดภัยสูง ★</span>
+                  </div>
+                  <div class="choice-code code-strong">ลบไฟล์ทิ้งทันที & สแกนความปลอดภัย</div>
+                  <div class="choice-note">ตรวจพบนามสกุล .exe แฝง และบล็อกการรัน Macro ทันที</div>
+                </button>
+              </div>
+
+              <!-- Feedback Box -->
+              <div id="attachment-feedback-box" class="feedback-box hidden" role="alert">
+                <div class="feedback-header">
+                  <span class="feedback-icon" id="attachment-feedback-icon">🚨</span>
+                  <h4 class="feedback-title" id="attachment-feedback-title"></h4>
+                </div>
+                <p class="feedback-message" id="attachment-feedback-message"></p>
+                <div class="feedback-action-row">
+                  <button id="attachment-retry-btn" class="feedback-btn feedback-retry-btn">🔄 เลือกลองใหม่อีกครั้ง</button>
+                </div>
+              </div>
+
+              <!-- Success Overlay -->
+              <div id="attachment-success-overlay" class="phishing-success-overlay hidden" aria-hidden="true">
+                <div class="success-checkmark-circle">
+                  <svg class="checkmark-svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  </svg>
+                </div>
+                <h3 class="success-title">บล็อก Double Extension และ Macro สำเร็จ!</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ransomware Emergency Drill Modal (การฝึกซ้อมรับมือแรนซัมแวร์) -->
+        <div id="ransomware-modal-backdrop" class="modal-backdrop hidden" aria-hidden="true">
+          <div class="modal-card ransomware-card" role="dialog" aria-modal="true" aria-labelledby="ransomware-title">
+            <div class="ransomware-inner">
+              <div class="ransomware-alert-header">
+                <span class="ransomware-skull">☠️</span>
+                <div class="ransomware-meta">
+                  <span class="emergency-badge">INCIDENT RESPONSE DRILL</span>
+                  <h3 class="ransomware-title" id="ransomware-title">จำลองสถานการณ์ฉุกเฉิน: แรนซัมแวร์โจมตี!</h3>
+                  <p class="ransomware-sub">หน้าจอปรากฏข้อความเรียกค่าไถ่ "YOUR FILES HAVE BEEN ENCRYPTED! Pay 0.5 BTC within 24h"</p>
+                </div>
+              </div>
+
+              <!-- Protocol Pipeline (3 Steps) -->
+              <div class="ransomware-pipeline-card">
+                <h4 class="pipeline-title">เลือกลำดับขั้นตอนปฏิบัติการที่ถูกต้องในการรับมือเหตุฉุกเฉิน:</h4>
+                <div class="protocol-steps-list">
+                  <div class="protocol-step-item">
+                    <span class="step-num">1</span>
+                    <div class="step-body">
+                      <strong>ขั้นตอนที่ 1 (Containment):</strong>
+                      <span>ตัดการเชื่อมต่อทันที (ดึงสาย LAN / ปิด Wi-Fi) เพื่อหยุดการแพร่กระจายข้ามเครือข่าย</span>
+                    </div>
+                  </div>
+                  <div class="protocol-step-item">
+                    <span class="step-num">2</span>
+                    <div class="step-body">
+                      <strong>ขั้นตอนที่ 2 (Recovery):</strong>
+                      <span>ล้างระบบและกู้คืนไฟล์จาก Offline Cold Backup ที่เก็บแยกไว้ ไม่จ่ายค่าไถ่เด็ดขาด</span>
+                    </div>
+                  </div>
+                  <div class="protocol-step-item">
+                    <span class="step-num">3</span>
+                    <div class="step-body">
+                      <strong>ขั้นตอนที่ 3 (Reporting):</strong>
+                      <span>รายงานเหตุต่อศูนย์ประสานการรักษาความมั่นคงปลอดภัยระบบคอมพิวเตอร์ (ThaiCERT / ตำรวจไซเบอร์)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Decision Buttons Grid -->
+              <div class="camera-choices-grid" id="ransomware-choices-area">
+                <button class="router-choice-btn danger" id="btn-ransomware-choice-a" data-choice="A">
+                  <div class="choice-top-row">
+                    <span class="choice-tag">แนวทาง A</span>
+                    <span class="choice-risk-tag danger">เสี่ยงสูง</span>
+                  </div>
+                  <div class="choice-code">ยอมจ่ายค่าไถ่ 0.5 Bitcoin ทันที</div>
+                  <div class="choice-note">หวังว่าจะได้กุญแจถอดรหัสคืน และเสียบคอมทิ้งไว้เพื่อรอคำตอบ</div>
+                </button>
+
+                <button class="router-choice-btn btn-choice-strong" id="btn-ransomware-choice-b" data-choice="B">
+                  <div class="choice-top-row">
+                    <span class="choice-tag tag-strong">แนวทาง B</span>
+                    <span class="choice-risk-tag safe">ถูกต้องตามมาตรฐาน ★</span>
+                  </div>
+                  <div class="choice-code code-strong">ตัดเน็ตทันที ➔ กู้จาก Cold Backup ➔ ไม่จ่ายเงิน</div>
+                  <div class="choice-note">หยุดการแพร่กระจาย และกู้คืนข้อมูลสำรองออฟไลน์โดยไม่สนับสนุนอาชญากร</div>
+                </button>
+              </div>
+
+              <!-- Feedback Box -->
+              <div id="ransomware-feedback-box" class="feedback-box hidden" role="alert">
+                <div class="feedback-header">
+                  <span class="feedback-icon" id="ransomware-feedback-icon">🚨</span>
+                  <h4 class="feedback-title" id="ransomware-feedback-title"></h4>
+                </div>
+                <p class="feedback-message" id="ransomware-feedback-message"></p>
+                <div class="feedback-action-row">
+                  <button id="ransomware-retry-btn" class="feedback-btn feedback-retry-btn">🔄 เลือกลองใหม่อีกครั้ง</button>
+                </div>
+              </div>
+
+              <!-- Success Overlay -->
+              <div id="ransomware-success-overlay" class="phishing-success-overlay hidden" aria-hidden="true">
+                <div class="success-checkmark-circle">
+                  <svg class="checkmark-svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  </svg>
+                </div>
+                <h3 class="success-title">ผ่านการซ้อมรับมือแรนซัมแวร์มาตรฐานสากล!</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Screen Transition Overlay (Fade to Black: 1 วินาที) -->
         <div id="screen-fade-transition" class="screen-fade-overlay hidden" aria-hidden="true">
           <div class="fade-content">
@@ -899,7 +1213,7 @@
                 <div class="cert-stat-item">
                   <div class="cert-stat-icon">🎯</div>
                   <div class="cert-stat-data">
-                    <span class="cert-stat-val" id="cert-threats-count">5 / 5</span>
+                    <span class="cert-stat-val" id="cert-threats-count">8 / 8</span>
                     <span class="cert-stat-lbl">ภัยคุกคามที่กำจัดได้</span>
                   </div>
                 </div>
@@ -921,13 +1235,16 @@
                 </div>
               </div>
 
-              <!-- แถบรายการภารกิจที่ผ่าน (5 ภารกิจ) -->
+              <!-- แถบรายการภารกิจที่ผ่าน (8 ภารกิจ) -->
               <div class="cert-achievements-list">
                 <span class="cert-tag">✅ รหัสผ่านเราเตอร์ปลอดภัย (Day 1)</span>
                 <span class="cert-tag">✅ ป้องกัน Phishing อีเมล (Day 1)</span>
                 <span class="cert-tag">✅ บล็อก SMS Scam และแอปดูดเงิน (Day 2)</span>
                 <span class="cert-tag">✅ ป้องกัน USB Drop Attack (Day 2)</span>
                 <span class="cert-tag">✅ ความปลอดภัยกล้อง IoT (Day 2)</span>
+                <span class="cert-tag">✅ ตรวจจับ AI Deepfake Call (Day 3)</span>
+                <span class="cert-tag">✅ บล็อก Double Extension & Macro (Day 3)</span>
+                <span class="cert-tag">✅ ซ้อมรับมือแรนซัมแวร์ฉุกเฉิน (Day 3)</span>
               </div>
 
               <!-- ปุ่มแอ็กชันของใบประกาศนียบัตร -->

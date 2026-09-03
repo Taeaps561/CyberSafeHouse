@@ -3075,6 +3075,462 @@ html, body {
   border-radius: 10px;
 }
 
+/* ==========================================================================
+   Day 3 & Midnight Mode Styles (Work From Home & Social Engineering ยุค AI)
+   ========================================================================== */
+
+/* แสงไฟบรรยากาศห้องยามค่ำคืน (Midnight Mode Lighting) */
+#game-container.midnight-lighting .room-lighting-overlay {
+  opacity: 1;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    rgba(15, 23, 42, 0.45) 0%,
+    rgba(8, 14, 30, 0.82) 70%,
+    rgba(2, 6, 23, 0.94) 100%
+  );
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.75);
+}
+
+#game-container.midnight-lighting {
+  box-shadow: 0 18px 45px rgba(2, 6, 23, 0.5), 0 0 60px rgba(56, 189, 248, 0.15);
+}
+
+/* Deepfake AI Call Modal */
+.deepfake-card {
+  max-width: 560px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1.5px solid rgba(226, 232, 240, 0.9);
+}
+
+.deepfake-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deepfake-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  padding: 16px 20px;
+  border-radius: 18px;
+  color: #ffffff;
+  position: relative;
+}
+
+.deepfake-pulse-ring {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deepfake-pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid #38bdf8;
+  animation: deepfakeRingPulse 1.8s infinite;
+}
+
+@keyframes deepfakeRingPulse {
+  0% { transform: scale(0.9); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.deepfake-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  z-index: 1;
+}
+
+.deepfake-caller-meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.deepfake-call-type {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.deepfake-caller-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 1px 0;
+}
+
+.deepfake-caller-number {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+
+.deepfake-live-badge {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: liveBlink 1s infinite alternate;
+}
+
+@keyframes liveBlink {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+/* Audio Waveform */
+.deepfake-waveform-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.waveform-bars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 32px;
+}
+
+.wave-bar {
+  width: 5px;
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+  border-radius: 3px;
+  animation: waveAnim 1s ease-in-out infinite alternate;
+}
+
+.wave-bar:nth-child(2) { animation-delay: 0.15s; }
+.wave-bar:nth-child(3) { animation-delay: 0.3s; }
+.wave-bar:nth-child(4) { animation-delay: 0.45s; }
+.wave-bar:nth-child(5) { animation-delay: 0.6s; }
+.wave-bar:nth-child(6) { animation-delay: 0.75s; }
+.wave-bar:nth-child(7) { animation-delay: 0.9s; }
+.wave-bar:nth-child(8) { animation-delay: 0.25s; }
+.wave-bar:nth-child(9) { animation-delay: 0.4s; }
+.wave-bar:nth-child(10) { animation-delay: 0.55s; }
+.wave-bar:nth-child(11) { animation-delay: 0.7s; }
+.wave-bar:nth-child(12) { animation-delay: 0.85s; }
+
+@keyframes waveAnim {
+  0% { height: 6px; }
+  100% { height: 28px; }
+}
+
+.deepfake-transcript-bubble {
+  background: #ffffff;
+  border-left: 3.5px solid #0284c7;
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.transcript-speaker {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0369a1;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.transcript-text {
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Clues & Challenge */
+.deepfake-clues-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clue-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.clue-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.btn-ask-challenge {
+  background: #f1f5f9;
+  border: 1.5px dashed #94a3b8;
+  border-radius: 12px;
+  padding: 9px 14px;
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.btn-ask-challenge:hover {
+  background: #e2e8f0;
+  border-color: #64748b;
+  transform: translateY(-1px);
+}
+
+.challenge-response-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  color: #991b1b;
+  line-height: 1.4;
+}
+
+/* File Attachment Modal */
+.attachment-card {
+  max-width: 580px;
+  border-radius: 24px;
+  background: #ffffff;
+}
+
+.file-inspect-box {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.file-visual-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.file-icon-badge {
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-radius: 12px;
+}
+
+.file-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.file-name-display {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.file-real-ext {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.file-type-hazard {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #b91c1c;
+  margin-top: 3px;
+}
+
+.file-size-info {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.macro-warning-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-left: 4px solid #f59e0b;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.macro-icon {
+  font-size: 1.2rem;
+}
+
+.macro-text strong {
+  font-size: 0.82rem;
+  color: #92400e;
+  display: block;
+}
+
+.macro-text p {
+  font-size: 0.76rem;
+  color: #78350f;
+  margin: 2px 0 0 0;
+}
+
+/* Ransomware Emergency Drill Modal */
+.ransomware-card {
+  max-width: 600px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 2px solid #ef4444;
+  box-shadow: 0 12px 36px rgba(239, 68, 68, 0.25);
+}
+
+.ransomware-alert-header {
+  background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #ffffff;
+}
+
+.ransomware-skull {
+  font-size: 2.2rem;
+}
+
+.emergency-badge {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.ransomware-title {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #fecaca;
+  margin: 0;
+}
+
+.ransomware-sub {
+  font-size: 0.78rem;
+  color: #fca5a5;
+  margin: 4px 0 0 0;
+}
+
+.ransomware-pipeline-card {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+
+.pipeline-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin: 0 0 10px 0;
+}
+
+.protocol-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.protocol-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.step-body {
+  font-size: 0.78rem;
+  color: #334155;
+  line-height: 1.35;
+}
+
+.step-body strong {
+  color: #991b1b;
+  margin-right: 4px;
+}
+
 
 
 
