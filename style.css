@@ -3533,7 +3533,583 @@ html, body {
 
 
 
+/* ==========================================================================
+   EdTech & Polish Features — New UI Components
+   ========================================================================== */
+
+/* ── Cyber Wiki Button ── */
+.wiki-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #c9a87c;
+  background: linear-gradient(135deg, #fdf6ec, #f5e9d4);
+  color: #7a4e2b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+}
+.wiki-btn:hover {
+  background: linear-gradient(135deg, #f5e6c8, #ecd4a8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(180,120,60,0.2);
+}
+.wiki-icon { font-size: 14px; }
+
+/* ── Rain Toggle Button ── */
+.rain-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #88b4d8;
+  background: linear-gradient(135deg, #eef5fc, #d6eaf8);
+  color: #2c5f8a;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+}
+.rain-toggle-btn:hover {
+  background: linear-gradient(135deg, #d6eaf8, #aecfe8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(60,120,180,0.2);
+}
+.rain-toggle-btn.active {
+  background: linear-gradient(135deg, #3a86c8, #2271b6);
+  border-color: #2271b6;
+  color: #fff;
+}
+.rain-icon { font-size: 14px; }
+
+/* ── Language Toggle Button ── */
+.lang-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #8a9dc9;
+  background: linear-gradient(135deg, #f0f4ff, #dce6ff);
+  color: #3a4f8a;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+  letter-spacing: 0.5px;
+}
+.lang-toggle-btn:hover {
+  background: linear-gradient(135deg, #d4deff, #b8cafe);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(80,100,200,0.2);
+}
+.lang-toggle-btn.en-active {
+  background: linear-gradient(135deg, #2251cc, #1a3fa6);
+  border-color: #1a3fa6;
+  color: #fff;
+}
+.lang-text { font-size: 12px; font-weight: 800; }
+.lang-toggle-indicator { font-size: 13px; }
+
+/* ── Trophy Hotspot styling ── */
+.trophy-hotspot .hotspot-ring {
+  border-color: #f5c842 !important;
+  box-shadow: 0 0 0 4px rgba(245,200,66,0.2), 0 0 18px rgba(245,200,66,0.5) !important;
+  animation: trophy-pulse 2s ease-in-out infinite !important;
+}
+.trophy-hotspot .hotspot-core {
+  font-size: 24px !important;
+  filter: drop-shadow(0 0 6px rgba(245,200,66,0.8));
+}
+@keyframes trophy-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(245,200,66,0.2), 0 0 18px rgba(245,200,66,0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(245,200,66,0.35), 0 0 28px rgba(245,200,66,0.6); }
+}
+
+/* ==========================================================================
+   Cyber Wiki Modal
+   ========================================================================== */
+.wiki-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30,25,20,0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1400;
+  padding: 20px;
+  transition: opacity 0.3s;
+}
+.wiki-modal-backdrop.hidden { display: none; }
+.wiki-modal-card {
+  position: relative;
+  width: min(940px, 96vw);
+  max-height: 88vh;
+  background: linear-gradient(160deg, #fdfaf5 0%, #f8f2e8 100%);
+  border-radius: 20px;
+  border: 2px solid #e8d9c0;
+  box-shadow: 0 32px 80px rgba(80,55,30,0.3), 0 8px 24px rgba(80,55,30,0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalSlideIn 0.3s ease;
+}
+.wiki-close-btn {
+  position: absolute;
+  top: 14px; right: 16px;
+  background: rgba(180,120,60,0.12);
+  border: 1px solid rgba(180,120,60,0.25);
+  color: #9a6b3a;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 10;
+  transition: all 0.2s;
+}
+.wiki-close-btn:hover { background: #c98b58; color: #fff; transform: rotate(90deg); }
+.wiki-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px 16px;
+  border-bottom: 1.5px solid #e8d9c0;
+  background: linear-gradient(135deg, #fdf0df, #f8e8cc);
+}
+.wiki-header-icon { font-size: 38px; }
+.wiki-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4a2e0d;
+  margin: 0 0 4px;
+}
+.wiki-subtitle { font-size: 13px; color: #8a6a4a; margin: 0; }
+.wiki-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+/* Tab navigation */
+.wiki-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px 0;
+  overflow-x: auto;
+  border-bottom: 1.5px solid #e8d9c0;
+  background: #faf5ed;
+  scrollbar-width: thin;
+}
+.wiki-tab {
+  flex-shrink: 0;
+  padding: 7px 13px;
+  border-radius: 10px 10px 0 0;
+  border: 1.5px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  color: #8a7060;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+  white-space: nowrap;
+}
+.wiki-tab:hover { background: rgba(201,139,88,0.12); color: #6a4020; }
+.wiki-tab.active {
+  background: #fdfaf5;
+  border-color: #e8d9c0;
+  color: #c98b58;
+  font-weight: 700;
+  position: relative;
+  bottom: -1px;
+}
+/* Content panel */
+.wiki-content-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: #d4b890 transparent;
+}
+.wiki-article-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3a2510;
+  margin: 0 0 6px;
+}
+.wiki-article-emoji { font-size: 32px; margin-bottom: 8px; display: block; }
+.wiki-definition {
+  background: linear-gradient(135deg, #fef9f0, #fdf3e0);
+  border-left: 4px solid #c98b58;
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #4a3828;
+  line-height: 1.6;
+}
+.wiki-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6a4825;
+  margin: 16px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wiki-case-box {
+  background: #fff;
+  border: 1.5px solid #e8d4b8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 8px 0;
+  font-size: 13px;
+  color: #4a3828;
+  line-height: 1.7;
+}
+.wiki-case-box.danger { border-color: #e8a0a0; background: #fff8f8; }
+.wiki-tips-list {
+  list-style: none;
+  padding: 0; margin: 8px 0;
+}
+.wiki-tips-list li {
+  padding: 6px 8px 6px 0;
+  font-size: 13px;
+  color: #4a3828;
+  border-bottom: 1px dashed #e8d9c0;
+  line-height: 1.6;
+}
+.wiki-tips-list li:last-child { border-bottom: none; }
+
+/* ==========================================================================
+   Passphrase Crafter Modal
+   ========================================================================== */
+.passphrase-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20,18,30,0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1400;
+  padding: 20px;
+}
+.passphrase-modal-backdrop.hidden { display: none; }
+.passphrase-modal-card {
+  position: relative;
+  width: min(680px, 96vw);
+  background: linear-gradient(160deg, #1a1830 0%, #12101e 100%);
+  border-radius: 20px;
+  border: 1.5px solid rgba(120,80,220,0.3);
+  box-shadow: 0 32px 80px rgba(60,40,120,0.5), 0 0 60px rgba(100,60,200,0.15);
+  padding: 28px;
+  animation: modalSlideIn 0.3s ease;
+}
+.passphrase-close-btn {
+  position: absolute;
+  top: 14px; right: 16px;
+  background: rgba(120,80,220,0.15);
+  border: 1px solid rgba(120,80,220,0.3);
+  color: #a090e0;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+.passphrase-close-btn:hover { background: #7850dc; color: #fff; }
+.passphrase-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.passphrase-header-icon { font-size: 36px; }
+.passphrase-title { font-size: 20px; font-weight: 700; color: #e0d0ff; margin: 0 0 4px; }
+.passphrase-subtitle { font-size: 13px; color: #9080b8; margin: 0; }
+
+/* Slots */
+.passphrase-slots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.passphrase-slot {
+  background: linear-gradient(135deg, rgba(100,70,200,0.25), rgba(60,40,120,0.4));
+  border: 1.5px solid rgba(150,100,255,0.4);
+  border-radius: 14px;
+  padding: 12px 16px;
+  text-align: center;
+  min-width: 110px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.passphrase-slot:hover {
+  border-color: rgba(180,130,255,0.7);
+  background: rgba(120,80,240,0.3);
+  transform: translateY(-2px);
+}
+.slot-category { font-size: 11px; color: #9080c8; margin-bottom: 6px; font-weight: 600; }
+.slot-word { font-size: 18px; font-weight: 700; color: #d0b8ff; letter-spacing: 0.5px; }
+.passphrase-sep { font-size: 22px; color: #6048a8; font-weight: 700; flex-shrink: 0; }
+
+/* Result box */
+.passphrase-result-box {
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(120,80,220,0.3);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.passphrase-result-label { font-size: 12px; color: #9080b8; margin-bottom: 6px; }
+.passphrase-result-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c8a0ff;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+/* Crack time meter */
+.crack-time-box {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+.crack-meter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.crack-meter-label { font-size: 12px; color: #9080b8; white-space: nowrap; }
+.crack-meter-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.crack-meter-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #4ade80, #22d3ee, #a78bfa);
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.crack-strength-text { font-size: 12px; color: #a0f0c0; font-weight: 700; white-space: nowrap; }
+.crack-time-estimate { font-size: 13px; color: #d0c8f0; font-weight: 600; }
+
+/* Controls */
+.passphrase-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.btn-passphrase-roll {
+  padding: 9px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #7850dc, #5530a8);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+}
+.btn-passphrase-roll:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(100,60,200,0.4); }
+.btn-passphrase-roll.btn-secondary {
+  background: linear-gradient(135deg, rgba(120,80,220,0.25), rgba(80,50,160,0.35));
+  border: 1px solid rgba(120,80,220,0.4);
+}
+.btn-passphrase-copy {
+  padding: 9px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(80,220,160,0.4);
+  background: linear-gradient(135deg, rgba(40,160,100,0.2), rgba(20,120,80,0.3));
+  color: #60e0b0;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+}
+.btn-passphrase-copy:hover { background: rgba(40,180,120,0.35); transform: translateY(-2px); }
+.passphrase-tip {
+  font-size: 12px;
+  color: #8070a8;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Resume Banner (Local Storage Save / Load)
+   ========================================================================== */
+.resume-banner {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  width: min(700px, 96vw);
+  background: linear-gradient(135deg, #2b4a7c, #1a3060);
+  border: 2px solid #4a7abf;
+  border-top: none;
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 8px 30px rgba(20,40,100,0.5);
+  animation: bannerSlideDown 0.4s ease;
+  transition: transform 0.4s ease;
+}
+.resume-banner.hidden { display: none; }
+@keyframes bannerSlideDown {
+  from { transform: translateX(-50%) translateY(-100%); }
+  to { transform: translateX(-50%) translateY(0); }
+}
+.resume-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+}
+.resume-icon { font-size: 28px; flex-shrink: 0; }
+.resume-text { flex: 1; }
+.resume-text strong { display: block; font-size: 14px; color: #a8d0ff; margin-bottom: 2px; }
+.resume-text span { font-size: 12px; color: #6090c8; }
+.resume-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.btn-resume {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #3a7ad4, #2260b0);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+}
+.btn-resume:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(50,100,200,0.5); }
+.btn-new-game {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(120,160,220,0.4);
+  background: rgba(255,255,255,0.08);
+  color: #8ab0e0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+}
+.btn-new-game:hover { background: rgba(255,255,255,0.15); }
+
+/* ==========================================================================
+   4-Pillar Cyber Resilience Assessment (Summary Screen)
+   ========================================================================== */
+.assessment-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f0e8, #ede5d4);
+  border-radius: 14px;
+  border: 1.5px solid #e2d5c0;
+}
+.assessment-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #5a3d20;
+  margin: 0 0 14px;
+  text-align: center;
+}
+.pillar-list { display: flex; flex-direction: column; gap: 10px; }
+.pillar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pillar-icon { font-size: 18px; flex-shrink: 0; width: 24px; text-align: center; }
+.pillar-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6a4e30;
+  width: 180px;
+  flex-shrink: 0;
+}
+.pillar-bar-track {
+  flex: 1;
+  height: 10px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.pillar-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+.pillar-bar-fill.perfect { background: linear-gradient(90deg, #4ade80, #22c55e); }
+.pillar-bar-fill.good { background: linear-gradient(90deg, #facc15, #f59e0b); }
+.pillar-bar-fill.partial { background: linear-gradient(90deg, #fb923c, #ef4444); }
+.pillar-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5a3d20;
+  width: 36px;
+  text-align: right;
+}
+.pillar-verdict {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.pillar-verdict-badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.pillar-verdict-badge.strength { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.pillar-verdict-badge.improve { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
 
 
-
-
+/* Passphrase Open Button (header) */
+.passphrase-open-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #8a70d8;
+  background: linear-gradient(135deg, #f0eeff, #e0d8ff);
+  color: #5a3aa8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+}
+.passphrase-open-btn:hover {
+  background: linear-gradient(135deg, #d8d0ff, #c8b8ff);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(100,60,200,0.25);
+}
+.passphrase-open-icon { font-size: 14px; }

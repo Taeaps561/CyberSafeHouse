@@ -4174,3 +4174,859 @@ function drawProceduralRoomFallback(ctx, width, height) {
   console.log('🖼️ Cozy 2D Room Scene Rendered Successfully.');
 }
 
+
+/* ============================================================
+   LANGUAGE SYSTEM (i18n — Thai / English)
+   ============================================================ */
+
+const i18n = {
+  th: {
+    badge: 'Cyber Awareness Game',
+    questLogLabel: 'สมุดภารกิจ',
+    wikiLabel: 'Cyber Wiki',
+    bgmOn: 'BGM: เปิด',
+    bgmOff: 'BGM: ปิด',
+    rainOn: 'ฝน: เปิด',
+    rainOff: 'ฝน: ปิด',
+    wikiTitle: 'สารานุกรมความรู้ไซเบอร์ประจำบ้าน',
+    wikiSubtitle: 'Cyber Safe Wiki — เรียนรู้ภัยคุกคามดิจิทัลในชีวิตจริง',
+    passphraseTitle: 'Passphrase Crafter',
+    passphraseSubtitle: 'สร้างรหัสผ่านแบบ Passphrase — จำง่าย แต่คอมพิวเตอร์ Brute Force ยาก!',
+    passphraseTip: 'Passphrase 4 คำ (~50 bits entropy) แข็งแกร่งกว่า "P@ss123" มาก แต่จำง่ายกว่าหลายเท่า!',
+    passphraseResult: 'รหัสผ่านของคุณ:',
+    passphraseInit: 'กดสุ่มเพื่อสร้างรหัสผ่าน',
+    crackLabel: 'ความแข็งแกร่ง:',
+    rollBtn: 'สุ่มคำใหม่',
+    rerollBtn: 'เปลี่ยนคำเดียว',
+    copyBtn: 'คัดลอกรหัสผ่าน',
+    resumeTitle: 'พบข้อมูลการเล่นที่บันทึกไว้!',
+    resumeDesc: 'คุณเล่นค้างไว้ที่',
+    resumeScore: 'คะแนน',
+  },
+  en: {
+    badge: 'Cyber Awareness Game',
+    questLogLabel: 'Quest Log',
+    wikiLabel: 'Cyber Wiki',
+    bgmOn: 'BGM: On',
+    bgmOff: 'BGM: Off',
+    rainOn: 'Rain: On',
+    rainOff: 'Rain: Off',
+    wikiTitle: 'Cyber Safe House Knowledge Base',
+    wikiSubtitle: 'Cyber Safe Wiki — Learn real-world digital threats',
+    passphraseTitle: 'Passphrase Crafter',
+    passphraseSubtitle: 'Build a Passphrase — easy to remember, hard to brute-force!',
+    passphraseTip: 'A 4-word passphrase (~50 bits entropy) is far stronger than "P@ss123" but much easier to remember!',
+    passphraseResult: 'Your passphrase:',
+    passphraseInit: 'Click Roll to generate a passphrase',
+    crackLabel: 'Strength:',
+    rollBtn: 'Roll Words',
+    rerollBtn: 'Re-roll One',
+    copyBtn: 'Copy Passphrase',
+    resumeTitle: 'Saved game data found!',
+    resumeDesc: 'You saved at',
+    resumeScore: 'pts',
+  }
+};
+
+let currentLang = localStorage.getItem('csh_lang') || 'th';
+
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('csh_lang', lang);
+  const t = i18n[lang];
+  const htmlRoot = document.getElementById('html-root');
+  if (htmlRoot) htmlRoot.setAttribute('lang', lang);
+
+  const langText = document.getElementById('lang-text');
+  const langBtn = document.getElementById('lang-toggle-btn');
+  if (langText) langText.textContent = lang.toUpperCase();
+  if (langBtn) langBtn.classList.toggle('en-active', lang === 'en');
+
+  const badge = document.getElementById('badge-label');
+  if (badge) badge.textContent = t.badge;
+  const questLabel = document.getElementById('quest-log-label-text');
+  if (questLabel) questLabel.textContent = t.questLogLabel;
+  const wikiLabel = document.getElementById('wiki-label-text');
+  if (wikiLabel) wikiLabel.textContent = t.wikiLabel;
+
+  if (typeof audioState !== 'undefined') {
+    const audioLabel = document.getElementById('audio-toggle-label');
+    if (audioLabel) audioLabel.textContent = audioState.isBgmPlaying ? t.bgmOn : t.bgmOff;
+  }
+  if (typeof rainState !== 'undefined') {
+    const rainLabel = document.getElementById('rain-toggle-label');
+    if (rainLabel) rainLabel.textContent = rainState.isPlaying ? t.rainOn : t.rainOff;
+  }
+
+  const wikiTitle = document.getElementById('wiki-title-text');
+  if (wikiTitle) wikiTitle.textContent = t.wikiTitle;
+  const wikiSub = document.getElementById('wiki-subtitle-text');
+  if (wikiSub) wikiSub.textContent = t.wikiSubtitle;
+
+  const ppTitle = document.getElementById('passphrase-title-text');
+  if (ppTitle) ppTitle.textContent = t.passphraseTitle;
+  const ppSub = document.getElementById('passphrase-subtitle-text');
+  if (ppSub) ppSub.textContent = t.passphraseSubtitle;
+  const ppTip = document.getElementById('passphrase-tip-text');
+  if (ppTip) ppTip.textContent = t.passphraseTip;
+  const ppResultLabel = document.getElementById('passphrase-result-label');
+  if (ppResultLabel) ppResultLabel.textContent = t.passphraseResult;
+  const ppResultVal = document.getElementById('passphrase-result-value');
+  if (ppResultVal && ppResultVal.dataset.generated !== 'true') ppResultVal.textContent = t.passphraseInit;
+  const rollBtnEl = document.getElementById('btn-passphrase-roll');
+  if (rollBtnEl) rollBtnEl.textContent = t.rollBtn;
+  const rerollBtnEl = document.getElementById('btn-passphrase-reroll-one');
+  if (rerollBtnEl) rerollBtnEl.textContent = t.rerollBtn;
+  const copyBtnEl = document.getElementById('btn-passphrase-copy');
+  if (copyBtnEl) copyBtnEl.textContent = t.copyBtn;
+}
+
+function initLangToggle() {
+  const langBtn = document.getElementById('lang-toggle-btn');
+  if (!langBtn) return;
+  langBtn.onclick = () => {
+    const newLang = currentLang === 'th' ? 'en' : 'th';
+    setLanguage(newLang);
+    if (typeof playClickSFX === 'function') playClickSFX();
+  };
+  setLanguage(currentLang);
+}
+
+/* ============================================================
+   RAIN AMBIENCE SOUND ENGINE (Web Audio API)
+   ============================================================ */
+
+const rainState = { isPlaying: false, gainNode: null, noiseNode: null, lfoNode: null };
+
+function startRainSound() {
+  if (typeof audioState === 'undefined') return;
+  if (!audioState.ctx) {
+    if (typeof initAudioContext === 'function') initAudioContext();
+  }
+  if (!audioState.ctx || rainState.isPlaying) return;
+
+  const ctx = audioState.ctx;
+  const bufferSize = ctx.sampleRate * 2;
+  const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+  const noiseSource = ctx.createBufferSource();
+  noiseSource.buffer = noiseBuffer;
+  noiseSource.loop = true;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 1400;
+  filter.Q.value = 0.6;
+
+  const lfo = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+  lfo.type = 'sine';
+  lfo.frequency.value = 0.15;
+  lfoGain.gain.value = 0.06;
+  lfo.connect(lfoGain);
+
+  const masterGain = ctx.createGain();
+  masterGain.gain.setValueAtTime(0, ctx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 1.5);
+
+  noiseSource.connect(filter);
+  lfoGain.connect(masterGain.gain);
+  filter.connect(masterGain);
+  masterGain.connect(ctx.destination);
+
+  noiseSource.start();
+  lfo.start();
+
+  rainState.isPlaying = true;
+  rainState.gainNode = masterGain;
+  rainState.noiseNode = noiseSource;
+  rainState.lfoNode = lfo;
+}
+
+function stopRainSound() {
+  if (!rainState.isPlaying || !rainState.gainNode || !audioState.ctx) return;
+  const ctx = audioState.ctx;
+  rainState.gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.2);
+  setTimeout(() => {
+    try { if (rainState.noiseNode) rainState.noiseNode.stop(); } catch (e) {}
+    try { if (rainState.lfoNode) rainState.lfoNode.stop(); } catch (e) {}
+    rainState.isPlaying = false;
+    rainState.gainNode = null;
+    rainState.noiseNode = null;
+    rainState.lfoNode = null;
+  }, 1300);
+}
+
+function initRainToggle() {
+  const btn = document.getElementById('rain-toggle-btn');
+  const icon = document.getElementById('rain-toggle-icon');
+  const label = document.getElementById('rain-toggle-label');
+  if (!btn) return;
+  btn.onclick = () => {
+    if (typeof playClickSFX === 'function') playClickSFX();
+    if (rainState.isPlaying) {
+      stopRainSound();
+      btn.classList.remove('active');
+      if (icon) icon.textContent = '\u{1F327}\uFE0F';
+      if (label) label.textContent = i18n[currentLang].rainOff;
+    } else {
+      startRainSound();
+      btn.classList.add('active');
+      if (icon) icon.textContent = '\u{1F326}\uFE0F';
+      if (label) label.textContent = i18n[currentLang].rainOn;
+    }
+  };
+}
+
+/* ============================================================
+   CYBER WIKI SYSTEM
+   ============================================================ */
+
+const wikiContent = {
+  'phishing': {
+    emoji: '\u{1F4E7}',
+    title: 'Phishing & Social Engineering',
+    definition: 'Phishing คือการหลอกลวงทางดิจิทัลที่แอบอ้างเป็นองค์กรที่น่าเชื่อถือ เพื่อขโมยข้อมูลส่วนตัว รหัสผ่าน หรือข้อมูลทางการเงิน มักผ่านทางอีเมล SMS หรือเว็บไซต์ปลอม',
+    cases: [
+      { emoji: '\u26A0\uFE0F', text: 'กรณีจริง: อีเมลอ้างว่ามาจาก "ธนาคารกสิกรไทย" แต่ sender จริงคือ alert@kasikorn-bank-verify.xyz — สังเกตโดเมนปลอมทันที!' },
+      { emoji: '\u26A0\uFE0F', text: 'กรณีจริง: ลิงก์ "ตรวจสอบพัสดุ" นำไปยังเว็บปลอมขอข้อมูลบัตรเครดิต ใช้ URL ที่ดูคล้ายของจริงมาก', isDanger: true }
+    ],
+    tips: [
+      'ตรวจสอบ Sender Domain เสมอ — ธนาคารจริงจะส่งจาก @kasikornbank.com เท่านั้น',
+      'วาง Cursor เหนือลิงก์ก่อนคลิก เพื่อดู URL ปลายทางจริง',
+      'เว็บแบงก์จริงใช้ HTTPS เสมอ และไม่ขอรหัสผ่าน OTP ทางอีเมล',
+      'หากสงสัย โทรหาธนาคารโดยตรงผ่านเบอร์ที่หลังบัตร — ไม่คลิกลิงก์ในอีเมล'
+    ]
+  },
+  'brute-force': {
+    emoji: '\u{1F4E1}',
+    title: 'Brute Force Attack & Router Security',
+    definition: 'Brute Force คือการโจมตีระบบด้วยการลองรหัสผ่านทุกชุดที่เป็นไปได้ด้วยความเร็วสูง เราเตอร์ที่ยังใช้รหัสผ่านเริ่มต้น (admin/admin) สามารถถูกโจมตีได้ภายในไม่กี่วินาที',
+    cases: [
+      { emoji: '\u26A0\uFE0F', text: 'กรณีจริง: แฮกเกอร์ Scan หา Router ที่ยังใช้ admin/admin และเข้าควบคุมได้ทันที เพื่อแอบดักข้อมูลใน Network ทั้งหมด', isDanger: true }
+    ],
+    tips: [
+      'เปลี่ยนรหัสผ่าน Router ทันที — ใช้อย่างน้อย 12 ตัวอักษรผสมตัวเลข',
+      'ใช้การเข้ารหัส WPA3 หรือ WPA2 (ไม่ใช้ WEP หรือ WPS)',
+      'ปิด Remote Management ถ้าไม่จำเป็น',
+      'อัปเดต Firmware Router สม่ำเสมอ'
+    ]
+  },
+  '2fa': {
+    emoji: '\u{1F511}',
+    title: 'Two-Factor Authentication (2FA)',
+    definition: '2FA คือการยืนยันตัวตน 2 ชั้น: ชั้นแรกคือรหัสผ่านที่รู้ ชั้นที่สองคือสิ่งที่มี (OTP จากแอป Authenticator หรือ Hardware Key) ทำให้แฮกเกอร์ที่รู้รหัสผ่านก็ยังเข้าไม่ได้',
+    cases: [
+      { emoji: '\u2705', text: 'แม้รหัสผ่าน Facebook จะถูก Leak แต่ถ้าเปิด 2FA อยู่ แฮกเกอร์ก็ยังเข้าบัญชีไม่ได้' }
+    ],
+    tips: [
+      'เปิด 2FA ในทุกบัญชีสำคัญ: Email, Banking App, Social Media',
+      'ใช้แอป Authenticator (Google Authenticator, Authy) ดีกว่า SMS OTP',
+      'สำรอง Backup Codes ไว้ในที่ปลอดภัยเสมอ',
+      'อย่าแชร์ OTP กับใคร แม้แต่พนักงานธนาคารที่โทรมา'
+    ]
+  },
+  'sms-scam': {
+    emoji: '\u{1F4F1}',
+    title: 'SMS Scam & Malicious APK',
+    definition: 'SMS Scam คือข้อความหลอกลวงผ่านมือถือ ที่อาจหลอกให้ติดตั้งแอป (.apk) ที่ขอสิทธิ์ Accessibility Service เพื่อขโมย OTP และเงินในบัญชีโดยอัตโนมัติ',
+    cases: [
+      { emoji: '\u26A0\uFE0F', text: 'กรณีจริง: SMS "พัสดุค้างชำระ 18 บาท" — ลิงก์นำไปยังเว็บปลอมขอข้อมูลบัตรเครดิต มีผู้เสียหายหลายหมื่นราย', isDanger: true },
+      { emoji: '\u26A0\uFE0F', text: 'กรณีจริง: แอป "เงินกู้ด่วน" ส่งมาทาง LINE ขอสิทธิ์อ่านทุกแอปและโอนเงินออกบัญชีอัตโนมัติ', isDanger: true }
+    ],
+    tips: [
+      'ไม่คลิกลิงก์ใน SMS จากเบอร์แปลกปลอม',
+      'ไม่ติดตั้งแอปนอก Play Store / App Store',
+      'ตรวจสอบสิทธิ์แอปก่อนติดตั้ง — แอปไฟฉายไม่ควรขออ่าน SMS',
+      'บล็อกเบอร์และรายงาน Spam ผ่านแอปมือถือทันที'
+    ]
+  },
+  'usb-attack': {
+    emoji: '\u{1F4BE}',
+    title: 'USB Drop Attack & BadUSB',
+    definition: 'USB Drop Attack คือเทคนิคที่แฮกเกอร์วาง Flash Drive ไว้ในที่สาธารณะ เมื่อเหยื่อนำมาเสียบคอมพิวเตอร์ BadUSB จะแอบแปลงตัวเองเป็น "คีย์บอร์ด" และรัน Malware อัตโนมัติ',
+    cases: [
+      { emoji: '\u26A0\uFE0F', text: 'การทดสอบที่ Illinois (2016): วาง USB 297 อัน — 98% ถูกเสียบเข้าคอมพิวเตอร์ภายใน 6 ชั่วโมง', isDanger: true }
+    ],
+    tips: [
+      'ไม่เสียบ Flash Drive ที่ไม่รู้ที่มาเด็ดขาด',
+      'ถ้าจำเป็น ใช้คอมพิวเตอร์แยกที่ไม่มีอินเทอร์เน็ตและข้อมูลสำคัญ',
+      'ส่ง Flash Drive น่าสงสัยให้ฝ่าย IT ตรวจสอบ',
+      'ปิด AutoRun ใน Windows Settings'
+    ]
+  },
+  'iot': {
+    emoji: '\u{1F4F9}',
+    title: 'IoT Security & Botnet',
+    definition: 'อุปกรณ์ IoT (กล้องวงจรปิด, สมาร์ตทีวี, เราเตอร์) ที่ยังใช้รหัสผ่านเริ่มต้นและ Firmware เก่า สามารถถูกแฮกเกอร์ยึดเพื่อรวมเป็น Botnet สำหรับโจมตี DDoS หรือแอบดูภาพสด',
+    cases: [
+      { emoji: '\u26A0\uFE0F', text: 'Mirai Botnet (2016): ยึดกล้อง IoT หลายแสนตัวทั่วโลก โจมตี Dyn DNS ทำให้ Twitter, Netflix, Amazon ล่มพร้อมกัน', isDanger: true }
+    ],
+    tips: [
+      'เปลี่ยนรหัสผ่านเริ่มต้นของอุปกรณ์ IoT ทุกตัวก่อนใช้งาน',
+      'อัปเดต Firmware อุปกรณ์ IoT สม่ำเสมอ หรือเปิด Auto-Update',
+      'ปิด Port ที่ไม่ใช้งาน — โดยเฉพาะ RTSP (554), Telnet (23)',
+      'แยก Network WiFi สำหรับ IoT ออกจาก Network หลัก (Guest VLAN)'
+    ]
+  },
+  'deepfake': {
+    emoji: '\u{1F3AD}',
+    title: 'AI Deepfake Voice & Video Call',
+    definition: 'AI Voice Cloning และ Deepfake คือการใช้ปัญญาประดิษฐ์สังเคราะห์เสียงหรือภาพวิดีโอของบุคคลอื่น เพียงตัวอย่างเสียง 3-5 วินาทีก็สร้างเสียงปลอมที่ฟังดูเหมือนจริงได้',
+    cases: [
+      { emoji: '\u26A0\uFE0F', text: 'กรณีจริง (2023): CEO บริษัทในยุโรปถูกหลอกโอนเงิน 220,000 ยูโร เพราะ AI ปลอมเสียง CEO บริษัทแม่โทรขอเงินด่วน', isDanger: true },
+      { emoji: '\u26A0\uFE0F', text: 'กรณีจริง (2024): ธนาคารในฮ่องกงสูญเงิน 25 ล้านดอลลาร์ จากการประชุม Video Call Deepfake ที่มีหน้าผู้บริหารปลอมทุกคน', isDanger: true }
+    ],
+    tips: [
+      'ตั้ง "รหัสลับ" (Secret Word) กับคนในครอบครัวสำหรับยืนยันตัวตนฉุกเฉิน',
+      'ตัดสาย แล้วโทรกลับเบอร์ส่วนตัวที่รู้จักเสมอ — ไม่โอนเงินทันที',
+      'ขอให้ทำท่าทางแปลกๆ ที่ AI ยังเลียนแบบได้ยาก (แตะจมูก, พยักหน้า)',
+      'ตั้งค่า 2-person authorization สำหรับการโอนเงินจำนวนมาก'
+    ]
+  },
+  'ransomware': {
+    emoji: '\u{1F512}',
+    title: 'Ransomware & Cold Backup Strategy',
+    definition: 'Ransomware คือมัลแวร์ที่เข้ารหัสไฟล์ทั้งหมดในเครื่องและเครือข่าย แล้วเรียกค่าไถ่เป็น Bitcoin การจ่ายค่าไถ่ไม่การันตีว่าจะได้ไฟล์คืน',
+    cases: [
+      { emoji: '\u26A0\uFE0F', text: 'WannaCry (2017): โจมตี 150 ประเทศ รวมถึง NHS ของอังกฤษ สูญเงินกว่า 4,000 ล้านดอลลาร์ — ส่วนใหญ่มาจาก Windows ที่ไม่อัปเดต Patch', isDanger: true }
+    ],
+    tips: [
+      'ปฏิบัติตามกฎ 3-2-1 Backup: ข้อมูล 3 ชุด, 2 สื่อ, 1 ชุดอยู่นอกสถานที่ (Offline)',
+      'ตัดเน็ตทันทีที่สงสัยติด Ransomware — เพื่อหยุดการแพร่กระจาย',
+      'ไม่จ่ายค่าไถ่เด็ดขาด — แจ้ง ThaiCERT (CERT.or.th) และตำรวจไซเบอร์',
+      'อัปเดต Windows/macOS และ Antivirus เสมอ — Patch หลุมช่องโหว่ใหม่'
+    ]
+  }
+};
+
+function renderWikiTopic(topic) {
+  const data = wikiContent[topic];
+  if (!data) return;
+  const panel = document.getElementById('wiki-content-panel');
+  if (!panel) return;
+
+  const casesHTML = data.cases.map(c =>
+    `<div class="wiki-case-box${c.isDanger ? ' danger' : ''}">${c.emoji} ${c.text}</div>`
+  ).join('');
+
+  const tipsHTML = data.tips.map(t => `<li>${t}</li>`).join('');
+
+  panel.innerHTML = `
+    <span class="wiki-article-emoji">${data.emoji}</span>
+    <h3 class="wiki-article-title">${data.title}</h3>
+    <div class="wiki-definition">${data.definition}</div>
+    <div class="wiki-section-title">&#128240; กรณีศึกษาในชีวิตจริง</div>
+    ${casesHTML}
+    <div class="wiki-section-title">&#128737;&#65039; วิธีป้องกันตัวเอง</div>
+    <ul class="wiki-tips-list">${tipsHTML}</ul>
+  `;
+}
+
+function initCyberWiki() {
+  const wikiBtn = document.getElementById('wiki-btn');
+  const wikiBackdrop = document.getElementById('wiki-modal-backdrop');
+  const wikiCloseBtn = document.getElementById('wiki-close-btn');
+  const wikiTabs = document.getElementById('wiki-tabs');
+
+  if (!wikiBtn || !wikiBackdrop) return;
+
+  wikiBtn.onclick = () => {
+    if (typeof playClickSFX === 'function') playClickSFX();
+    wikiBackdrop.classList.remove('hidden');
+    wikiBackdrop.setAttribute('aria-hidden', 'false');
+    renderWikiTopic('phishing');
+  };
+
+  if (wikiCloseBtn) {
+    wikiCloseBtn.onclick = () => {
+      if (typeof playClickSFX === 'function') playClickSFX();
+      wikiBackdrop.classList.add('hidden');
+      wikiBackdrop.setAttribute('aria-hidden', 'true');
+    };
+  }
+
+  wikiBackdrop.addEventListener('click', (e) => {
+    if (e.target === wikiBackdrop) {
+      wikiBackdrop.classList.add('hidden');
+      wikiBackdrop.setAttribute('aria-hidden', 'true');
+    }
+  });
+
+  if (wikiTabs) {
+    wikiTabs.querySelectorAll('.wiki-tab').forEach(tab => {
+      tab.onclick = () => {
+        if (typeof playClickSFX === 'function') playClickSFX();
+        wikiTabs.querySelectorAll('.wiki-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderWikiTopic(tab.dataset.topic);
+      };
+    });
+  }
+}
+
+/* ============================================================
+   PASSPHRASE CRAFTER MINI-GAME
+   ============================================================ */
+
+const passphraseWords = {
+  animals: ['Falcon', 'Raccoon', 'Dolphin', 'Penguin', 'Leopard', 'Platypus', 'Narwhal', 'Capybara', 'Axolotl', 'Quokka'],
+  objects: ['Coffee', 'Lantern', 'Compass', 'Teacup', 'Origami', 'Backpack', 'Crystal', 'Hammock', 'Violin', 'Candle'],
+  actions: ['Dances', 'Encodes', 'Shields', 'Rockets', 'Glitches', 'Deploys', 'Compiles', 'Explores', 'Debugs', 'Streams'],
+  nature: ['Monsoon', 'Glacier', 'Aurora', 'Cactus', 'Volcano', 'Nebula', 'Canyon', 'Tundra', 'Prism', 'Comet']
+};
+
+let currentPassphrase = [];
+
+function rollPassphrase(rerollIndex) {
+  const cats = ['animals', 'objects', 'actions', 'nature'];
+  if (rerollIndex === undefined || rerollIndex < 0) {
+    // Roll all 4 slots
+    currentPassphrase = cats.map(cat => {
+      const words = passphraseWords[cat];
+      return words[Math.floor(Math.random() * words.length)];
+    });
+  } else {
+    // Ensure array is initialized
+    if (currentPassphrase.length === 0) {
+      currentPassphrase = cats.map(cat => {
+        const words = passphraseWords[cat];
+        return words[Math.floor(Math.random() * words.length)];
+      });
+    }
+    const words = passphraseWords[cats[rerollIndex]];
+    currentPassphrase[rerollIndex] = words[Math.floor(Math.random() * words.length)];
+  }
+
+  // Update slot displays
+  currentPassphrase.forEach((word, i) => {
+    const el = document.getElementById('slot-word-' + i);
+    if (el) {
+      el.textContent = word;
+    }
+  });
+
+  // Build passphrase string
+  const year = new Date().getFullYear();
+  const specials = ['!', '#', '@', '$', '&'];
+  const special = specials[Math.floor(Math.random() * specials.length)];
+  const passphrase = currentPassphrase[0] + '-' + currentPassphrase[1] + '-' + currentPassphrase[2] + '-' + currentPassphrase[3] + special + year;
+
+  const resultEl = document.getElementById('passphrase-result-value');
+  if (resultEl) {
+    resultEl.textContent = passphrase;
+    resultEl.dataset.generated = 'true';
+  }
+
+  // Calculate approximate entropy
+  const totalCombinations = Math.pow(10, 4) * 5 * 1000;
+  const bitsEntropy = Math.log2(totalCombinations) + 12;
+  const percentStrength = Math.min(100, Math.round((bitsEntropy / 80) * 100));
+
+  const fillEl = document.getElementById('crack-meter-fill');
+  if (fillEl) fillEl.style.width = percentStrength + '%';
+
+  const strengthEl = document.getElementById('crack-strength-text');
+  if (strengthEl) {
+    if (percentStrength >= 80) strengthEl.textContent = 'Excellent';
+    else if (percentStrength >= 60) strengthEl.textContent = 'Strong';
+    else strengthEl.textContent = 'Medium';
+  }
+
+  // Crack time estimate (1B guesses/sec)
+  const guessesPerSec = 1e9;
+  const totalGuesses = Math.pow(2, bitsEntropy);
+  const seconds = totalGuesses / guessesPerSec;
+  let crackTimeStr;
+  if (seconds > 3.154e16) crackTimeStr = 'Longer than the universe!';
+  else if (seconds > 3.154e9) crackTimeStr = Math.round(seconds / 3.154e9).toLocaleString() + ' billion years';
+  else if (seconds > 3.154e7) crackTimeStr = Math.round(seconds / 3.154e7).toLocaleString() + ' years';
+  else if (seconds > 86400) crackTimeStr = Math.round(seconds / 86400).toLocaleString() + ' days';
+  else crackTimeStr = Math.round(seconds / 3600).toLocaleString() + ' hours';
+
+  const timeEl = document.getElementById('crack-time-estimate');
+  if (timeEl) {
+    timeEl.textContent = 'Crack time (Brute Force @ 1B/s): ' + crackTimeStr;
+    timeEl.dataset.generated = 'true';
+  }
+
+  if (typeof playSuccessSFX === 'function') playSuccessSFX();
+  return passphrase;
+}
+
+function openPassphraseCrafter() {
+  const backdrop = document.getElementById('passphrase-modal-backdrop');
+  if (!backdrop) return;
+  backdrop.classList.remove('hidden');
+  backdrop.setAttribute('aria-hidden', 'false');
+  rollPassphrase();
+}
+
+function initPassphraseCrafter() {
+  const closeBtn = document.getElementById('passphrase-close-btn');
+  const backdrop = document.getElementById('passphrase-modal-backdrop');
+  const rollBtn = document.getElementById('btn-passphrase-roll');
+  const rerollBtn = document.getElementById('btn-passphrase-reroll-one');
+  const copyBtn = document.getElementById('btn-passphrase-copy');
+
+  if (!backdrop) return;
+
+  if (closeBtn) closeBtn.onclick = () => {
+    if (typeof playClickSFX === 'function') playClickSFX();
+    backdrop.classList.add('hidden');
+    backdrop.setAttribute('aria-hidden', 'true');
+  };
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) {
+      backdrop.classList.add('hidden');
+      backdrop.setAttribute('aria-hidden', 'true');
+    }
+  });
+
+  if (rollBtn) rollBtn.onclick = () => { if (typeof playClickSFX === 'function') playClickSFX(); rollPassphrase(); };
+  if (rerollBtn) rerollBtn.onclick = () => {
+    if (typeof playClickSFX === 'function') playClickSFX();
+    if (currentPassphrase.length === 0) { rollPassphrase(); return; }
+    rollPassphrase(Math.floor(Math.random() * 4));
+  };
+  if (copyBtn) copyBtn.onclick = () => {
+    if (typeof playClickSFX === 'function') playClickSFX();
+    const val = document.getElementById('passphrase-result-value');
+    if (val && val.dataset.generated === 'true') {
+      navigator.clipboard.writeText(val.textContent).then(() => {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = originalText; }, 2000);
+      }).catch(() => { copyBtn.textContent = 'Copy failed'; });
+    }
+  };
+
+  // Click individual slot to reroll it
+  for (let i = 0; i < 4; i++) {
+    (function(idx) {
+      const slot = document.getElementById('slot-' + idx);
+      if (slot) slot.onclick = () => { if (typeof playClickSFX === 'function') playClickSFX(); rollPassphrase(idx); };
+    })(i);
+  }
+
+  // Initial roll
+  rollPassphrase();
+}
+
+/* ============================================================
+   ROOM TROPHY & CUSTOMIZATION SYSTEM
+   ============================================================ */
+
+const trophyState = {
+  duck: false,
+  cactus: false,
+  frame: false
+};
+
+function unlockTrophy(name) {
+  if (trophyState[name]) return;
+  trophyState[name] = true;
+  const hotspot = document.getElementById('hotspot-trophy-' + name);
+  if (hotspot) {
+    hotspot.classList.remove('hidden');
+  }
+  if (typeof playSuccessSFX === 'function') playSuccessSFX();
+  console.log('Trophy unlocked: ' + name);
+  saveGameProgress();
+}
+
+function initTrophyHotspots() {
+  const trophyInfo = {
+    duck: {
+      speaker: 'Win (Protagonist)',
+      avatar: '\u{1F986}',
+      text: 'A Rubber Duck Debugger! The trick is: if you cannot solve a bug, explain the problem to the duck out loud. Sometimes just talking through it reveals the answer!'
+    },
+    cactus: {
+      speaker: 'Win (Protagonist)',
+      avatar: '\u{1F335}',
+      text: 'The Cyber Cactus! Like Cyber Resilience skills, a cactus thrives even in harsh conditions — tough, adaptive, and hard to break.'
+    },
+    frame: {
+      speaker: 'Win (Protagonist)',
+      avatar: '\u{1F5BC}\uFE0F',
+      text: 'My certificate frame is on the wall! Proof that I completed all 3 days and became a Grand Cyber Guardian! Click to view it!'
+    }
+  };
+
+  Object.keys(trophyInfo).forEach(key => {
+    const btn = document.getElementById('hotspot-trophy-' + key);
+    if (!btn) return;
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const info = trophyInfo[key];
+      if (key === 'frame') {
+        if (typeof showGameSummaryScreen === 'function') showGameSummaryScreen();
+        return;
+      }
+      if (typeof showDialogueBox === 'function') {
+        showDialogueBox(info.speaker, info.avatar, info.text);
+      }
+      if (typeof playSuccessSFX === 'function') playSuccessSFX();
+    });
+  });
+}
+
+/* ============================================================
+   LOCAL STORAGE SAVE & LOAD
+   ============================================================ */
+
+const SAVE_KEY = 'cybersafehouse_save_v1';
+
+function saveGameProgress() {
+  try {
+    const saveData = {
+      currentDay: gameState.currentDay,
+      score: gameState.score,
+      mistakesCount: gameState.mistakesCount,
+      flags: Object.assign({}, gameState.flags),
+      trophies: Object.assign({}, trophyState),
+      lang: currentLang,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+    console.log('Game progress saved: Day ' + saveData.currentDay + ', ' + saveData.score + ' pts');
+  } catch (e) {
+    console.warn('Save failed:', e);
+  }
+}
+
+function loadGameProgress() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn('Load failed:', e);
+    return null;
+  }
+}
+
+function clearSave() {
+  localStorage.removeItem(SAVE_KEY);
+}
+
+function applyLoadedSave(save) {
+  if (!save) return;
+  gameState.currentDay = save.currentDay || 1;
+  gameState.score = save.score || 0;
+  gameState.mistakesCount = save.mistakesCount || 0;
+  if (save.flags) Object.assign(gameState.flags, save.flags);
+  if (save.trophies) Object.assign(trophyState, save.trophies);
+  if (save.lang) currentLang = save.lang;
+
+  // Restore UI
+  const dayTextElem = document.getElementById('day-text');
+  if (dayTextElem) dayTextElem.textContent = 'Day ' + gameState.currentDay;
+  if (typeof updateScoreUI === 'function') updateScoreUI();
+  if (typeof updateQuestLogUI === 'function') updateQuestLogUI();
+  setLanguage(currentLang);
+
+  // Restore hotspot visibility by day
+  if (gameState.currentDay >= 2 || gameState.flags.day1Completed) {
+    ['hotspot-phone', 'hotspot-usb', 'hotspot-camera'].forEach(function(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
+    });
+  }
+  if (gameState.currentDay >= 3 || gameState.flags.day2Completed) {
+    ['hotspot-deepfake', 'hotspot-attachment', 'hotspot-ransomware'].forEach(function(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
+    });
+  }
+
+  // Restore lighting
+  const gc = document.getElementById('game-container');
+  if (gc) {
+    if (gameState.flags.isMidnightMode) gc.classList.add('midnight-lighting');
+    else if (gameState.currentDay >= 2) gc.classList.add('afternoon-lighting');
+  }
+
+  // Restore trophies
+  if (trophyState.duck) { const el = document.getElementById('hotspot-trophy-duck'); if (el) el.classList.remove('hidden'); }
+  if (trophyState.cactus) { const el = document.getElementById('hotspot-trophy-cactus'); if (el) el.classList.remove('hidden'); }
+  if (trophyState.frame) { const el = document.getElementById('hotspot-trophy-frame'); if (el) el.classList.remove('hidden'); }
+
+  console.log('Game loaded from save:', save);
+}
+
+function initResumeBanner() {
+  const save = loadGameProgress();
+  const banner = document.getElementById('resume-banner');
+  const resumeBtn = document.getElementById('btn-resume-game');
+  const newGameBtn = document.getElementById('btn-new-game');
+  const descEl = document.getElementById('resume-banner-desc');
+
+  if (!save || !banner) return;
+  // Don't show if brand new game or already completed
+  if (save.currentDay === 1 && save.score === 0 && !save.flags.day1Completed) return;
+  if (save.flags && save.flags.day3Completed) return;
+
+  if (descEl) {
+    const t = i18n[currentLang];
+    descEl.textContent = t.resumeDesc + ' Day ' + save.currentDay + ' — ' + save.score + ' ' + t.resumeScore;
+  }
+  banner.classList.remove('hidden');
+
+  if (resumeBtn) {
+    resumeBtn.onclick = function() {
+      if (typeof playClickSFX === 'function') playClickSFX();
+      banner.classList.add('hidden');
+      applyLoadedSave(save);
+      // Continue from current day
+      if (gameState.currentDay === 1 && typeof startIntroDialogue === 'function') startIntroDialogue();
+    };
+  }
+  if (newGameBtn) {
+    newGameBtn.onclick = function() {
+      if (typeof playClickSFX === 'function') playClickSFX();
+      clearSave();
+      banner.classList.add('hidden');
+    };
+  }
+}
+
+/* ============================================================
+   4-PILLAR CYBER RESILIENCE ASSESSMENT
+   ============================================================ */
+
+function calculatePillarScores() {
+  const f = gameState.flags;
+  const m = gameState.mistakesCount || 0;
+  const penalty = Math.min(20, m * 5);
+  function applyPenalty(s) { return Math.max(0, s - penalty); }
+
+  return [
+    {
+      icon: '\u{1F310}',
+      label: 'Network & Infrastructure',
+      score: applyPenalty((f.routerScoreAwarded ? 50 : 0) + (f.cameraScoreAwarded ? 50 : 0))
+    },
+    {
+      icon: '\u{1F3A3}',
+      label: 'Phishing & Deception Detection',
+      score: applyPenalty((f.phishingScoreAwarded ? 50 : 0) + (f.deepfakeScoreAwarded ? 50 : 0))
+    },
+    {
+      icon: '\u{1F4F1}',
+      label: 'Mobile & Physical Hygiene',
+      score: applyPenalty((f.smsScoreAwarded ? 50 : 0) + (f.usbScoreAwarded ? 50 : 0))
+    },
+    {
+      icon: '\u{1F6E1}\uFE0F',
+      label: 'Threat Containment & Response',
+      score: applyPenalty((f.attachmentScoreAwarded ? 50 : 0) + (f.ransomwareScoreAwarded ? 50 : 0))
+    }
+  ];
+}
+
+function renderPillarAssessment() {
+  const summaryCard = document.querySelector('.certificate-card');
+  if (!summaryCard) return;
+  const existing = document.getElementById('assessment-section-new');
+  if (existing) existing.remove();
+
+  const pillars = calculatePillarScores();
+
+  const pillarRows = pillars.map(function(p) {
+    var cls = p.score >= 80 ? 'perfect' : p.score >= 50 ? 'good' : 'partial';
+    return '<div class="pillar-row">' +
+      '<span class="pillar-icon">' + p.icon + '</span>' +
+      '<span class="pillar-label">' + p.label + '</span>' +
+      '<div class="pillar-bar-track"><div class="pillar-bar-fill ' + cls + '" style="width:' + p.score + '%"></div></div>' +
+      '<span class="pillar-pct">' + p.score + '%</span>' +
+      '</div>';
+  }).join('');
+
+  const strengths = pillars.filter(function(p) { return p.score >= 80; })
+    .map(function(p) { return '<span class="pillar-verdict-badge strength">&#9989; ' + p.label + '</span>'; }).join('');
+  const improvements = pillars.filter(function(p) { return p.score < 80; })
+    .map(function(p) { return '<span class="pillar-verdict-badge improve">&#128204; ' + p.label + '</span>'; }).join('');
+
+  const section = document.createElement('div');
+  section.id = 'assessment-section-new';
+  section.className = 'assessment-section';
+  section.innerHTML =
+    '<div class="assessment-section-title">&#128202; Cyber Resilience Assessment — 4 Pillars</div>' +
+    '<div class="pillar-list">' + pillarRows + '</div>' +
+    '<div class="pillar-verdict">' + strengths + improvements + '</div>';
+
+  const actions = summaryCard.querySelector('.certificate-actions');
+  if (actions) summaryCard.insertBefore(section, actions);
+  else summaryCard.appendChild(section);
+}
+
+/* ============================================================
+   INIT ALL NEW EDTECH FEATURES
+   ============================================================ */
+
+function initEdTechFeatures() {
+  initLangToggle();
+  initRainToggle();
+  initCyberWiki();
+  initPassphraseCrafter();
+  initTrophyHotspots();
+  initResumeBanner();
+  console.log('EdTech & Polish Features Initialized!');
+}
+
+// Auto-save when score changes
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    initEdTechFeatures();
+
+    // Patch transitionToDay2 for trophy unlock
+    var origDay2 = window.transitionToDay2;
+    if (typeof origDay2 === 'function') {
+      window.transitionToDay2 = function() {
+        origDay2.apply(this, arguments);
+        unlockTrophy('duck');
+        saveGameProgress();
+      };
+    }
+
+    // Patch transitionToDay3 for trophy unlock
+    var origDay3 = window.transitionToDay3;
+    if (typeof origDay3 === 'function') {
+      window.transitionToDay3 = function() {
+        origDay3.apply(this, arguments);
+        unlockTrophy('cactus');
+        saveGameProgress();
+      };
+    }
+
+    // Patch showGameSummaryScreen to inject pillar assessment
+    var origSummary = window.showGameSummaryScreen;
+    if (typeof origSummary === 'function') {
+      window.showGameSummaryScreen = function() {
+        origSummary.apply(this, arguments);
+        setTimeout(function() {
+          renderPillarAssessment();
+          unlockTrophy('frame');
+          saveGameProgress();
+        }, 100);
+      };
+    }
+  }, 200);
+});
+
+
+// Wire up the Passphrase header button
+(function() {
+  var btn = document.getElementById('passphrase-open-btn');
+  if (btn) {
+    btn.onclick = function() {
+      if (typeof playClickSFX === 'function') playClickSFX();
+      openPassphraseCrafter();
+    };
+  }
+})();

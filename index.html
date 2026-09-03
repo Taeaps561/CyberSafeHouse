@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" id="html-root">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyber Security Awareness - Narrative Point & Click</title>
-  <meta name="description" content="เกม 2D Narrative Point & Click แนว Cyber Security Awareness สไตล์ภาพอบอุ่น สบายตา">
+  <title>CyberSafeHouse — Cyber Security Awareness Game</title>
+  <meta name="description" content="เกม 2D Narrative Point & Click แนว Cyber Security Awareness สไตล์ภาพอบอุ่น สบายตา — เรียนรู้ภัยไซเบอร์แบบสนุก">
+  <meta name="theme-color" content="#c98b58">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CyberSafeHouse">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
 
   <!-- Google Fonts: Prompt & Nunito สำหรับภาษาไทยและอังกฤษที่ดูอบอุ่น มินิมอล -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -230,29 +236,70 @@
           <span class="hotspot-core">🔌</span>
           <span class="hotspot-tooltip">สำรวจปลั๊กไฟพ่วง</span>
         </button>
+
+        <!-- โทรฟี่ที่ 1: เป็ดยางสีเหลือง (ปลดล็อกเมื่อผ่าน Day 1) -->
+        <button class="hotspot-btn trophy-hotspot hidden" id="hotspot-trophy-duck" style="top: 56%; left: 35%;" aria-label="เป็ดยางนักแก้บั๊ก">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">🦆</span>
+          <span class="hotspot-tooltip">เป็ดยาง Rubber Duck Debugger!</span>
+        </button>
+
+        <!-- โทรฟี่ที่ 2: ต้นกระบองเพชร (ปลดล็อกเมื่อผ่าน Day 2) -->
+        <button class="hotspot-btn trophy-hotspot hidden" id="hotspot-trophy-cactus" style="top: 30%; left: 88%;" aria-label="ต้นกระบองเพชร Cyber Cactus">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">🌵</span>
+          <span class="hotspot-tooltip">Cyber Cactus — ทนทานทุกภัยคุกคาม!</span>
+        </button>
+
+        <!-- โทรฟี่ที่ 3: กรอบรูปใบประกาศนียบัตรทอง (ปลดล็อกเมื่อจบเกม Day 3) -->
+        <button class="hotspot-btn trophy-hotspot hidden" id="hotspot-trophy-frame" style="top: 18%; left: 55%;" aria-label="กรอบรูปใบประกาศนียบัตร">
+          <span class="hotspot-ring"></span>
+          <span class="hotspot-core">🖼️</span>
+          <span class="hotspot-tooltip">ใบประกาศนียบัตรของคุณ!</span>
+        </button>
       </div>
 
       <!-- UI Overlay Layer (สำหรับวางบทสนทนา, กล่องตัวเลือก, หรือเมนู) -->
       <div id="ui-layer" class="ui-layer">
         <header class="game-header">
           <div class="header-left">
-            <span class="badge">Cyber Awareness Game</span>
+            <span class="badge" id="badge-label">Cyber Awareness Game</span>
             <!-- ไอคอนสมุดบันทึกภารกิจ (Quest Log) -->
             <button id="quest-log-btn" class="quest-log-btn" aria-label="เปิดสมุดบันทึกภารกิจ" title="สมุดบันทึกภารกิจ">
               <span class="quest-log-icon">📓</span>
-              <span class="quest-log-label">สมุดภารกิจ</span>
+              <span class="quest-log-label" id="quest-log-label-text">สมุดภารกิจ</span>
               <span id="quest-badge-dot" class="quest-badge-dot"></span>
+            </button>
+            <!-- ปุ่มสารานุกรมความรู้ไซเบอร์ (Cyber Wiki) -->
+            <button id="wiki-btn" class="wiki-btn" aria-label="เปิดสารานุกรมความรู้ไซเบอร์" title="Cyber Safe Wiki">
+              <span class="wiki-icon">📖</span>
+              <span class="wiki-label" id="wiki-label-text">Cyber Wiki</span>
             </button>
             <!-- ปุ่มควบคุมเสียงดนตรี Lofi BGM และเอฟเฟกต์ -->
             <button id="audio-toggle-btn" class="audio-toggle-btn" aria-label="เปิด/ปิดเสียงดนตรี Lofi BGM" title="เปิด/ปิดเสียง BGM">
               <span class="audio-icon" id="audio-toggle-icon">🎵</span>
               <span class="audio-label" id="audio-toggle-label">BGM: เปิด</span>
             </button>
+            <!-- ปุ่มเปิด/ปิดเสียงฝน (Rain Ambience) -->
+            <button id="rain-toggle-btn" class="rain-toggle-btn" aria-label="เปิด/ปิดเสียงฝน" title="เสียงฝนริมหน้าต่าง">
+              <span class="rain-icon" id="rain-toggle-icon">🌧️</span>
+              <span class="rain-label" id="rain-toggle-label">ฝน: ปิด</span>
+            </button>
+            <!-- ปุ่ม Passphrase Crafter มินิเกมรหัสผ่าน -->
+            <button id="passphrase-open-btn" class="passphrase-open-btn" aria-label="เปิด Passphrase Crafter" title="สร้างรหัสผ่าน Passphrase">
+              <span class="passphrase-open-icon">🧩</span>
+              <span class="passphrase-open-label">Passphrase</span>
+            </button>
             <span class="status-indicator" id="game-status-hint">💡 โหมดบทนำ</span>
           </div>
 
-          <!-- แถบ UI ด้านขวาบน: แสดง Day และ Security Score -->
+          <!-- แถบ UI ด้านขวาบน: ปุ่มสลับภาษา, Day และ Security Score -->
           <div class="header-right">
+            <!-- ปุ่มสลับภาษา TH / EN -->
+            <button id="lang-toggle-btn" class="lang-toggle-btn" aria-label="สลับภาษา / Switch Language" title="TH / EN">
+              <span class="lang-toggle-indicator" id="lang-indicator">🌐</span>
+              <span class="lang-text" id="lang-text">TH</span>
+            </button>
             <div class="day-tracker" id="day-tracker">
               <span class="day-icon">📅</span>
               <span class="day-text" id="day-text">Day 1</span>
@@ -1265,6 +1312,129 @@
     </div>
   </main>
 
+  <!-- ============================================================
+    Cyber Wiki Modal (สารานุกรมความรู้ไซเบอร์ 8 หัวข้อ)
+  ============================================================ -->
+  <div id="wiki-modal-backdrop" class="wiki-modal-backdrop hidden" aria-hidden="true" role="dialog" aria-label="Cyber Safe Wiki">
+    <div class="wiki-modal-card">
+      <button class="wiki-close-btn" id="wiki-close-btn" aria-label="ปิด Cyber Wiki">✕</button>
+      <div class="wiki-header">
+        <span class="wiki-header-icon">📖</span>
+        <div>
+          <h2 class="wiki-title" id="wiki-title-text">สารานุกรมความรู้ไซเบอร์ประจำบ้าน</h2>
+          <p class="wiki-subtitle" id="wiki-subtitle-text">Cyber Safe Wiki — เรียนรู้ภัยคุกคามดิจิทัลในชีวิตจริง</p>
+        </div>
+      </div>
+      <div class="wiki-body">
+        <!-- แท็บเลือกหัวข้อ (Tab Navigation) -->
+        <nav class="wiki-tabs" id="wiki-tabs" role="tablist">
+          <button class="wiki-tab active" data-topic="phishing" role="tab">📧 Phishing</button>
+          <button class="wiki-tab" data-topic="brute-force" role="tab">📡 Brute Force</button>
+          <button class="wiki-tab" data-topic="2fa" role="tab">🔑 2FA</button>
+          <button class="wiki-tab" data-topic="sms-scam" role="tab">📱 SMS Scam</button>
+          <button class="wiki-tab" data-topic="usb-attack" role="tab">💾 BadUSB</button>
+          <button class="wiki-tab" data-topic="iot" role="tab">📹 IoT</button>
+          <button class="wiki-tab" data-topic="deepfake" role="tab">🎭 Deepfake AI</button>
+          <button class="wiki-tab" data-topic="ransomware" role="tab">🔒 Ransomware</button>
+        </nav>
+        <!-- เนื้อหา (Content Panel) -->
+        <div class="wiki-content-panel" id="wiki-content-panel">
+          <!-- เนื้อหาจะถูกใส่โดย game.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+    Passphrase Crafter Modal (มินิเกมผสมคำรหัสผ่าน)
+  ============================================================ -->
+  <div id="passphrase-modal-backdrop" class="passphrase-modal-backdrop hidden" aria-hidden="true" role="dialog" aria-label="Passphrase Crafter">
+    <div class="passphrase-modal-card">
+      <button class="passphrase-close-btn" id="passphrase-close-btn" aria-label="ปิด Passphrase Crafter">✕</button>
+      <div class="passphrase-header">
+        <span class="passphrase-header-icon">🧩</span>
+        <div>
+          <h2 class="passphrase-title" id="passphrase-title-text">Passphrase Crafter</h2>
+          <p class="passphrase-subtitle" id="passphrase-subtitle-text">สร้างรหัสผ่านแบบ Passphrase — จำง่าย แต่คอมพิวเตอร์ Brute Force ยาก!</p>
+        </div>
+      </div>
+
+      <!-- การ์ดคำศัพท์ 4 ช่อง (4 Slots) -->
+      <div class="passphrase-slots" id="passphrase-slots">
+        <div class="passphrase-slot" id="slot-0">
+          <div class="slot-category" id="slot-cat-0">🐾 สัตว์</div>
+          <div class="slot-word" id="slot-word-0">—</div>
+        </div>
+        <div class="passphrase-sep">+</div>
+        <div class="passphrase-slot" id="slot-1">
+          <div class="slot-category" id="slot-cat-1">🍵 สิ่งของ</div>
+          <div class="slot-word" id="slot-word-1">—</div>
+        </div>
+        <div class="passphrase-sep">+</div>
+        <div class="passphrase-slot" id="slot-2">
+          <div class="slot-category" id="slot-cat-2">⚡ การกระทำ</div>
+          <div class="slot-word" id="slot-word-2">—</div>
+        </div>
+        <div class="passphrase-sep">+</div>
+        <div class="passphrase-slot" id="slot-3">
+          <div class="slot-category" id="slot-cat-3">🌿 ธรรมชาติ</div>
+          <div class="slot-word" id="slot-word-3">—</div>
+        </div>
+      </div>
+
+      <!-- ผลลัพธ์ Passphrase -->
+      <div class="passphrase-result-box" id="passphrase-result-box">
+        <div class="passphrase-result-label" id="passphrase-result-label">รหัสผ่านของคุณ:</div>
+        <div class="passphrase-result-value" id="passphrase-result-value">กดสุ่มเพื่อสร้างรหัสผ่าน</div>
+      </div>
+
+      <!-- มาตรวัดเวลาแฮก (Crack Time Calculator) -->
+      <div class="crack-time-box" id="crack-time-box">
+        <div class="crack-meter-row">
+          <span class="crack-meter-label" id="crack-meter-label">🔐 ความแข็งแกร่ง:</span>
+          <div class="crack-meter-bar">
+            <div class="crack-meter-fill" id="crack-meter-fill" style="width:0%"></div>
+          </div>
+          <span class="crack-strength-text" id="crack-strength-text">—</span>
+        </div>
+        <div class="crack-time-estimate" id="crack-time-estimate">⏱️ เวลาแฮก (Brute Force): —</div>
+      </div>
+
+      <!-- ปุ่มควบคุม -->
+      <div class="passphrase-controls">
+        <button class="btn-passphrase-roll" id="btn-passphrase-roll">🎲 สุ่มคำใหม่</button>
+        <button class="btn-passphrase-roll btn-secondary" id="btn-passphrase-reroll-one">🔄 เปลี่ยนคำเดียว</button>
+        <button class="btn-passphrase-copy" id="btn-passphrase-copy">📋 คัดลอกรหัสผ่าน</button>
+      </div>
+      <p class="passphrase-tip" id="passphrase-tip-text">💡 เคล็ดลับ: Passphrase 4 คำ (~50 bits entropy) แข็งแกร่งกว่า "P@ss123" มาก แต่จำง่ายกว่าหลายเท่า!</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+    Resume Game Banner (ระบบบันทึกความคืบหน้า)
+  ============================================================ -->
+  <div id="resume-banner" class="resume-banner hidden" role="alert" aria-live="polite">
+    <div class="resume-banner-content">
+      <span class="resume-icon">💾</span>
+      <div class="resume-text">
+        <strong id="resume-banner-title">พบข้อมูลการเล่นที่บันทึกไว้!</strong>
+        <span id="resume-banner-desc">คุณเล่นค้างไว้ที่ Day 1 — คะแนน 0 คะแนน</span>
+      </div>
+      <div class="resume-actions">
+        <button id="btn-resume-game" class="btn-resume">▶️ เล่นต่อ</button>
+        <button id="btn-new-game" class="btn-new-game">🔄 เริ่มใหม่</button>
+      </div>
+    </div>
+  </div>
+
   <script src="game.js"></script>
+  <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').then(() => {
+        console.log('✅ Service Worker registered for PWA offline support.');
+      }).catch(err => console.warn('SW registration failed:', err));
+    }
+  </script>
 </body>
 </html>
