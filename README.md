@@ -1,4 +1,4 @@
-# 🛡️ Cozy Cyber Security Awareness Game
+# 🛡️ CyberSafeHouse - Cozy Cyber Security Awareness Game
 
 เกม 2D Narrative Point & Click สไตล์อบอุ่น สบายตา สำหรับสร้างความตระหนักรู้ด้านความปลอดภัยทางไซเบอร์ (Cyber Security Awareness) เล่นบนเว็บเบราว์เซอร์
 
