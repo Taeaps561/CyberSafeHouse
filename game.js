@@ -216,6 +216,107 @@ function initHotspots() {
       openCameraModal();
     };
   }
+
+  // จุดสำรวจสิ่งของตกแต่ง (Easter Eggs & Interactive Props)
+  const bookshelfBtn = document.getElementById('hotspot-bookshelf');
+  const coffeeNoteBtn = document.getElementById('hotspot-coffee-note');
+  const powerstripBtn = document.getElementById('hotspot-powerstrip');
+
+  if (bookshelfBtn) {
+    bookshelfBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('📚 Hotspot Bookshelf clicked!');
+      inspectBookshelf();
+    };
+  }
+
+  if (coffeeNoteBtn) {
+    coffeeNoteBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('☕ Hotspot Coffee & Note clicked!');
+      inspectCoffeeNote();
+    };
+  }
+
+  if (powerstripBtn) {
+    powerstripBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🔌 Hotspot Power Strip clicked!');
+      inspectPowerstrip();
+    };
+  }
+}
+
+/**
+ * ==========================================================================
+ * ระบบจุดสำรวจสิ่งของตกแต่งในห้อง (Easter Eggs & Interactive Props)
+ * ==========================================================================
+ */
+
+/**
+ * สำรวจชั้นหนังสือ (Bookshelf)
+ */
+function inspectBookshelf() {
+  if (gameState.mode === 'minigame' || gameState.mode === 'game_over') return;
+
+  gameState.mode = 'inspect';
+  gameState.dialogueIndex = 0;
+  gameState.activeDialogueQueue = [
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '📚',
+      text: 'มีหนังสือ Cyber Security 101 วางอยู่... เคล็ดลับบอกว่าควรรองรับและเปิดใช้งาน 2FA (Two-Factor Authentication) ในทุกบัญชีเสมอ เพื่อเพิ่มความปลอดภัยอีกชั้น!'
+    }
+  ];
+
+  updateStatusIndicator('📚 กำลังสำรวจชั้นหนังสือ');
+  openDialogueBox();
+  showCurrentDialogue();
+}
+
+/**
+ * สำรวจแก้วกาแฟและกระดาษโน้ตบนโต๊ะ (Coffee Mug & Post-it Note)
+ */
+function inspectCoffeeNote() {
+  if (gameState.mode === 'minigame' || gameState.mode === 'game_over') return;
+
+  gameState.mode = 'inspect';
+  gameState.dialogueIndex = 0;
+  gameState.activeDialogueQueue = [
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '☕',
+      text: 'แก้วกาแฟยังอุ่นๆ อยู่เลย ข้างๆ มีกระดาษโน้ตเขียนเตือนใจว่า: "อย่าเขียนรหัสผ่านแปะไว้ใต้คีย์บอร์ดหรือหน้าจอนะ!" แอบน่ารักและเตือนสติได้ดีมาก'
+    }
+  ];
+
+  updateStatusIndicator('☕ กำลังสำรวจแก้วกาแฟและโน้ตบนโต๊ะ');
+  openDialogueBox();
+  showCurrentDialogue();
+}
+
+/**
+ * สำรวจปลั๊กไฟพ่วงใต้โต๊ะ (Power Strip under Desk)
+ */
+function inspectPowerstrip() {
+  if (gameState.mode === 'minigame' || gameState.mode === 'game_over') return;
+
+  gameState.mode = 'inspect';
+  gameState.dialogueIndex = 0;
+  gameState.activeDialogueQueue = [
+    {
+      speaker: 'วิน (ตัวเอก)',
+      avatar: '🔌',
+      text: 'สายไฟและปลั๊กพ่วงใต้โต๊ะถูกจัดวางอย่างเป็นระเบียบ ไม่เสียบอุปกรณ์โหลดไฟเกิน และมีระบบตัดไฟอัตโนมัติ ช่วยปกป้องฮาร์ดแวร์คอมพิวเตอร์จากไฟกระชาก'
+    }
+  ];
+
+  updateStatusIndicator('🔌 กำลังสำรวจปลั๊กไฟพ่วงใต้โต๊ะ');
+  openDialogueBox();
+  showCurrentDialogue();
 }
 
 /**
@@ -2469,6 +2570,38 @@ function drawProceduralRoomFallback(ctx, width, height) {
   ctx.fillRect(270, 476, 18, 180);
   ctx.fillRect(620, 476, 18, 180);
 
+  // ปลั๊กไฟพ่วงใต้โต๊ะ (Power Strip under Desk)
+  ctx.fillStyle = '#f8fafc';
+  ctx.beginPath();
+  ctx.roundRect(330, 618, 68, 18, 4);
+  ctx.fill();
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // ไฟสวิตช์สีแดงเรืองแสง (Illuminated Power Switch)
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(335, 622, 10, 10);
+
+  // เต้ารับปลั๊กไฟ 3 ช่อง (3 Outlets with ground)
+  ctx.fillStyle = '#334155';
+  for (let i = 0; i < 3; i++) {
+    const ox = 354 + i * 14;
+    ctx.fillRect(ox, 622, 2, 5);
+    ctx.fillRect(ox + 5, 622, 2, 5);
+    ctx.beginPath();
+    ctx.arc(ox + 3.5, 630, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // สายไฟสีเทาเข้มต่อลงพื้น (Power Cable)
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(330, 627);
+  ctx.bezierCurveTo(310, 632, 295, 646, 280, 654);
+  ctx.stroke();
+
   // แผ่นรองเมาส์ / Deskpad
   ctx.fillStyle = '#556371';
   ctx.beginPath();
@@ -2514,6 +2647,20 @@ function drawProceduralRoomFallback(ctx, width, height) {
   ctx.fillRect(364, 323, 85, 5);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
   ctx.fillRect(364, 338, 168, 52);
+
+  // กระดาษโน้ตสีเหลืองแปะข้างแก้วกาแฟ (Post-it Password Warning Note)
+  ctx.fillStyle = '#fef08a';
+  ctx.beginPath();
+  ctx.roundRect(518, 423, 20, 22, 2);
+  ctx.fill();
+  ctx.strokeStyle = '#fde047';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  // ข้อความจำลองบนโน้ต
+  ctx.fillStyle = '#ca8a04';
+  ctx.fillRect(522, 427, 12, 2);
+  ctx.fillRect(522, 432, 10, 2);
+  ctx.fillRect(522, 437, 8, 2);
 
   // แก้วกาแฟบนโต๊ะ (Coffee Mug)
   ctx.fillStyle = '#d97d54';
